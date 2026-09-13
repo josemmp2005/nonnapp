@@ -1,13 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 import { pool } from './db.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { applySchema } from './lib/migrate.js';
 
 const run = async () => {
-  const sql = readFileSync(path.join(__dirname, 'schema.sql'), 'utf-8');
-  await pool.query(sql);
+  await applySchema();
   console.log('✅ Esquema aplicado correctamente.');
   await pool.end();
 };

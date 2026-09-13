@@ -27,7 +27,12 @@ const RESEND_VERIFICATION_COOLDOWN_MS = 60 * 1000; // 1 min entre reenvíos por 
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: 'lax' as const,
+  // 'none' en producción: frontend (Vercel) y backend (Render) viven en
+  // dominios distintos, así que la cookie de sesión viaja en fetch()
+  // cross-site — con 'lax' el navegador la descarta y el login parece
+  // funcionar (200 OK) pero /api/auth/me nunca ve la cookie después.
+  // Requiere Secure (ya activo con isProd), si no el navegador la rechaza.
+  sameSite: isProd ? ('none' as const) : ('lax' as const),
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',
 };

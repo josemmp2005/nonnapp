@@ -97,6 +97,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | Variable | Para qué |
 |---|---|
 | `DATABASE_URL` | Cadena de conexión a Postgres |
+| `DB_SSL` | `true` solo con un Postgres gestionado que exige TLS (Neon, Render...). El de docker-compose no lo soporta |
 | `JWT_SECRET` | Firma de las cookies de sesión — cambiarlo cierra la sesión a todo el mundo |
 | `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
 | `APP_URL` | Usada para construir el link de "restablecer contraseña" en el email |
@@ -130,12 +131,35 @@ Para desarrollo normal **no hace falta esto** — `npm run dev` (con hot reload)
 
 ```bash
 docker compose up -d --build      # levanta Postgres + Adminer + server + web
-docker compose exec server npm run db:init:dist   # aplica el esquema (una vez, o tras cambiar schema.sql)
 ```
+
+El propio `server` aplica `schema.sql` solo al arrancar (es idempotente: `CREATE TABLE`/`ADD COLUMN IF NOT EXISTS`), así que no hace falta ningún paso manual — `docker compose exec server npm run db:init:dist` sigue existiendo por si quieres aplicar un cambio de esquema sin reiniciar el contenedor.
 
 Luego entra en **http://localhost:8082**. El `server` necesita `server/.env` con las claves reales (`GROQ_API_KEY`, `JWT_SECRET`, etc. — ver la tabla de variables de entorno más arriba); `DATABASE_URL`, `CORS_ORIGIN` y `APP_URL` los sobreescribe el propio `docker-compose.yml` para que apunten a la red interna de Docker y al puerto publicado de `web`, así que no hace falta tocarlos ahí.
 
 Para parar solo estos dos servicios y volver al flujo normal de `npm run dev` (dejando Postgres/Adminer corriendo): `docker compose stop server web`.
+
+## Despliegue gratuito (Neon + Render + Vercel)
+
+Frontend, backend y base de datos en tres servicios gratuitos, cada uno con su dominio propio (por eso frontend y backend son **cross-site**: la cookie de sesión necesita `SameSite=None; Secure`, ya gestionado automáticamente por `isProd` en `server/src/routes/auth.ts` — no hay que tocar nada ahí).
+
+1. **Base de datos — [Neon](https://neon.tech)**: crea un proyecto (Postgres gratis, sin tarjeta). Copia la *connection string* que te da (incluye `?sslmode=require`).
+2. **Backend — [Render](https://render.com)**: "New Web Service" → conecta el repo → Environment: **Docker** (usa [`server/Dockerfile`](server/Dockerfile) tal cual, sin cambios) → Root Directory: `server`. Variables de entorno (Render → el propio servicio → *Environment*):
+
+   | Variable | Valor |
+   |---|---|
+   | `DATABASE_URL` | La connection string de Neon |
+   | `DB_SSL` | `true` |
+   | `JWT_SECRET` | Genera uno: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
+   | `GROQ_API_KEY` / `GROQ_MODEL` | Tu clave de Groq |
+   | `CORS_ORIGIN` / `APP_URL` | La URL de Vercel del paso 3 (se rellena después de crearla, y se vuelve a desplegar) |
+
+   Render asigna su propio `PORT` (el servidor ya lo respeta vía `env.ts`) y expone la API en algo como `https://sabora-api.onrender.com`. El esquema de la BBDD se aplica solo al arrancar — no hace falta ningún paso manual. En el plan gratuito el servicio "duerme" tras 15 min sin tráfico y el primer request tras eso tarda ~30-50s en responder (arranque en frío) — normal, no es un fallo.
+
+3. **Frontend — [Vercel](https://vercel.com)**: "Add New Project" → importa el repo (Root Directory: la raíz, Framework: Vite, se detecta solo). Variable de entorno: `VITE_API_URL` = la URL de Render del paso 2. [`vercel.json`](vercel.json) ya incluye el rewrite para que React Router funcione en rutas como `/app/history` al recargar. Vite incrusta `VITE_API_URL` en el build, así que si cambia hay que volver a desplegar (no basta con cambiar la variable).
+4. Vuelve a Render y actualiza `CORS_ORIGIN`/`APP_URL` con la URL real de Vercel, y redeploy el backend.
+
+Login con Google y envío de emails son opcionales (ver tabla de variables más arriba) — se pueden dejar sin configurar para este primer despliegue sin romper nada más.
 
 ## Esquema de datos
 
