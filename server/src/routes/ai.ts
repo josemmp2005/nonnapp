@@ -1,20 +1,19 @@
 import { Router } from 'express';
-import { GoogleGenAI } from '@google/genai';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';
 import { requirePlan } from '../middleware/plan.js';
-import { env } from '../env.js';
+import { createAiRateLimiter } from '../middleware/rateLimit.js';
 import { pool } from '../db.js';
 import { groqChat } from '../lib/groq.js';
 import { getActivePlan } from '../lib/subscription.js';
 import { validateBody } from '../lib/validate.js';
-import { generateRecipeSchema, generateImageSchema, chatSchema } from '../lib/schemas.js';
+import { generateRecipeSchema, chatSchema } from '../lib/schemas.js';
 
 const router = Router();
 // Exige email verificado (igual que recipes/profile/subscription): una cuenta
 // sin verificar no puede usar nada de la app, no solo generar con IA.
-router.use(requireAuth, requireVerifiedEmail);
-
-const ai = new GoogleGenAI({ apiKey: env.geminiApiKey });
+// El rate limiter va después de requireAuth para poder limitar por usuario
+// (req.userId), no por IP: cada llamada aquí cuesta dinero real en Groq.
+router.use(requireAuth, requireVerifiedEmail, createAiRateLimiter());
 
 const RECIPE_JSON_FORMAT = `Responde ÚNICAMENTE con un objeto JSON válido (sin markdown, sin texto extra), con esta forma exacta:
 {
@@ -29,38 +28,55 @@ const RECIPE_JSON_FORMAT = `Responde ÚNICAMENTE con un objeto JSON válido (sin
   },
   "ingredients": [ { "item": "string", "quantity": "string" } ],
   "utensils": [ "string" ],
-  "steps": [ { "step_number": number, "instruction": "string", "visual_tag": "string", "visual_prompt": "string, descripción visual detallada del paso" } ]
+  "steps": [ { "step_number": number, "instruction": "string", "visual_tag": "string" } ]
 }`;
 
 router.post('/generate-recipe', validateBody(generateRecipeSchema), async (req, res) => {
-  const { prompt, mode, ingredients, servings, timeLimit, utensils, userProfile } = req.body;
+  const { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot } = req.body;
 
-  // El modo despensa (hasAdvancedPantry en el frontend) es de pago — se
-  // comprueba aquí porque la restricción de la UI no basta, cualquiera puede
-  // llamar a esta ruta directamente con mode: 'pantry'.
-  if (mode === 'pantry') {
-    const plan = await getActivePlan(pool, req.userId!);
-    if (plan === 'nipote') {
-      return res.status(403).json({ error: 'PLAN_REQUIRED', plan, requiredPlans: ['mamma', 'nonna'] });
-    }
+  const plan = await getActivePlan(pool, req.userId!);
+  const isPro = plan === 'mamma' || plan === 'nonna';
+
+  // El modo despensa es de pago — se comprueba aquí porque la restricción de
+  // la UI no basta, cualquiera puede llamar a esta ruta directamente con
+  // mode: 'pantry'.
+  if (mode === 'pantry' && !isPro) {
+    return res.status(403).json({ error: 'PLAN_REQUIRED', plan, requiredPlans: ['mamma', 'nonna'] });
   }
+
+  // Alergias e ingredientes no deseados se leen de lo que el usuario tiene
+  // guardado en BBDD, NUNCA de un `userProfile` mandado en el body: si se
+  // confiara en el body, cualquiera podría colar alergias falsas, y un
+  // usuario de Il Nipote podría saltarse el bloqueo de arriba con solo
+  // escribir en el campo sin llegar a pulsar "guardar" (el estado del
+  // formulario en React cambia con cada tecla, se guarde o no).
+  const { rows: profileRows } = await pool.query(
+    `SELECT allergies, disliked_ingredients, hability FROM user_profiles WHERE user_id = $1`,
+    [req.userId]
+  );
+  const storedProfile = profileRows[0];
+  const allergies = isPro ? storedProfile?.allergies || '' : '';
+  const dislikedIngredients = isPro ? storedProfile?.disliked_ingredients || '' : '';
+  const cookingSkill = storedProfile?.hability || 'intermediate';
 
   let systemInstruction = `
     Eres un chef experto asistido por IA.
     Tu objetivo es generar recetas detalladas y estructuradas en formato JSON estricto.
 
     Contexto del usuario:
-    - Alergias: ${userProfile?.allergies || 'Ninguna'}
-    - Ingredientes odiados: ${userProfile?.disliked_ingredients || 'Ninguno'}
-    - Nivel de habilidad: ${userProfile?.cooking_skill || 'intermediate'}
+    - Alergias: ${allergies || 'Ninguna'}
+    - Ingredientes odiados: ${dislikedIngredients || 'Ninguno'}
+    - Nivel de habilidad: ${cookingSkill}
 
     Si el modo es 'pantry', prioriza usar los ingredientes mencionados.
     Si el modo es 'text', inspírate en la descripción creativa.
-    Debes generar visual prompts para imágenes de cada paso.
 
     ${RECIPE_JSON_FORMAT}
   `;
   if (utensils) systemInstruction += `\nUtensilios disponibles: ${utensils}`;
+  systemInstruction += hasKitchenRobot
+    ? '\nEl usuario tiene un robot de cocina (tipo Thermomix/Mambo): puedes aprovecharlo para simplificar pasos (picar, sofreír, cocinar a temperatura controlada, amasar, etc.) cuando tenga sentido.'
+    : '\nEl usuario NO tiene robot de cocina: da instrucciones con utensilios y técnicas de cocina tradicionales, sin depender de uno.';
   if (timeLimit && timeLimit !== 'unlimited') {
     systemInstruction += `\nIMPORTANTE: La receta DEBE poder prepararse y cocinarse en menos de ${timeLimit}.`;
   }
@@ -89,37 +105,7 @@ router.post('/generate-recipe', validateBody(generateRecipeSchema), async (req, 
   }
 });
 
-router.post('/generate-image', validateBody(generateImageSchema), requirePlan('mamma', 'nonna'), async (req, res) => {
-  if (!env.geminiApiKey) {
-    // Sin clave de Gemini configurada: se degrada a "sin imagen" en vez de romper el flujo.
-    return res.json({ success: true, imageUrl: null });
-  }
-
-  const { prompt } = req.body;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: env.geminiModelImage,
-      contents: { parts: [{ text: prompt }] },
-      config: {},
-    });
-
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData) {
-        return res.json({
-          success: true,
-          imageUrl: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`,
-        });
-      }
-    }
-    return res.json({ success: true, imageUrl: null });
-  } catch (err) {
-    console.warn('Error generando imagen:', err);
-    return res.json({ success: true, imageUrl: null }); // fallback silencioso, como el flujo actual
-  }
-});
-
-router.post('/chat', validateBody(chatSchema), requirePlan('mamma', 'nonna'), async (req, res) => {
+router.post('/chat', validateBody(chatSchema), requirePlan('nonna'), async (req, res) => {
   const { question, recipeContext, history } = req.body;
 
   const systemInstruction = `

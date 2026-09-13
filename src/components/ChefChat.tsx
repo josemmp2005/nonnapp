@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
-import { askChefAboutRecipe } from '../services/gemini-edge';
+import { askChefAboutRecipe } from '../services/ai';
 
 interface Props {
   recipe: AIRecipeResponse;
@@ -37,8 +37,8 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
     setMessages(prev => [...prev, { role: 'user', text: userMsg }]);
     setLoading(true);
 
-    // Filter messages for history to avoid sending too much context if not needed, 
-    // though Gemini handles context well.
+    // Filter messages for history to avoid sending too much context if not needed,
+    // though the model handles context well.
     const responseText = await askChefAboutRecipe(userMsg, recipe, messages);
 
     setMessages(prev => [...prev, { role: 'model', text: responseText }]);

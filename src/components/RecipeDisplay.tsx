@@ -1,35 +1,29 @@
 import React, { useState } from 'react';
-import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Camera, Loader2, Printer, Lock, Crown } from 'lucide-react';
+import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock, Crown } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import CookMode from './CookMode';
 import ShoppingListModal from './ShoppingListModal';
 import ChefChat from './ChefChat';
-import { generateRecipeImage } from '../services/gemini-edge';
 
 interface Props {
   recipe: AIRecipeResponse;
   imageUrl: string | null;
   onGenerateAgain: () => void;
-  isPro?: boolean;
 }
 
-const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain, isPro = false }) => {
+const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) => {
   const { recipe_metadata, ingredients, utensils, steps } = recipe;
   const { showToast } = useToast();
   const { limits } = useSubscription();
-  
+
   const [isCookModeOpen, setIsCookModeOpen] = useState(false);
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
 
-  // State for step images
-  const [stepImages, setStepImages] = useState<Record<number, string>>({});
-  const [loadingSteps, setLoadingSteps] = useState<Record<number, boolean>>({});
-
   const handleChefChatClick = () => {
     if (!limits.hasChefChat) {
-      showToast('El chat con el Chef está disponible en los planes La Mamma y La Nonna. ¡Actualiza para disfrutarlo!', 'info');
+      showToast('El chat con el Chef está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!', 'info');
     }
   };
 
@@ -58,31 +52,6 @@ Generado por nonnapp
 
   const handlePrint = () => {
     window.print();
-  };
-
-  const handleGenerateStepImage = async (stepNumber: number, prompt: string) => {
-    if (!isPro) {
-        showToast('Esta función es exclusiva para usuarios Pro.', 'info');
-        return;
-    }
-
-    if (loadingSteps[stepNumber] || stepImages[stepNumber]) return;
-
-    setLoadingSteps(prev => ({ ...prev, [stepNumber]: true }));
-    try {
-        const enhancedPrompt = `Photorealistic food photography action shot: ${prompt}. Close up, professional lighting, 4k.`;
-        const img = await generateRecipeImage(enhancedPrompt);
-        if (img) {
-            setStepImages(prev => ({ ...prev, [stepNumber]: img }));
-        } else {
-            showToast('No se pudo generar la imagen del paso.', 'error');
-        }
-    } catch (e) {
-        console.error(e);
-        showToast('Error generando imagen.', 'error');
-    } finally {
-        setLoadingSteps(prev => ({ ...prev, [stepNumber]: false }));
-    }
   };
 
   return (
@@ -273,46 +242,7 @@ Generado por nonnapp
                                 {step.instruction}
                             </p>
                         </div>
-                        
-                        {/* Action Button for Image Generation (Hidden in Print) */}
-                        <div className="no-print">
-                            <button 
-                                onClick={() => handleGenerateStepImage(step.step_number, step.visual_prompt)}
-                                disabled={loadingSteps[step.step_number] || !!stepImages[step.step_number]}
-                                className={`p-2 rounded-lg transition-colors ${
-                                    stepImages[step.step_number] ? 'text-green-500 bg-green-50 dark:bg-green-900/20' : 
-                                    !isPro ? 'text-amber-400 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/30' :
-                                    'text-[#8C7C63] hover:text-primary hover:bg-orange-50 dark:hover:bg-orange-900/20'
-                                }`}
-                                title={
-                                    stepImages[step.step_number] ? "Imagen generada" : 
-                                    !isPro ? "Función PRO: Generar imagen del paso" :
-                                    "Ver imagen del paso"
-                                }
-                            >
-                                {loadingSteps[step.step_number] ? (
-                                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                                ) : !isPro && !stepImages[step.step_number] ? (
-                                    <Lock className="w-5 h-5" />
-                                ) : (
-                                    <Camera className="w-5 h-5" />
-                                )}
-                            </button>
-                        </div>
                     </div>
-
-                    {/* Step Image */}
-                    {stepImages[step.step_number] && (
-                        <div className="ml-15 pl-15 animate-in fade-in zoom-in duration-300">
-                            <div className="rounded-xl overflow-hidden h-48 md:h-64 relative bg-[#FCF6EC] dark:bg-[#130F0A] border border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-                                <img 
-                                    src={stepImages[step.step_number]} 
-                                    alt={`Paso ${step.step_number}`}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        </div>
-                    )}
                 </div>
               </div>
             ))}

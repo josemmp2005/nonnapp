@@ -15,8 +15,6 @@ export const env = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
-  geminiApiKey: process.env.GEMINI_API_KEY || '',
-  geminiModelImage: process.env.GEMINI_MODEL_IMAGE || 'imagen-3.0-generate-001',
   gmailUser: process.env.GMAIL_USER || '',
   gmailAppPassword: process.env.GMAIL_APP_PASSWORD || '',
   appUrl: process.env.APP_URL || 'http://localhost:5173',

@@ -12,7 +12,7 @@ class RateLimiter {
   private queue: QueueItem[] = [];
   private processing = false;
   private lastCallTime = 0;
-  private minInterval = 5000; // 5 segundos para evitar rate limits de Gemini
+  private minInterval = 5000; // 5 segundos entre llamadas a la IA (Groq)
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ class RateLimiter {
 }
 
 // Instancia global
-export const geminiRateLimiter = new RateLimiter();
+export const aiRateLimiter = new RateLimiter();
 
 /**
  * Cache simple para evitar llamadas duplicadas

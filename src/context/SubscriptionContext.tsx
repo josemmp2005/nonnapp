@@ -22,29 +22,32 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
   Nipote: {
     maxRecipesPerDay: 2,
     hasAdvancedPantry: false,
-    hasImageGeneration: false,
     hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: false,
     hasPrioritySupport: false,
+    hasChefPreferences: false,
   },
   Mamma: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
-    hasChefChat: true,
+    // El chat del chef y La Mesa de la Nonna pasaron a ser exclusivos de La
+    // Nonna — antes los tenía también La Mamma. La generación de fotos se
+    // eliminó de la app por completo (ya no se usa Gemini para nada).
+    hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: true,
     hasPrioritySupport: false,
+    hasChefPreferences: true,
   },
   Nonna: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
     hasChefChat: true,
     hasWeeklyPlanner: true,
     hasFullHistory: true,
     hasPrioritySupport: true,
+    hasChefPreferences: true,
   },
 };
 

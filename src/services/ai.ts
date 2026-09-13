@@ -1,5 +1,5 @@
-import type { AIRecipeResponse, UserProfile } from '../types';
-import { geminiRateLimiter, recipeCache } from '../utils/rateLimiter';
+import type { AIRecipeResponse } from '../types';
+import { aiRateLimiter, recipeCache } from '../utils/rateLimiter';
 import { getMockRecipe } from './mock-recipe';
 import { apiFetch, ApiError } from './api';
 
@@ -15,7 +15,7 @@ export class EmailNotVerifiedError extends Error {
   }
 }
 
-// La UI ya oculta el modo despensa / la foto / el chat para el plan gratis
+// La UI ya oculta el modo despensa / el chat para el plan gratis
 // (SubscriptionContext.tsx), así que esto no debería dispararse en uso normal
 // — es la red de seguridad si algo llama a estas funciones sin pasar por esa
 // comprobación, para no enseñar "PLAN_REQUIRED" en crudo en un toast.
@@ -30,36 +30,39 @@ const isPlanRequiredError = (error: unknown): boolean =>
   error instanceof ApiError && error.status === 403 && error.message === 'PLAN_REQUIRED';
 
 /**
- * Genera una receta llamando a la API propia (server/src/routes/ai.ts),
- * que es quien tiene la clave de Gemini — nunca el navegador.
+ * Genera una receta llamando a la API propia (server/src/routes/ai.ts), que
+ * es quien tiene la clave de Groq — nunca el navegador. Alergias/ingredientes
+ * no deseados/nivel de habilidad los añade el propio backend a partir de lo
+ * que el usuario tiene guardado (no se mandan aquí): así el plan gratis no
+ * puede colárselos sin pasar por el guardado bloqueado de Preferencias.
  */
 export const generateRecipeAI = async (
   prompt: string,
   mode: 'text' | 'pantry',
-  userProfile: UserProfile,
   timeLimit?: string,
   ingredients?: string,
   servings?: number,
-  utensils?: string
+  utensils?: string,
+  hasKitchenRobot?: boolean
 ): Promise<AIRecipeResponse> => {
   if (USE_MOCK_RECIPE) {
-    console.warn('⚠️ USANDO DATOS MOCK - Gemini API en rate limit');
+    console.warn('⚠️ USANDO DATOS MOCK - la IA está en rate limit');
     await new Promise((resolve) => setTimeout(resolve, 1000));
     return getMockRecipe(prompt);
   }
 
-  const cacheKey = JSON.stringify({ prompt, mode, ingredients, servings, timeLimit, utensils });
+  const cacheKey = JSON.stringify({ prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot });
   const cached = recipeCache.get(cacheKey);
   if (cached) {
     console.log('✅ Receta obtenida del caché');
     return cached as AIRecipeResponse;
   }
 
-  return geminiRateLimiter.execute(async () => {
+  return aiRateLimiter.execute(async () => {
     try {
       const result = await apiFetch<{ success: boolean; data: AIRecipeResponse }>('/api/ai/generate-recipe', {
         method: 'POST',
-        body: { prompt, mode, ingredients, servings, timeLimit, utensils, userProfile },
+        body: { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot },
       });
 
       recipeCache.set(cacheKey, result.data);
@@ -77,19 +80,6 @@ export const generateRecipeAI = async (
   });
 };
 
-export const generateRecipeImage = async (prompt: string): Promise<string | null> => {
-  try {
-    const result = await apiFetch<{ success: boolean; imageUrl: string | null }>('/api/ai/generate-image', {
-      method: 'POST',
-      body: { prompt },
-    });
-    return result.imageUrl;
-  } catch (error) {
-    console.error('Error generando imagen:', error);
-    return null;
-  }
-};
-
 export const askChefAboutRecipe = async (
   question: string,
   recipe: AIRecipeResponse,
@@ -104,7 +94,7 @@ export const askChefAboutRecipe = async (
   } catch (error) {
     console.error('Error en el chat:', error);
     if (isPlanRequiredError(error)) {
-      return 'El chat con el chef está disponible en los planes La Mamma y La Nonna.';
+      return 'El chat con el chef está disponible en el plan La Nonna.';
     }
     return 'Hubo un error al procesar tu pregunta.';
   }

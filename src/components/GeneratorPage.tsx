@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, generateRecipeImage, EmailNotVerifiedError, PlanRequiredError } from '../services/gemini-edge';
+import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError } from '../services/ai';
 import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -23,7 +23,6 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
-  const [currentImage, setCurrentImage] = useState<string | null>(null);
 
   // Safety check: if userProfile is not available, show error
   if (!userProfile) {
@@ -68,42 +67,27 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
     setIsLoading(true);
     setCurrentRecipe(null);
-    setCurrentImage(null);
 
     try {
       // 1. Generate Recipe Text
       const generatedRecipe = await generateRecipeAI(
-        params.prompt, 
-        params.mode, 
-        userProfile, 
+        params.prompt,
+        params.mode,
         params.timeLimit,
         params.ingredients,
         params.servings,
-        params.utensils
+        params.utensils,
+        params.hasKitchenRobot
       );
       generatedRecipe.recipe_metadata.servings = params.servings; 
       
       setCurrentRecipe(generatedRecipe);
 
-      // 3. Generate Image (only for paid plans)
-      let generatedImage: string | null = null;
-      if (limits.hasImageGeneration) {
-        const imagePrompt = `
-          Professional high-end food photography of the final dish: ${generatedRecipe.recipe_metadata.title}.
-          Visual context: ${generatedRecipe.recipe_metadata.description.substring(0, 150)}.
-          Style: Michelin star plating, 8k resolution, hyper-realistic, soft studio lighting, shallow depth of field (bokeh).
-          CRITICAL: Real food only. No people, no text.
-        `.trim();
-
-        generatedImage = await generateRecipeImage(imagePrompt);
-        setCurrentImage(generatedImage);
-      }
-
-      // 4. Save to DB and increment counter
+      // 3. Save to DB and increment counter
       const userId = session?.user?.id;
       if (userId) {
         try {
-          await saveRecipeToDB(generatedRecipe, params.prompt, generatedImage);
+          await saveRecipeToDB(generatedRecipe, params.prompt, null);
           incrementRecipeCount(); // Increment after successful generation
 
           // Se calcula a partir del valor ya leído arriba en vez de releer
@@ -125,7 +109,6 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
             showToast('❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.', 'error');
             // No mostrar la receta si no se pudo guardar por límite
             setCurrentRecipe(null);
-            setCurrentImage(null);
             return;
           }
           // Otro tipo de error al guardar
@@ -150,7 +133,6 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
   const resetView = () => {
     setCurrentRecipe(null);
-    setCurrentImage(null);
   };
 
   return (
@@ -208,11 +190,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           />
         </div>
       ) : (
-        <RecipeDisplay 
-          recipe={currentRecipe} 
-          imageUrl={currentImage} 
+        <RecipeDisplay
+          recipe={currentRecipe}
+          imageUrl={null}
           onGenerateAgain={resetView}
-          isPro={limits.hasImageGeneration}
         />
       )}
     </div>

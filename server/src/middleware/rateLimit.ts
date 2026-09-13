@@ -27,3 +27,30 @@ export const createTokenRateLimiter = () =>
     legacyHeaders: false,
     message: { error: 'Demasiados intentos. Inténtalo de nuevo en unos minutos.' },
   });
+
+// Backstop montado sobre toda /api: límite generoso por IP para frenar abuso
+// genérico (scraping, bots) sin molestar a un usuario normal navegando la app.
+export const createApiRateLimiter = () =>
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Demasiadas peticiones. Inténtalo de nuevo en unos minutos.' },
+  });
+
+// /api/ai/*: cada llamada cuesta dinero real (API de Groq). Antes no tenía
+// ningún límite propio — el único freno era el máximo de 2 recetas/día de
+// Il Nipote, y ese límite se comprueba al GUARDAR la receta (routes/recipes.ts),
+// no al generarla, así que cualquier cuenta (de cualquier plan) podía llamar a
+// /generate-recipe en bucle sin guardar nada y quemar cuota sin límite. Se
+// limita por usuario (no por IP) porque el coste lo genera la cuenta, no la IP.
+export const createAiRateLimiter = () =>
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 30,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => req.userId || req.ip || 'anonymous',
+    message: { error: 'Demasiadas generaciones seguidas. Espera unos minutos antes de volver a intentarlo.' },
+  });

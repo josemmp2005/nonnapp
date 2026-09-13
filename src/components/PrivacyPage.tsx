@@ -57,7 +57,7 @@ const PrivacyPage: React.FC = () => {
                 Solo compartimos información con:
               </p>
               <ul className="list-disc pl-6 text-[#3A2E1D] dark:text-[#D4D4D8] space-y-2">
-                <li><strong>Proveedores de servicios:</strong> Supabase (almacenamiento), Google Gemini (IA), proveedores de email</li>
+                <li><strong>Proveedores de servicios:</strong> Groq (generación de recetas y chat con IA), Google (si inicias sesión con Google), proveedores de email</li>
                 <li><strong>Requisitos legales:</strong> Cuando sea requerido por ley</li>
               </ul>
             </section>

@@ -9,7 +9,7 @@ Este documento es la referencia **de código** (stack, arquitectura, cómo levan
 - **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + React Router.
 - **Backend**: Node.js + Express + TypeScript, driver `pg` directo (sin ORM).
 - **Base de datos**: PostgreSQL (local, vía Docker).
-- **IA**: [Groq](https://groq.com) (texto de las recetas y chat del chef) + Gemini (opcional, solo para generar la foto del plato).
+- **IA**: [Groq](https://groq.com) — texto de las recetas y chat del chef. No hay generación de imágenes.
 - **Auth**: propia — email/password, JWT firmado por el servidor en una cookie `httpOnly`. No usa Supabase ni ningún proveedor externo.
 
 ## Estructura del repo
@@ -23,7 +23,7 @@ sabora-app/
       api.ts                Wrapper fetch de bajo nivel (cookies, JSON, errores)
       auth.ts                Login/signup/logout/reset — llama a /api/auth/*
       data.ts                Recetas/preferencias/suscripción — llama al resto de /api/*
-      gemini-edge.ts          Llama a /api/ai/* (generar receta, imagen, chat)
+      ai.ts                   Llama a /api/ai/* (generar receta, chat)
     types.ts               Tipos compartidos del dominio (Recipe, UserProfile, ...)
   server/                 Backend (Express)
     src/
@@ -101,7 +101,6 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
 | `APP_URL` | Usada para construir el link de "restablecer contraseña" en el email |
 | `GROQ_API_KEY` / `GROQ_MODEL` | Generación de recetas y chat del chef |
-| `GEMINI_API_KEY` / `GEMINI_MODEL_IMAGE` | Opcional — solo la foto del plato. Sin ella, la receta se genera igual, sin imagen |
 | `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Opcional — envío real de emails (bienvenida, reset de contraseña). Sin ellas, el email se loguea en consola en vez de enviarse |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Opcional — login con Google. Credenciales de Google Cloud Console; `GOOGLE_REDIRECT_URI` debe coincidir exactamente con la que se da de alta ahí. Sin ellas, el botón de Google redirige con un error en vez de romper el resto del login |
 
@@ -180,12 +179,11 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 | GET | `/api/recipes/:id` | ✔ + verificado | Receta completa (pasos, ingredientes, utensilios) — 404 si no es tuya |
 | POST | `/api/recipes` | ✔ + verificado | Guarda una receta generada (aplica el límite diario del plan gratis) |
 | GET | `/api/profile/preferences` | ✔ + verificado | Preferencias del chef + si el plan es "pro" |
-| PUT | `/api/profile/preferences` | ✔ + verificado | Guarda preferencias |
+| PUT | `/api/profile/preferences` | ✔ + verificado (+ Mamma/Nonna si `allergies`/`disliked_ingredients` no van vacíos) | Guarda preferencias |
 | GET | `/api/subscription` | ✔ + verificado | Plan activo |
-| POST | `/api/subscription/toggle` | ✔ + verificado | **Demo**, sin pago real: activa/desactiva el plan Mamma |
+| POST | `/api/subscription/change` | ✔ + verificado | **Demo**, sin pago real: cambia el plan activo a `nipote`\|`mamma`\|`nonna` |
 | POST | `/api/ai/generate-recipe` | ✔ + verificado (+ Mamma/Nonna si `mode: 'pantry'`) | Genera una receta (Groq) |
-| POST | `/api/ai/generate-image` | ✔ + verificado + Mamma/Nonna | Genera la foto del plato (Gemini, opcional) |
-| POST | `/api/ai/chat` | ✔ + verificado + Mamma/Nonna | Chat del chef sobre una receta (Groq) |
+| POST | `/api/ai/chat` | ✔ + verificado + Nonna | Chat del chef sobre una receta (Groq) |
 
 ## Notas de arquitectura
 
@@ -194,8 +192,9 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 - **Verificación de email**: al registrarse se manda un email con un link de un solo uso (`/verify-email?token=...`, caduca en 24h). Hasta que se verifica, la cuenta no puede usar nada de la app: el backend devuelve 403 `EMAIL_NOT_VERIFIED` en `/api/recipes/*`, `/api/profile/*`, `/api/subscription/*` y `/api/ai/*` (middleware `requireVerifiedEmail`), y el frontend muestra una pantalla de bloqueo en cualquier ruta de `/app` en vez del contenido real (`ProtectedRoute` en `App.tsx` + `EmailVerificationGate.tsx`). Las rutas de gestión de la propia cuenta (`/me`, `/logout`, `/update-password`, `/resend-verification`) siguen abiertas para que el usuario pueda reenviar el email o cerrar sesión.
 - **Rate limiting**: `express-rate-limit` en las rutas de auth más sensibles a fuerza bruta / abuso (login, signup, forgot-password, reset-password, verify-email). En memoria del proceso — se resetea si el backend se reinicia; suficiente para un solo proceso, no pensado para desplegar detrás de varias instancias sin un store compartido (Redis).
 - **Validación de entrada**: todas las rutas que reciben body (`auth`, `recipes`, `profile`, `subscription`, `ai`) validan con `zod` (`server/src/lib/schemas.ts` + `server/src/lib/validate.ts`) — tipos, longitudes máximas y formatos antes de tocar la BBDD o llamar a la IA.
-- **IA**: la clave de Groq/Gemini vive solo en `server/.env` — el frontend nunca ve una API key de IA, todo pasa por `/api/ai/*` con sesión y email verificado.
+- **IA**: la clave de Groq vive solo en `server/.env` — el frontend nunca ve una API key de IA, todo pasa por `/api/ai/*` con sesión y email verificado. No hay generación de imágenes (se usó Gemini para eso hasta que se quitó del todo).
 - **Apagado limpio**: el backend maneja `SIGTERM`/`SIGINT` (`server/src/index.ts`) — al recibirlos deja de aceptar conexiones nuevas, espera a que terminen las que ya estaban en curso, cierra el pool de Postgres y solo entonces sale (con un límite de 10s para no quedar colgado si algo no cierra). Importa sobre todo en Docker: `docker stop` manda `SIGTERM` y sin esto Node muere en seco a mitad de una request o con conexiones a Postgres abiertas.
 - **Login con Google**: OAuth 2.0 implementado a mano (sin Passport ni ninguna librería — solo `fetch` contra los endpoints de Google en `server/src/lib/google.ts`), con `state` anti-CSRF en una cookie httpOnly propia. Si el email de Google coincide con una cuenta ya creada por contraseña, se enlaza esa cuenta (`google_id`) en vez de duplicarla, y se marca `email_verified = true` directamente (Google ya lo verificó). `password_hash` es `NULL` para cuentas que solo entraron por Google — el login por contraseña lo detecta y responde con el mismo error genérico. Se degrada solo (redirige con `?error=google_not_configured`) si `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` no están puestas.
-- **Límites por plan, aplicados en el servidor**: los `limits.hasX` de `SubscriptionContext.tsx` (modo despensa, foto, chat) son solo para ocultar botones en la UI — la restricción real vive en `server/src/middleware/plan.ts` (`requirePlan(...planes)`) y en un chequeo puntual dentro de `POST /api/ai/generate-recipe` para el modo despensa. Llamar a esas rutas directamente sin pasar por la UI devuelve 403 `PLAN_REQUIRED` igual. El plan activo de un usuario se resuelve en un único sitio (`server/src/lib/subscription.ts`, `getActivePlan`/`getActiveSubscription`) — antes esa misma query vivía copiada en tres archivos de rutas distintos.
+- **Límites por plan, aplicados en el servidor**: los `limits.hasX` de `SubscriptionContext.tsx` (modo despensa, foto, chat, preferencias del chef) son solo para ocultar botones/secciones en la UI — la restricción real vive en `server/src/middleware/plan.ts` (`requirePlan(...planes)`), en un chequeo puntual dentro de `POST /api/ai/generate-recipe` para el modo despensa, y en `PUT /api/profile/preferences` para alergias/ingredientes. Llamar a esas rutas directamente sin pasar por la UI devuelve 403 `PLAN_REQUIRED` igual. El plan activo de un usuario se resuelve en un único sitio (`server/src/lib/subscription.ts`, `getActivePlan`/`getActiveSubscription`) — antes esa misma query vivía copiada en tres archivos de rutas distintos.
+- **Alergias/ingredientes no deseados nunca se leen del cliente**: `POST /api/ai/generate-recipe` los saca de `user_profiles` en BBDD usando `req.userId`, no de un `userProfile` mandado en el body (ese campo se quitó del schema). Es a propósito — el estado de React de la página de Preferencias cambia con cada tecla, se guarde o no, así que confiar en lo que mande el cliente habría dejado sin efecto el bloqueo de `PUT /preferences` para Il Nipote. Si el plan activo es `nipote`, tanto `GET /preferences` como la generación fuerzan esos campos a vacío aunque hubiera datos guardados de un plan de pago anterior.
 - **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): pasarela de pago real para los planes de pago, subida de avatar.

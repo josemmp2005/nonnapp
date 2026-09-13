@@ -7,6 +7,7 @@ import type { UserProfile as UserProfileType, RecipeDB } from '../types';
 import { Sparkles, Coffee, Zap, Utensils, ArrowRight } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
 import ChefTableWidget from './ChefTableWidget';
+import RecipePreviewModal from './RecipePreviewModal';
 
 interface Props {
   userProfile: UserProfileType;
@@ -19,6 +20,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
   const [recentRecipes, setRecentRecipes] = useState<RecipeDB[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [quickInput, setQuickInput] = useState('');
+  const [previewId, setPreviewId] = useState<number | null>(null);
   
   // Saludo basado en la hora
   const [greeting, setGreeting] = useState('');
@@ -52,7 +54,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
   };
 
   const handleHistorySelect = (recipe: RecipeDB) => {
-    navigate(`/app/recipe/${recipe.id}`);
+    if (recipe.id != null) setPreviewId(recipe.id);
   };
 
   const triggerQuickAction = (action: string) => {
@@ -205,12 +207,16 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                 <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6]">Tus Creaciones Recientes</h3>
                 <button onClick={() => navigate('/app/history')} className="text-sm text-primary hover:underline">Ver todo</button>
             </div>
-            <HistoryList 
-              recipes={recentRecipes} 
+            <HistoryList
+              recipes={recentRecipes}
               isLoading={isHistoryLoading}
-              onSelect={handleHistorySelect} 
+              onSelect={handleHistorySelect}
             />
         </div>
+
+        {previewId != null && (
+          <RecipePreviewModal recipeId={previewId} onClose={() => setPreviewId(null)} />
+        )}
     </div>
   );
 };

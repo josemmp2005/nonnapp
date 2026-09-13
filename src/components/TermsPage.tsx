@@ -29,7 +29,7 @@ const TermsPage: React.FC = () => {
             <div className="prose text-[#5C4E3A] dark:text-[#A89C86] text-sm leading-relaxed space-y-4">
               <p>
                 Bienvenido a nonnapp. Al utilizar nuestra aplicación web, aceptas cumplir con los siguientes términos y condiciones.
-                Este servicio utiliza Inteligencia Artificial (Gemini) para generar contenido culinario.
+                Este servicio utiliza Inteligencia Artificial (Groq) para generar contenido culinario.
               </p>
               <p>
                 <strong>Uso de la IA:</strong> Las recetas y consejos generados son sugerencias creativas basadas en modelos de lenguaje. 
@@ -64,10 +64,10 @@ const TermsPage: React.FC = () => {
                   <strong>Preferencias Culinarias:</strong> Almacenamos tus alergias y utensilios para personalizar los prompts enviados a la IA.
                 </li>
                 <li>
-                  <strong>Imágenes:</strong> Las imágenes de perfil y de recetas generadas se almacenan de forma segura en nuestra base de datos.
+                  <strong>Imágenes:</strong> La imagen de perfil (si inicias sesión con Google) se almacena de forma segura en nuestra base de datos.
                 </li>
                 <li>
-                  <strong>Terceros:</strong> No vendemos tus datos. Utilizamos Google Gemini API para el procesamiento de recetas.
+                  <strong>Terceros:</strong> No vendemos tus datos. Utilizamos la API de Groq para generar el contenido de las recetas.
                 </li>
               </ul>
             </div>
