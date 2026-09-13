@@ -16,7 +16,9 @@ serve(async (req) => {
 
     // Get Gemini API key from environment
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY')
-    const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL_TEXT') || 'gemini-2.0-flash-lite'
+    const GEMINI_MODEL = 'gemini-2.0-flash-exp'
+
+    console.log('🔍 Using Gemini model:', GEMINI_MODEL)
 
     if (!GEMINI_API_KEY) {
       throw new Error('GEMINI_API_KEY not configured in Supabase secrets')
@@ -82,11 +84,11 @@ Formato JSON requerido:
     // Call Gemini API with retry logic
     let response
     let retries = 0
-    const maxRetries = 2 // Reducido a 2 para evitar timeout
+    const maxRetries = 2
     
     while (retries < maxRetries) {
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 25000) // 25 segundos timeout
+      const timeoutId = setTimeout(() => controller.abort(), 25000)
       
       try {
         response = await fetch(
@@ -128,7 +130,7 @@ Formato JSON requerido:
 
       // If rate limited (429), wait and retry
       if (response.status === 429 && retries < maxRetries - 1) {
-        const waitTime = Math.pow(2, retries) * 1000 // Exponential backoff: 1s, 2s
+        const waitTime = Math.pow(2, retries) * 1000
         console.log(`Rate limited. Waiting ${waitTime}ms before retry ${retries + 1}/${maxRetries}`)
         await new Promise(resolve => setTimeout(resolve, waitTime))
         retries++
@@ -141,13 +143,19 @@ Formato JSON requerido:
 
     if (!response.ok) {
       const error = await response.text()
-      console.error('Gemini API error:', error)
+      console.error('Gemini API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: error,
+        timestamp: new Date().toISOString(),
+        retries: retries
+      })
       
       if (response.status === 429) {
-        throw new Error('Límite de solicitudes excedido. Por favor, espera unos minutos antes de intentar de nuevo.')
+        throw new Error(`⚠️ Rate Limit de Gemini API (429). Detalles: ${error.substring(0, 200)}`)
       }
       
-      throw new Error(`Gemini API error: ${response.status}`)
+      throw new Error(`Gemini API error: ${response.status} - ${error.substring(0, 100)}`)
     }
 
     const data = await response.json()

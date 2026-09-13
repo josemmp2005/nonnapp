@@ -1,195 +1,111 @@
-import { SUPABASE_URL } from "../constants";
-import type { AIRecipeResponse, UserProfile } from "../types";
-import { supabaseClient } from "./supabase";
-import { geminiRateLimiter, recipeCache } from "../utils/rateLimiter";
-import { getMockRecipe } from "./mock-recipe";
+import type { AIRecipeResponse, UserProfile } from '../types';
+import { geminiRateLimiter, recipeCache } from '../utils/rateLimiter';
+import { getMockRecipe } from './mock-recipe';
+import { apiFetch, ApiError } from './api';
 
-// 🚨 DESARROLLO: Activa esto si la API de Gemini está en rate limit (429)
-const USE_MOCK_RECIPE = false; // Cambia a true para usar datos de prueba
+// Datos de prueba para desarrollo local sin gastar cuota de la IA. Nunca se
+// activa en build de producción (import.meta.env.DEV es `false` ahí, y Vite
+// lo sustituye en build time — esbuild elimina esta rama entera del bundle).
+const USE_MOCK_RECIPE = import.meta.env.DEV && import.meta.env.VITE_USE_MOCK_RECIPE === 'true';
+
+export class EmailNotVerifiedError extends Error {
+  constructor() {
+    super('EMAIL_NOT_VERIFIED');
+    this.name = 'EmailNotVerifiedError';
+  }
+}
+
+// La UI ya oculta el modo despensa / la foto / el chat para el plan gratis
+// (SubscriptionContext.tsx), así que esto no debería dispararse en uso normal
+// — es la red de seguridad si algo llama a estas funciones sin pasar por esa
+// comprobación, para no enseñar "PLAN_REQUIRED" en crudo en un toast.
+export class PlanRequiredError extends Error {
+  constructor() {
+    super('PLAN_REQUIRED');
+    this.name = 'PlanRequiredError';
+  }
+}
+
+const isPlanRequiredError = (error: unknown): boolean =>
+  error instanceof ApiError && error.status === 403 && error.message === 'PLAN_REQUIRED';
 
 /**
- * Generate recipe using Supabase Edge Function
- * This keeps the Gemini API key secure on the server
+ * Genera una receta llamando a la API propia (server/src/routes/ai.ts),
+ * que es quien tiene la clave de Gemini — nunca el navegador.
  */
 export const generateRecipeAI = async (
-  prompt: string, 
-  mode: 'text' | 'pantry', 
+  prompt: string,
+  mode: 'text' | 'pantry',
   userProfile: UserProfile,
   timeLimit?: string,
   ingredients?: string,
   servings?: number,
   utensils?: string
 ): Promise<AIRecipeResponse> => {
-  
-  // 🚨 MOCK MODE: Para desarrollo cuando API está en límite
   if (USE_MOCK_RECIPE) {
     console.warn('⚠️ USANDO DATOS MOCK - Gemini API en rate limit');
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simular delay
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return getMockRecipe(prompt);
   }
-  
-  // Crear clave de caché basada en los parámetros
+
   const cacheKey = JSON.stringify({ prompt, mode, ingredients, servings, timeLimit, utensils });
-  
-  // Verificar caché
   const cached = recipeCache.get(cacheKey);
   if (cached) {
     console.log('✅ Receta obtenida del caché');
     return cached as AIRecipeResponse;
   }
 
-  // Usar rate limiter para controlar frecuencia
   return geminiRateLimiter.execute(async () => {
-    const queueLength = geminiRateLimiter.getQueueLength();
-    if (queueLength > 0) {
-      console.log(`⏳ Hay ${queueLength} solicitudes en cola. Por favor espera...`);
-    }
-
     try {
-      // Get the session token for authenticated requests
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      
-      // Call the Edge Function
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-recipe`, {
+      const result = await apiFetch<{ success: boolean; data: AIRecipeResponse }>('/api/ai/generate-recipe', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token || ''}`,
-        },
-        body: JSON.stringify({
-          prompt,
-          mode,
-          ingredients,
-          servings,
-          timeLimit,
-          utensils,
-          userProfile
-        })
+        body: { prompt, mode, ingredients, servings, timeLimit, utensils, userProfile },
       });
 
-    if (!response.ok) {
-      let errorMessage = 'Failed to generate recipe';
-      try {
-        const error = await response.json();
-        errorMessage = error.error || error.message || errorMessage;
-        
-        // Log detailed error info
-        console.error('Edge Function Error Details:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorResponse: error,
-          timestamp: new Date().toISOString()
-        });
-      } catch {
-        errorMessage = `Server error: ${response.status} ${response.statusText}`;
-        console.error('Edge Function Error (no JSON):', {
-          status: response.status,
-          statusText: response.statusText,
-          timestamp: new Date().toISOString()
-        });
+      recipeCache.set(cacheKey, result.data);
+      return result.data;
+    } catch (error: any) {
+      console.error('Error generando receta:', error);
+      if (error instanceof ApiError && error.status === 403 && error.message === 'EMAIL_NOT_VERIFIED') {
+        throw new EmailNotVerifiedError();
       }
-      throw new Error(errorMessage);
+      if (isPlanRequiredError(error)) {
+        throw new PlanRequiredError();
+      }
+      throw new Error(error.message || 'No se pudo generar la receta. Intenta de nuevo.');
     }
-
-    const result = await response.json();
-    
-    if (!result.success) {
-      throw new Error(result.error || 'Recipe generation failed');
-    }
-
-    // Guardar en caché
-    recipeCache.set(cacheKey, result.data);
-
-    return result.data;
-  } catch (error: any) {
-    console.error('Error calling Edge Function:', {
-      message: error.message,
-      stack: error.stack,
-      fullError: error,
-      timestamp: new Date().toISOString()
-    });
-    throw new Error(error.message || 'Failed to generate recipe. Please try again.');
-  }
   });
 };
 
-/**
- * Generate recipe image using Supabase Edge Function
- */
 export const generateRecipeImage = async (prompt: string): Promise<string | null> => {
   try {
-    console.log('📸 Llamando a Edge Function generate-image...');
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-image`, {
+    const result = await apiFetch<{ success: boolean; imageUrl: string | null }>('/api/ai/generate-image', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token || ''}`,
-      },
-      body: JSON.stringify({ prompt })
+      body: { prompt },
     });
-
-    if (!response.ok) {
-      console.error('❌ Image generation failed:', response.status, response.statusText);
-      const errorText = await response.text();
-      console.error('Error details:', errorText);
-      return null;
-    }
-
-    const result = await response.json();
-    console.log('📦 Response from generate-image:', result.success ? '✅ Success' : '❌ Failed');
-    return result.success ? result.imageUrl : null;
+    return result.imageUrl;
   } catch (error) {
-    console.error('❌ Error generating image:', error);
+    console.error('Error generando imagen:', error);
     return null;
   }
 };
 
-/**
- * Ask chef questions about a recipe (chat functionality)
- */
 export const askChefAboutRecipe = async (
   question: string,
   recipe: AIRecipeResponse,
   chatHistory: Array<{ role: string; text: string }>
 ): Promise<string> => {
   try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    
-    // You could create a separate edge function for chat, or extend generate-recipe
-    // For now, we'll call generate-recipe with a chat-style prompt
-    const prompt = `Pregunta del usuario sobre la receta "${recipe.recipe_metadata.title}": ${question}
-
-Receta completa:
-${JSON.stringify(recipe, null, 2)}
-
-Historial de chat:
-${chatHistory.map(m => `${m.role}: ${m.text}`).join('\n')}
-
-Responde de forma concisa y útil como un chef experto.`;
-
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-recipe`, {
+    const result = await apiFetch<{ reply: string }>('/api/ai/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token || ''}`,
-      },
-      body: JSON.stringify({
-        prompt,
-        mode: 'text',
-        userProfile: {}
-      })
+      body: { question, recipeContext: recipe, history: chatHistory },
     });
-
-    if (!response.ok) {
-      return "Lo siento, no pude procesar tu pregunta. Intenta de nuevo.";
-    }
-
-    const result = await response.json();
-    return result.data?.recipe_metadata?.description || "Lo siento, no pude generar una respuesta.";
+    return result.reply;
   } catch (error) {
-    console.error('Error in chef chat:', error);
-    return "Hubo un error al procesar tu pregunta.";
+    console.error('Error en el chat:', error);
+    if (isPlanRequiredError(error)) {
+      return 'El chat con el chef está disponible en los planes La Mamma y La Nonna.';
+    }
+    return 'Hubo un error al procesar tu pregunta.';
   }
 };

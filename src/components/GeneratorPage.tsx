@@ -4,8 +4,8 @@ import { useLocation } from 'react-router-dom';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, generateRecipeImage } from '../services/gemini-edge';
-import { checkSmartCache, saveRecipeToDB } from '../services/supabase';
+import { generateRecipeAI, generateRecipeImage, EmailNotVerifiedError, PlanRequiredError } from '../services/gemini-edge';
+import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
@@ -18,7 +18,7 @@ interface Props {
 
 const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const { showToast } = useToast();
-  const { subscription, limits, checkRecipeLimit, incrementRecipeCount } = useSubscription();
+  const { subscription, limits, checkRecipeLimit, incrementRecipeCount, markDailyLimitReached } = useSubscription();
   const location = useLocation();
   
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +30,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
     return (
       <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
         <div className="text-center">
-          <p className="text-gray-500 dark:text-gray-400">Cargando perfil de usuario...</p>
+          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
         </div>
       </div>
     );
@@ -60,7 +60,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
     }
 
     // Check recipe limit for free users
-      const { canGenerate } = checkRecipeLimit();
+    const { canGenerate, remaining: remainingBeforeGenerate } = checkRecipeLimit();
     if (!canGenerate) {
       showToast('Has alcanzado el límite de 2 recetas diarias. Actualiza a La Mamma para recetas ilimitadas.', 'error');
       return;
@@ -71,20 +71,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
     setCurrentImage(null);
 
     try {
-      // 1. Check Cache (Skip for "Chef Styles" which are usually unique requests)
-      if (!params.prompt.includes('Estilo de cocina')) {
-        const cachedRecipe = await checkSmartCache(params.prompt);
-        if (cachedRecipe) {
-          console.log("Smart Cache HIT");
-          setCurrentRecipe(cachedRecipe);
-          setCurrentImage(cachedRecipe.main_image_url || null);
-          showToast('¡Receta encontrada en caché!', 'success');
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // 2. Generate Recipe Text
+      // 1. Generate Recipe Text
       const generatedRecipe = await generateRecipeAI(
         params.prompt, 
         params.mode, 
@@ -116,10 +103,12 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       const userId = session?.user?.id;
       if (userId) {
         try {
-          await saveRecipeToDB(userId, generatedRecipe, params.prompt, generatedImage);
+          await saveRecipeToDB(generatedRecipe, params.prompt, generatedImage);
           incrementRecipeCount(); // Increment after successful generation
-          
-          const { remaining } = checkRecipeLimit();
+
+          // Se calcula a partir del valor ya leído arriba en vez de releer
+          // localStorage otra vez: canGenerate=true garantiza remainingBeforeGenerate >= 1.
+          const remaining = remainingBeforeGenerate === Infinity ? Infinity : remainingBeforeGenerate - 1;
           if (remaining === 1) {
             showToast('Receta guardada. Te queda 1 receta hoy.', 'success');
           } else if (remaining === 0) {
@@ -129,7 +118,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           }
         } catch (saveError: any) {
           // Detectar error de límite diario desde el backend
-          if (saveError.name === 'DailyLimitError' || saveError.message === 'DAILY_LIMIT_EXCEEDED') {
+          if (saveError instanceof DailyLimitError) {
+            // El servidor manda: si dice que ya no quedan, el contador local
+            // (que pudo desincronizarse) se corrige para que no siga mintiendo.
+            markDailyLimitReached();
             showToast('❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.', 'error');
             // No mostrar la receta si no se pudo guardar por límite
             setCurrentRecipe(null);
@@ -143,7 +135,13 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       }
 
     } catch (err: any) {
-      showToast("Lo siento, hubo un error generando tu receta. Intenta de nuevo.", 'error');
+      if (err instanceof EmailNotVerifiedError) {
+        showToast('Verifica tu email antes de generar recetas. Revisa tu bandeja de entrada.', 'error');
+      } else if (err instanceof PlanRequiredError) {
+        showToast('El modo despensa está disponible en los planes La Mamma y La Nonna.', 'error');
+      } else {
+        showToast("Lo siento, hubo un error generando tu receta. Intenta de nuevo.", 'error');
+      }
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -166,10 +164,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl mb-2 shadow-inner">
                 <Sparkles className="w-8 h-8 text-primary" />
              </div>
-             <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white">
+             <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">
                El Laboratorio del Chef
              </h1>
-             <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto text-lg">
+             <p className="text-[#8C7C63] dark:text-[#7C715E] max-w-xl mx-auto text-lg">
                Describe tu antojo o dime qué ingredientes tienes. La IA creará la receta perfecta.
              </p>
           </div>

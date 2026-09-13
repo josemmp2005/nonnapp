@@ -7,17 +7,17 @@ const NotFound: React.FC = () => {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4 animate-in fade-in zoom-in duration-500">
       <div className="relative mb-8">
-        <span className="text-9xl font-extrabold text-gray-100 dark:text-gray-800 select-none">404</span>
+        <span className="text-9xl font-extrabold text-[#241B10]/10 dark:text-[#3A2E1D] select-none">404</span>
         <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-6xl animate-bounce">🥘</span>
         </div>
       </div>
       
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+      <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-3">
         Plato no encontrado
       </h1>
       
-      <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8 text-lg">
+      <p className="text-[#8C7C63] dark:text-[#7C715E] max-w-md mb-8 text-lg">
         Parece que la receta que buscas se ha perdido o nunca existió en nuestro recetario.
       </p>
 
@@ -31,7 +31,7 @@ const NotFound: React.FC = () => {
         </Link>
         <Link 
           to="/" 
-          className="px-8 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-2"
+          className="px-8 py-3 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] font-bold rounded-xl hover:bg-[#FCF6EC] dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
         >
           <Home className="w-5 h-5" />
           Ir al Inicio

@@ -5,12 +5,15 @@ import Layout from './components/Layout';
 import Auth from './components/Auth';
 import type { UserProfile as UserProfileType } from './types';
 import { DEFAULT_USER_PROFILE } from './constants';
-import { supabaseClient } from './services/supabase';
+import { getCurrentSession } from './services/auth';
+import type { AuthSession } from './services/auth';
+import { getUserPreferences } from './services/data';
 import { Logo } from './components/Logo';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import ErrorBoundary from './components/ErrorBoundary';
+import EmailVerificationGate from './components/EmailVerificationGate';
 
 // Lazy Load Components for Performance
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -23,6 +26,8 @@ const HistoryPage = lazy(() => import('./components/HistoryPage'));
 const RecipeDetailPage = lazy(() => import('./components/RecipeDetailPage'));
 const TermsPage = lazy(() => import('./components/TermsPage'));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage'));
+const ResetPasswordPage = lazy(() => import('./components/ResetPasswordPage'));
+const VerifyEmailPage = lazy(() => import('./components/VerifyEmailPage'));
 const NotFound = lazy(() => import('./components/NotFound'));
 
 // Protected Route Component
@@ -35,6 +40,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute = ({ children, session, loading }: ProtectedRouteProps) => {
   if (loading) return null;
   if (!session) return <Navigate to="/auth" replace />;
+  if (session.user?.email_verified === false) return <EmailVerificationGate email={session.user.email} />;
   return <>{children}</>;
 };
 
@@ -47,75 +53,54 @@ const PageLoader = () => (
 
 const App: React.FC = () => {
   const [userProfile, setUserProfile] = useState<UserProfileType>(DEFAULT_USER_PROFILE);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Restaura la sesión (si la cookie httpOnly sigue siendo válida) al cargar la app.
   useEffect(() => {
     let mounted = true;
 
     const initSession = async () => {
-      try {
-        console.log('🔐 Initializing session...');
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        
-        if (error) {
-          console.error("❌ Session error:", error);
-          if (mounted) {
-            setSession(null);
-            setLoading(false);
-          }
-          return;
-        }
-        
-        if (!mounted) return;
-
-        console.log('✅ Session loaded:', session ? 'authenticated' : 'no session');
-        setSession(session);
-        
-        // Usar DEFAULT_USER_PROFILE en lugar de consultar DB
-        // (evita bloqueos por RLS)
-        if (session?.user?.id) {
-          setUserProfile(DEFAULT_USER_PROFILE);
-        }
-      } catch (error) {
-        console.error("❌ Session init error:", error);
-        if (mounted) {
-          setSession(null);
-        }
-      } finally {
-        if (mounted) {
-          console.log('✅ Loading complete');
-          setLoading(false);
-        }
-      }
+      const { session, error } = await getCurrentSession();
+      if (error) console.error('❌ Session error:', error);
+      if (!mounted) return;
+      setSession(session);
+      setLoading(false);
     };
 
     initSession();
-
-    const {
-      data: { subscription },
-    } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      
-      if (!mounted) return;
-
-      if (event === 'SIGNED_OUT') {
-        setSession(null);
-        setUserProfile(DEFAULT_USER_PROFILE);
-        return;
-      }
-
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        setSession(session);
-        setUserProfile(DEFAULT_USER_PROFILE);
-      }
-    });
-
     return () => {
       mounted = false;
-      subscription.unsubscribe();
     };
   }, []);
+
+  // Login/signup/logout llaman a esto directamente (ver Auth.tsx / Layout.tsx)
+  // en vez de un listener global tipo onAuthStateChange.
+  const handleAuthChange = (newSession: AuthSession | null) => {
+    setSession(newSession);
+  };
+
+  // El backend ya marcó el email como verificado; refleja el flag localmente
+  // sin esperar a un refetch de /me (el usuario puede estar logueado en esta
+  // misma pestaña o venir de otra sesión con el link del correo).
+  const handleEmailVerified = () => {
+    setSession((prev) => (prev ? { user: { ...prev.user, email_verified: true } } : prev));
+  };
+
+  // Cargar preferencias reales del usuario cuando cambia la sesión.
+  useEffect(() => {
+    let mounted = true;
+    if (!session?.user) {
+      setUserProfile(DEFAULT_USER_PROFILE);
+      return;
+    }
+    getUserPreferences().then((profile) => {
+      if (mounted) setUserProfile(profile);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [session?.user?.id]);
 
   if (loading) {
     return (
@@ -142,16 +127,19 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <ToastProvider>
-        <SubscriptionProvider>
+        <SubscriptionProvider session={session}>
           <ErrorBoundary>
             <Router>
-              <Layout 
+              <Layout
                 session={session}
+                onAuthChange={handleAuthChange}
               >
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
                     <Route path="/" element={<LandingPage />} />
-                    <Route path="/auth" element={!session ? <Auth /> : <Navigate to="/app" replace />} />
+                    <Route path="/auth" element={!session ? <Auth onAuthChange={handleAuthChange} /> : <Navigate to="/app" replace />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/verify-email" element={<VerifyEmailPage onEmailVerified={handleEmailVerified} />} />
                     <Route path="/terms" element={<TermsPage />} />
                     <Route path="/privacy" element={<PrivacyPage />} />
                   

@@ -12,6 +12,34 @@ body {
     font-family: 'Parisienne', cursive;
 }
 
+.font-voice {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+}
+
+.font-hand {
+    font-family: 'Caveat', cursive;
+}
+
+/* Landing page paper grain texture */
+
+.landing-grain {
+    background-image: radial-gradient(rgba(36, 27, 16, 0.035) 1px, transparent 1.4px);
+    background-size: 3px 3px;
+}
+
+.dark .landing-grain {
+    background-image: radial-gradient(rgba(245, 230, 205, 0.07) 1px, transparent 1.4px);
+}
+
+.landing-hero-lines {
+    background-image: repeating-linear-gradient(90deg, rgba(36, 27, 16, 0.05) 0 1px, transparent 1px 160px);
+}
+
+.dark .landing-hero-lines {
+    background-image: repeating-linear-gradient(90deg, rgba(245, 230, 205, 0.06) 0 1px, transparent 1px 160px);
+}
+
 
 /* Custom scrollbar for steps */
 

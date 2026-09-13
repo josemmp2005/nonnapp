@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HistoryList from './HistoryList';
-import { fetchRecentRecipes } from '../services/supabase';
+import { fetchRecentRecipes } from '../services/data';
 import type { UserProfile as UserProfileType, RecipeDB } from '../types';
 import { Sparkles, Coffee, Zap, Utensils, ArrowRight } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
@@ -94,10 +94,10 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         {/* Header Dashboard */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
             <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">
                     {greeting}, <span className="text-primary">{username}</span>
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+                <p className="text-[#8C7C63] dark:text-[#7C715E] mt-1 flex items-center gap-2">
                     <Utensils className="w-4 h-4" />
                     Tu cocina inteligente está lista.
                 </p>
@@ -105,25 +105,25 @@ const Dashboard: React.FC<Props> = ({ session }) => {
             
             {/* Mini Stats */}
             <div className="flex gap-3">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[80px]">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
+                    <span className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6]">
                       {limits.maxRecipesPerDay === Infinity ? '∞' : remaining}
                     </span>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-[#8C7C63] uppercase font-bold tracking-wider">
                       {limits.maxRecipesPerDay === Infinity ? 'Recetas' : 'Hoy'}
                     </span>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[80px]">
+                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
                     <span className="text-2xl font-bold text-primary flex items-center gap-1">
                         {planNames[subscription.plan_type]}
                     </span>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Plan</span>
+                    <span className="text-[10px] text-[#8C7C63] uppercase font-bold tracking-wider">Plan</span>
                 </div>
             </div>
         </div>
 
         {/* Hero Search Input */}
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-[#241B10] to-[#18130D] dark:from-[#18130D] dark:to-[#0D0A06] rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold text-white mb-6">¿Qué tienes en mente hoy?</h2>
@@ -152,7 +152,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
 
         {/* Quick Actions Grid */}
         <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 px-1">Acciones Rápidas</h3>
+            <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 px-1">Acciones Rápidas</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <button 
                  onClick={() => triggerQuickAction('surprise')}
@@ -168,27 +168,27 @@ const Dashboard: React.FC<Props> = ({ session }) => {
 
                <button 
                  onClick={() => triggerQuickAction('breakfast')}
-                 className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-white shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-gray-750 transition-all text-left group"
+                 className="p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] transition-all text-left group"
                >
                   <Coffee className="w-6 h-6 mb-2 text-orange-500" />
                   <span className="font-bold block">Desayuno Rápido</span>
-                  <span className="text-xs text-gray-400">Listo en 15 min</span>
+                  <span className="text-xs text-[#8C7C63]">Listo en 15 min</span>
                </button>
 
                <button 
                  onClick={() => triggerQuickAction('healthy')}
-                 className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-white shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-gray-750 transition-all text-left group"
+                 className="p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] transition-all text-left group"
                >
                   <Zap className="w-6 h-6 mb-2 text-green-500" />
                   <span className="font-bold block">Modo Fit</span>
-                  <span className="text-xs text-gray-400">Bajo en calorías</span>
+                  <span className="text-xs text-[#8C7C63]">Bajo en calorías</span>
                </button>
 
                <button 
                   onClick={() => navigate('/app/generate')}
-                  className="p-4 bg-gray-50 dark:bg-gray-800/50 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center text-center text-gray-400 hover:border-primary hover:text-primary transition-colors"
+                  className="p-4 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl flex flex-col items-center justify-center text-center text-[#8C7C63] hover:border-primary hover:text-primary transition-colors"
                >
-                  <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center mb-2">
+                  <div className="w-8 h-8 rounded-full bg-white dark:bg-[#221B12] shadow-sm flex items-center justify-center mb-2">
                     <Utensils className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold">Generador Avanzado</span>
@@ -200,9 +200,9 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         <ChefTableWidget isLocked={!limits.hasChefChat} />
         
         {/* Recent History */}
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-8">
+        <div className="border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 pt-8">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tus Creaciones Recientes</h3>
+                <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6]">Tus Creaciones Recientes</h3>
                 <button onClick={() => navigate('/app/history')} className="text-sm text-primary hover:underline">Ver todo</button>
             </div>
             <HistoryList 

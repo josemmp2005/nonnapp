@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Lock, Mail, Save, Loader2 } from 'lucide-react';
-import { upsertUserProfile, updateUserPassword } from '../services/supabase';
+import { updateUsername, updateUserPassword } from '../services/auth';
 import { useToast } from '../context/ToastContext';
 
 interface Props {
@@ -31,13 +31,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
     setIsLoading(true);
 
     try {
-      const userId = session.user.id;
-
       // Update Profile Info (Username only)
-      const { error: profileError } = await upsertUserProfile(userId, {
-        username,
-        email
-      });
+      const { error: profileError } = await updateUsername(username);
 
       if (profileError) {
         throw new Error(profileError.message || "Error guardando el perfil.");
@@ -66,8 +61,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Editar Perfil</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">Actualiza tu información personal y seguridad.</p>
+        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Editar Perfil</h1>
+        <p className="text-[#8C7C63] dark:text-[#7C715E] mt-2">Actualiza tu información personal y seguridad.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -76,16 +71,16 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
           
           {/* Left Column: Avatar */}
           <div className="md:col-span-1">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-              <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4">Avatar</h3>
+            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10">
+              <h3 className="text-sm font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4">Avatar</h3>
               
               <div className="flex flex-col items-center gap-4">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center border-4 border-gray-200 dark:border-gray-600 shadow-lg">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center border-4 border-[#241B10]/15 dark:border-[#F5E6CD]/15 shadow-lg">
                   <span className="text-5xl font-bold text-white">
                     {username ? username.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 text-center">
+                <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] text-center">
                   Avatar generado automáticamente
                 </p>
               </div>
@@ -96,33 +91,33 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
           <div className="md:col-span-2 space-y-6">
             
             {/* Personal Info Card */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                <User className="w-5 h-5 text-gray-400" /> Información Personal
+            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
+              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <User className="w-5 h-5 text-[#8C7C63]" /> Información Personal
               </h3>
               
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-1">Email</label>
+                <label className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Email</label>
                 <div className="relative opacity-60">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
                   <input
                     type="email"
                     value={email}
                     disabled
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl cursor-not-allowed text-gray-700 dark:text-gray-300"
+                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl cursor-not-allowed text-[#3A2E1D] dark:text-[#D4D4D8]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-900 dark:text-gray-300 mb-1">Nombre de Usuario</label>
+                <label className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Nombre de Usuario</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+                  <User className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-900 dark:text-white"
+                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="Tu nombre visible"
                   />
                 </div>
@@ -130,34 +125,34 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             </div>
 
             {/* Security Card */}
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-4">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-                <Lock className="w-5 h-5 text-gray-400" /> Seguridad
+            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
+              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <Lock className="w-5 h-5 text-[#8C7C63]" /> Seguridad
               </h3>
               
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nueva Contraseña</label>
+                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nueva Contraseña</label>
                   <input
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmar Contraseña</label>
+                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Confirmar Contraseña</label>
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-xl focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-primary outline-none text-gray-900 dark:text-white"
+                    className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
                 </div>
               </div>
-              <p className="text-xs text-gray-400 italic">
+              <p className="text-xs text-[#8C7C63] italic">
                 Deja estos campos vacíos si no deseas cambiar tu contraseña.
               </p>
             </div>

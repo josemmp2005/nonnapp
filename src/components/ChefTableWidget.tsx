@@ -13,7 +13,7 @@ const CHEF_STYLES = [
     subtitle: 'La Exigente',
     description: 'No tolera un corte mal hecho. Técnica perfecta y sabores intensos.',
     style: 'Estilo de cocina de alta gama, técnica francesa moderna pero con alma italiana, exigente, presentación minimalista y elegante.',
-    image: 'https://images.unsplash.com/photo-1577106263724-2c8e03bfe9f4?auto=format&fit=crop&w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?auto=format&fit=crop&w=400&q=80',
     color: 'from-red-500 to-orange-600',
     dish: 'Osobuco a la Milanesa Perfecto'
   },
@@ -46,6 +46,26 @@ const CHEF_STYLES = [
     image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80',
     color: 'from-lime-500 to-green-600',
     dish: 'Risotto de Coliflor y Trufa'
+  },
+  {
+    id: 'rosa',
+    name: 'Nonna Rosa',
+    subtitle: 'La Siciliana',
+    description: 'Cocina con vista al mar. Todo lleva limón, alcaparras y mucho aceite de oliva.',
+    style: 'Cocina mediterránea siciliana, pescado y marisco fresco, cítricos, alcaparras, aceite de oliva virgen extra, pasta fresca, sabores intensos y directos, presentación colorida y veraniega.',
+    image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80',
+    color: 'from-cyan-500 to-blue-600',
+    dish: 'Pasta alla Norma con Berenjena'
+  },
+  {
+    id: 'giulia',
+    name: 'Nonna Giulia',
+    subtitle: 'La Repostera',
+    description: 'El postre es sagrado. No hay comida de domingo sin algo dulce hecho en casa.',
+    style: 'Repostería casera italiana, tartas, cremas, frutas de temporada, técnica de pastelería clásica pero acogedora, presentación delicada y dulce, ideal para sobremesa.',
+    image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=400&q=80',
+    color: 'from-pink-500 to-rose-600',
+    dish: 'Crêpes de la Nonna con Fresas y Nata'
   }
 ];
 
@@ -154,6 +174,9 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [chefTab, setChefTab] = useState<'styles' | 'featured'>('styles');
+  // En el Dashboard es solo un adelanto (3 nonnas) — la lista completa vive
+  // en /app/chef (variant="full"), que es donde tiene sentido explorarlas todas.
+  const visibleStyles = variant === 'full' ? CHEF_STYLES : CHEF_STYLES.slice(0, 3);
 
   const triggerChefSpecial = (preset: typeof CHEF_STYLES[0]) => {
     if (isLocked) {
@@ -186,21 +209,21 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 px-1 gap-4">
             <div className="flex items-center gap-2">
                 <Heart className={`text-primary ${variant === 'full' ? 'w-8 h-8' : 'w-6 h-6'}`} />
-                <h2 className={`${variant === 'full' ? 'text-3xl' : 'text-2xl'} font-bold text-gray-900 dark:text-white`}>
+                <h2 className={`${variant === 'full' ? 'text-3xl' : 'text-2xl'} font-bold text-[#241B10] dark:text-[#F8F2E6]`}>
                     La Mesa de la Nonna
                 </h2>
             </div>
             
-            <div className="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+            <div className="flex p-1 bg-primary/10 rounded-xl">
                 <button 
                 onClick={() => setChefTab('styles')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'styles' ? 'bg-white dark:bg-gray-700 shadow-sm text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
                 Sus Secretos
                 </button>
                 <button 
                 onClick={() => setChefTab('featured')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'featured' ? 'bg-white dark:bg-gray-700 shadow-sm text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
                 Recetas de Familia
                 </button>
@@ -208,8 +231,8 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
         </div>
         
         {chefTab === 'styles' ? (
-            <div className={`grid gap-4 animate-in fade-in slide-in-from-bottom-2 ${variant === 'full' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'}`}>
-                {CHEF_STYLES.map((preset) => (
+            <div className="grid gap-4 animate-in fade-in slide-in-from-bottom-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {visibleStyles.map((preset) => (
                 <button
                     key={preset.id}
                     onClick={() => triggerChefSpecial(preset)}
@@ -244,7 +267,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                         </div>
                         <h3 className="text-white font-bold text-lg leading-tight">{preset.name}</h3>
                         <span className="text-primary text-xs font-bold uppercase tracking-widest mb-1 block">{preset.subtitle}</span>
-                        <p className="text-gray-300 text-xs line-clamp-2 mb-2 leading-relaxed">{preset.description}</p>
+                        <p className="text-[#E7DCC5] text-xs line-clamp-2 mb-2 leading-relaxed">{preset.description}</p>
                         <div className="flex items-center gap-1 text-white/80 text-xs font-medium border-t border-white/20 pt-2 mt-2">
                             <Flame className="w-3 h-3 text-orange-400" />
                             <span>Cocinar estilo {preset.name.split(' ')[1]}</span>
@@ -259,7 +282,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                 <div 
                     key={recipe.id}
                     onClick={() => openFeaturedRecipe(recipe)}
-                    className={`bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-xl transition-all group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={`bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl transition-all group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                     <div className="h-48 relative overflow-hidden">
                         <img 
@@ -267,7 +290,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                             alt={recipe.recipe_metadata.title}
                             className={`w-full h-full object-cover transition-transform duration-700 ${isLocked ? 'filter grayscale opacity-60' : 'group-hover:scale-105'}`}
                         />
-                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-gray-900 dark:text-white shadow-sm flex items-center gap-1">
+                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-[#241B10] dark:text-[#F8F2E6] shadow-sm flex items-center gap-1">
                             <BookOpen className="w-3 h-3 text-primary" /> Receta
                         </div>
                         
@@ -282,18 +305,18 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                     </div>
                     <div className={`p-5 flex-grow flex flex-col ${isLocked ? 'opacity-60' : ''}`}>
                         <div className="mb-2">
-                            <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-orange-50 dark:bg-orange-900/20 p       x-2 py-1 rounded-md mb-2 inline-block">
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded-md mb-2 inline-block">
                                 {recipe.recipe_metadata.difficulty} • {recipe.recipe_metadata.cooking_time}
                             </span>
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors">
                                 {recipe.recipe_metadata.title}
                             </h3>
                         </div>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4">
+                        <p className="text-[#8C7C63] dark:text-[#7C715E] text-sm line-clamp-2 mb-4">
                             {recipe.recipe_metadata.description}
                         </p>
-                        <div className="mt-auto pt-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm font-medium">
-                            <span className="text-gray-400 text-xs">
+                        <div className="mt-auto pt-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium">
+                            <span className="text-[#8C7C63] text-xs">
                                 {recipe.ingredients.length} Ingredientes
                             </span>
                             <span className="text-primary flex items-center gap-1 group-hover:gap-2 transition-all">

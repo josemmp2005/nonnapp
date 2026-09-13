@@ -44,7 +44,7 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="bg-white dark:bg-[#130F0A] rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh]">
         
         <div className="flex items-center justify-between p-4 border-b bg-primary text-white">
           <h3 className="text-lg font-bold flex items-center gap-2">
@@ -64,26 +64,26 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
                 <div 
                     key={idx}
                     onClick={() => toggleItem(idx)}
-                    className={`flex items-start p-3 mb-1 rounded-lg cursor-pointer transition-colors select-none ${checkedItems.has(idx) ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700' : 'bg-gray-50 dark:bg-gray-800/50 opacity-60'}`}
+                    className={`flex items-start p-3 mb-1 rounded-lg cursor-pointer transition-colors select-none ${checkedItems.has(idx) ? 'bg-white dark:bg-[#18130D] hover:bg-[#FCF6EC] dark:hover:bg-white/5' : 'bg-[#FCF6EC] dark:bg-[#18130D]/50 opacity-60'}`}
                 >
-                    <div className={`w-5 h-5 rounded border flex-shrink-0 mr-3 flex items-center justify-center transition-colors mt-0.5 ${checkedItems.has(idx) ? 'bg-primary border-primary' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700'}`}>
+                    <div className={`w-5 h-5 rounded border flex-shrink-0 mr-3 flex items-center justify-center transition-colors mt-0.5 ${checkedItems.has(idx) ? 'bg-primary border-primary' : 'border-[#241B10]/20 dark:border-[#F5E6CD]/15 bg-white dark:bg-[#221B12]'}`}>
                         {checkedItems.has(idx) && <CheckCircle className="w-3.5 h-3.5 text-white" />}
                     </div>
                     <div className="flex-grow">
-                        <span className={`block font-medium ${checkedItems.has(idx) ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400 line-through'}`}>{ing.item}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{ing.quantity}</span>
+                        <span className={`block font-medium ${checkedItems.has(idx) ? 'text-[#241B10] dark:text-[#F8F2E6]' : 'text-[#8C7C63] dark:text-[#7C715E] line-through'}`}>{ing.item}</span>
+                        <span className="text-xs text-[#8C7C63] dark:text-[#7C715E]">{ing.quantity}</span>
                     </div>
                 </div>
             ))}
         </div>
 
-        <div className="p-4 border-t bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700 flex justify-between items-center">
-            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+        <div className="p-4 border-t bg-[#FCF6EC] dark:bg-[#18130D] border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex justify-between items-center">
+            <span className="text-xs text-[#8C7C63] dark:text-[#7C715E] font-medium">
                 {checkedItems.size} ítems seleccionados
             </span>
             <button
                 onClick={handleCopy}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-xl font-bold hover:bg-black dark:hover:bg-gray-200 transition-all shadow-lg active:scale-95"
+                className="flex items-center gap-2 px-6 py-2.5 bg-[#241B10] dark:bg-[#F8F2E6] dark:text-[#241B10] text-white rounded-xl font-bold hover:bg-black dark:hover:bg-white transition-all shadow-lg active:scale-95"
             >
                 <Copy className="w-4 h-4" />
                 Copiar Lista

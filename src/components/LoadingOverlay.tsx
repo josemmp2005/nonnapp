@@ -34,7 +34,7 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-gray-900/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-[#130F0A]/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors">
       <div className="text-center max-w-sm px-6 flex flex-col items-center">
         
         <div className="relative w-32 h-32 mx-auto mb-8 flex items-end justify-center">
@@ -51,20 +51,20 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
           <div className="absolute -bottom-2 w-16 h-2 bg-black/10 dark:bg-black/30 rounded-full blur-sm animate-pulse"></div>
         </div>
 
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 transition-colors">
+        <h3 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 transition-colors">
           Preparando tu Receta
         </h3>
         
         <div className="h-8 overflow-hidden relative w-full">
           <p 
             key={messageIndex}
-            className="text-gray-500 dark:text-gray-400 font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
+            className="text-[#8C7C63] dark:text-[#7C715E] font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
           >
             {MESSAGES[messageIndex]}
           </p>
         </div>
 
-        <div className="mt-8 w-64 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden transition-colors">
+        <div className="mt-8 w-64 bg-primary/10 rounded-full h-1.5 overflow-hidden transition-colors">
           <div className="bg-primary h-full rounded-full animate-progress-indeterminate w-1/3"></div>
         </div>
       </div>
