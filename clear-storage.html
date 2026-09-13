@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Limpiar Storage - Sabora</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: system-ui;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        button {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        
+        button:hover {
+            background: #ff5252;
+        }
+        
+        .success {
+            color: #51cf66;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        
+        code {
+            background: #f1f3f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>🧹 Limpiar Storage de Sabora</h1>
+        <p>Si estás experimentando problemas con "Session init timed out", usa este botón para limpiar completamente el localStorage y sessionStorage.</p>
+
+        <p><strong>Esto eliminará:</strong></p>
+        <ul>
+            <li>Tokens de sesión de Supabase</li>
+            <li>Cache de recetas</li>
+            <li>Preferencias temporales</li>
+        </ul>
+
+        <button onclick="clearAll()">🗑️ Limpiar Todo</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function clearAll() {
+            try {
+                // Limpiar localStorage
+                localStorage.clear();
+
+                // Limpiar sessionStorage
+                sessionStorage.clear();
+
+                // Limpiar cookies de Supabase
+                document.cookie.split(";").forEach(function(c) {
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+                });
+
+                document.getElementById('result').innerHTML =
+                    '<p class="success">✅ Storage limpiado correctamente.<br><br>Ahora cierra esta pestaña y recarga tu app.</p>';
+
+                setTimeout(() => {
+                    window.close();
+                }, 3000);
+            } catch (error) {
+                document.getElementById('result').innerHTML =
+                    '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            }
+        }
+
+        // Mostrar qué hay almacenado
+        window.onload = function() {
+            const supabaseKeys = Object.keys(localStorage).filter(k =>
+                k.includes('supabase') || k.includes('sb-')
+            );
+
+            if (supabaseKeys.length > 0) {
+                document.getElementById('result').innerHTML =
+                    '<p style="color: #868e96; margin-top: 20px; font-size: 14px;">Encontradas ' +
+                    supabaseKeys.length + ' claves de Supabase en localStorage</p>';
+            }
+        };
+    </script>
+</body>
+
+</html>
