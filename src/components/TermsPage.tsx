@@ -92,7 +92,7 @@ const TermsPage: React.FC = () => {
         </div>
         
         <div className="mt-12 pt-8 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center text-xs text-[#8C7C63] dark:text-[#6E6350]">
-          Para consultas legales, contáctanos en legal@nonnapp.app
+          Para consultas legales, contáctanos en info.nonnap@gmail.com
         </div>
       </div>
     </div>

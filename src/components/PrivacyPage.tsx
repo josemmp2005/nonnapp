@@ -120,7 +120,7 @@ const PrivacyPage: React.FC = () => {
                 Si tienes preguntas sobre esta Política de Privacidad o sobre cómo manejamos tus datos, contáctanos:
               </p>
               <ul className="list-none text-[#3A2E1D] dark:text-[#D4D4D8] space-y-2">
-                <li><strong>Email:</strong> privacy@sabora.app</li>
+                <li><strong>Email:</strong> info.nonnap@gmail.com</li>
                 <li><strong>Sitio web:</strong> https://sabora.app</li>
               </ul>
             </section>

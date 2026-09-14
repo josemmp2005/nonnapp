@@ -41,12 +41,27 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Pasarela de pago real aún no implementada — bloqueado temporalmente para
+// el primer despliegue público (nadie debe poder autoconcederse un plan de
+// pago llamando a esta ruta directamente, sin pasar por la UI). Cambiar a
+// true (y el mismo flag en src/components/PreferencesPage.tsx) para
+// reactivar el cambio de plan.
+const PLAN_CHANGES_ENABLED = false;
+
 // Endpoint de DEMO (sin pasarela de pago real, sin cargo alguno): cambia el
 // plan activo del propio usuario a cualquiera de los 3 — el frontend simula
 // una pantalla de pago antes de llamar aquí para los planes de pago, pero la
 // simulación es puramente de cara al usuario, este endpoint no la valida ni
 // la necesita. Sigue exigiendo sesión y solo puede afectar a req.userId.
 router.post('/change', validateBody(changeSubscriptionSchema), async (req, res) => {
+  if (!PLAN_CHANGES_ENABLED) {
+    return res.status(503).json({
+      error: 'SUBSCRIPTION_CHANGES_DISABLED',
+      message:
+        'La pasarela de pago está deshabilitada temporalmente. Si quieres mejorar tu plan, contacta con info.nonnap@gmail.com. Disculpa las molestias.',
+    });
+  }
+
   const { plan } = req.body;
 
   try {

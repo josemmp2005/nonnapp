@@ -5,6 +5,7 @@ import { saveChefPreferences } from '../services/data';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import PlanCheckoutModal from './PlanCheckoutModal';
+import PlanChangeDisabledNotice from './preferences/PlanChangeDisabledNotice';
 import SubscriptionCard from './preferences/SubscriptionCard';
 import SkillLevelSection from './preferences/SkillLevelSection';
 import AllergiesSection from './preferences/AllergiesSection';
@@ -16,6 +17,12 @@ interface Props {
   setProfile: (p: UserProfile) => void;
   session: any;
 }
+
+// Pasarela de pago real aún no implementada — bloqueado temporalmente para
+// el primer despliegue público (nadie debe poder autoconcederse un plan de
+// pago sin pagar). Cambiar a true (y el mismo flag en
+// server/src/routes/subscription.ts) para reactivar el cambio de plan.
+const PLAN_CHANGES_ENABLED = false;
 
 const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
   const { showToast } = useToast();
@@ -77,11 +84,15 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
         />
 
         {isPlanModalOpen && (
-          <PlanCheckoutModal
-            currentPlan={subscription.plan_type}
-            onClose={() => setIsPlanModalOpen(false)}
-            onChanged={handlePlanChanged}
-          />
+          PLAN_CHANGES_ENABLED ? (
+            <PlanCheckoutModal
+              currentPlan={subscription.plan_type}
+              onClose={() => setIsPlanModalOpen(false)}
+              onChanged={handlePlanChanged}
+            />
+          ) : (
+            <PlanChangeDisabledNotice onClose={() => setIsPlanModalOpen(false)} />
+          )
         )}
 
         <SkillLevelSection
