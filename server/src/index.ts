@@ -1,9 +1,17 @@
+import dns from 'node:dns';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { env, isProd } from './env.js';
+
+// Algunos PaaS (Render free tier incluido) no tienen salida IPv6 completa.
+// smtp.gmail.com (y otros hosts) puede resolver a IPv6 primero según el
+// orden por defecto del sistema, dando ENETUNREACH al conectar — esto lo
+// fuerza a intentar siempre IPv4 antes en cualquier dns.lookup() del proceso,
+// nodemailer incluido.
+dns.setDefaultResultOrder('ipv4first');
 import { pool } from './db.js';
 import { applySchema } from './lib/migrate.js';
 import { createApiRateLimiter } from './middleware/rateLimit.js';
