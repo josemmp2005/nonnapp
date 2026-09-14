@@ -108,10 +108,16 @@ router.post('/signup', createStrictAuthRateLimiter(), validateBody(signupSchema)
     const { token } = await createSession(user.id);
     res.cookie(SESSION_COOKIE, token, cookieOptions);
 
-    // Best-effort: un fallo de email no debe tumbar el registro.
-    sendVerificationEmail(user.id, user.email, user.username).catch((err) =>
-      console.warn('No se pudo enviar el email de verificación:', err)
-    );
+    // Best-effort: un fallo de email no debe tumbar el registro. Se manda
+    // primero (y se espera) el de verificación, y solo después el de
+    // bienvenida — en paralelo, Resend (plan gratuito) devuelve 429 por
+    // límite de tasa (2 req/s) si se disparan los dos casi a la vez, y el
+    // de verificación es el que de verdad hace falta para poder usar la app.
+    try {
+      await sendVerificationEmail(user.id, user.email, user.username);
+    } catch (err) {
+      console.warn('No se pudo enviar el email de verificación:', err);
+    }
     sendMail(
       user.email,
       '¡Bienvenido a Sabora! 🍳',
