@@ -33,7 +33,7 @@ sabora-app/
       env.ts                 Lectura/validación de variables de entorno
       middleware/auth.ts      Verifica el JWT de la cookie, exige sesión
       lib/groq.ts             Cliente HTTP a la API de Groq
-      lib/mailer.ts           Envío de emails (Nodemailer / Gmail)
+      lib/mailer.ts           Envío de emails (Resend, API HTTP)
       routes/                 Un archivo por área: auth, recipes, profile, subscription, ai
   docker-compose.yml      Postgres + Adminer (dev) + server/web (stack completo, ver más abajo)
   Dockerfile              Imagen del frontend (build Vite + nginx)
@@ -102,7 +102,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
 | `APP_URL` | Usada para construir el link de "restablecer contraseña" en el email |
 | `GROQ_API_KEY` / `GROQ_MODEL` | Generación de recetas y chat del chef |
-| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Opcional — envío real de emails (bienvenida, reset de contraseña). Sin ellas, el email se loguea en consola en vez de enviarse |
+| `RESEND_API_KEY` / `RESEND_FROM` | Opcional — envío real de emails (verificación, bienvenida, reset de contraseña) vía [Resend](https://resend.com) (API HTTP, no SMTP — el SMTP saliente está bloqueado en el plan gratuito de Render y similares). Sin `RESEND_API_KEY`, el email se loguea en consola en vez de enviarse |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Opcional — login con Google. Credenciales de Google Cloud Console; `GOOGLE_REDIRECT_URI` debe coincidir exactamente con la que se da de alta ahí. Sin ellas, el botón de Google redirige con un error en vez de romper el resto del login |
 
 ### Ver la base de datos (Adminer)
