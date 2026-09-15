@@ -76,6 +76,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `npm run dev:server` | Solo backend en modo desarrollo (atajo a `server/`) |
 | `npm run build` | `tsc -b` + build de producción del frontend |
 | `npm run lint` | ESLint sobre `src/` |
+| `npm test` | Tests unitarios de `src/utils/` (Vitest, sin DOM/React rendering) |
 
 | Comando (`server/`) | Qué hace |
 |---|---|
@@ -83,6 +84,20 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `npm run build` | Compila TypeScript a `dist/` |
 | `npm run start` | Arranca la API compilada (`dist/index.js`) |
 | `npm run db:init` | Aplica `src/schema.sql` a la BBDD de `DATABASE_URL` |
+| `npm test` | Tests de integración (Vitest + Supertest) contra una BBDD de test real |
+| `npm run typecheck:test` | `tsc --noEmit` incluyendo `tests/` (el `build` normal no los cubre) |
+
+### Tests
+
+- **Backend** (`server/tests/`): tests de integración con Supertest contra la app de Express real (`server/src/app.ts`, sin necesidad de levantar el puerto) y una base de datos Postgres real — no se mockea `pg`, así que cubren de verdad el bloqueo por plan (`requirePlan`), el límite diario de Il Nipote, el aislamiento de recetas entre usuarios (IDOR), y los flujos de auth. Groq y Resend sí se mockean (`vi.mock`) — nunca llaman a una API externa real.
+  - Necesitan Postgres arrancado (`docker compose up -d` desde la raíz) y usan una base de datos separada de la de desarrollo: `sabora_test` (se crea sola la primera vez, ver `server/tests/globalSetup.ts`). Configuración en `server/.env.test` (sin secretos, seguro de commitear).
+  - `cd server && npm test`
+- **Frontend** (`src/utils/*.test.ts`): tests unitarios de lógica pura (rate limiter, caché) con Vitest. No hay tests de componentes React todavía — queda como mejora futura si se añade React Testing Library.
+  - `npm test` (desde la raíz)
+
+### CI
+
+`.github/workflows/ci.yml` corre en cada push/PR: typecheck + lint + build + tests del frontend, y typecheck + build + tests del backend (con un Postgres de servicio real, no mockeado). El despliegue (Render/Netlify) sigue siendo aparte — cada uno redespliega solo al detectar un push a la rama que vigila, la CI de GitHub Actions no lo dispara ni lo bloquea todavía.
 
 ### Variables de entorno
 
