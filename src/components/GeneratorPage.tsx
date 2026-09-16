@@ -9,47 +9,21 @@ import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
+import type { AuthSession } from '../services/auth';
 import { Sparkles, Lock, Crown } from 'lucide-react';
 
 interface Props {
   userProfile: UserProfile;
-  session: any;
+  session: AuthSession | null;
 }
 
 const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit, incrementRecipeCount, markDailyLimitReached } = useSubscription();
   const location = useLocation();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
-
-  // Safety check: if userProfile is not available, show error
-  if (!userProfile) {
-    return (
-      <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Auto-trigger if navigated with state
-  useEffect(() => {
-    if (location.state && location.state.autoTrigger && userProfile) {
-      const { prompt, mode, servings, timeLimit } = location.state;
-      handleGenerate({
-        prompt,
-        mode: mode || 'text',
-        servings: servings || 2,
-        timeLimit: timeLimit || 'unlimited',
-        ingredients: mode === 'pantry' ? prompt : undefined
-      });
-      // Clear state to prevent loop if user navigates back (optional, but good practice)
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, userProfile]);
 
   const handleGenerate = async (params: GenerationParams) => {
     // Validate userProfile before proceeding
@@ -100,7 +74,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           } else {
             showToast('Receta generada y guardada.', 'success');
           }
-        } catch (saveError: any) {
+        } catch (saveError) {
           // Detectar error de límite diario desde el backend
           if (saveError instanceof DailyLimitError) {
             // El servidor manda: si dice que ya no quedan, el contador local
@@ -117,7 +91,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         }
       }
 
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof EmailNotVerifiedError) {
         showToast('Verifica tu email antes de generar recetas. Revisa tu bandeja de entrada.', 'error');
       } else if (err instanceof PlanRequiredError) {
@@ -130,6 +104,38 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       setIsLoading(false);
     }
   };
+
+  // Auto-trigger si se navega con state (Dashboard/ChefTableWidget pasan
+  // location.state.autoTrigger). Este efecto DEBE llamarse siempre en el
+  // mismo orden en cada render — por eso vive antes del `if (!userProfile)`
+  // de abajo, que solo decide qué se pinta, no si el hook se ejecuta.
+  useEffect(() => {
+    if (location.state && location.state.autoTrigger && userProfile) {
+      const { prompt, mode, servings, timeLimit } = location.state;
+      handleGenerate({
+        prompt,
+        mode: mode || 'text',
+        servings: servings || 2,
+        timeLimit: timeLimit || 'unlimited',
+        ingredients: mode === 'pantry' ? prompt : undefined
+      });
+      // Limpia el state para que no se repita si el usuario navega hacia atrás.
+      window.history.replaceState({}, document.title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state, userProfile]);
+
+  // Safety check: si userProfile no está listo, se muestra un loader en vez
+  // de la pantalla real — va DESPUÉS de todos los hooks, nunca antes.
+  if (!userProfile) {
+    return (
+      <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
+        </div>
+      </div>
+    );
+  }
 
   const resetView = () => {
     setCurrentRecipe(null);

@@ -17,14 +17,18 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(false);
-    getFullRecipeById(recipeId).then((data) => {
+
+    const load = async () => {
+      setLoading(true);
+      setError(false);
+      const data = await getFullRecipeById(recipeId);
       if (cancelled) return;
       if (data) setRecipe(data);
       else setError(true);
       setLoading(false);
-    });
+    };
+    load();
+
     return () => {
       cancelled = true;
     };

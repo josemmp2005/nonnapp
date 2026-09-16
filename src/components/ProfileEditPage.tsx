@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { User, Lock, Mail, Save, Loader2 } from 'lucide-react';
 import { updateUsername, updateUserPassword } from '../services/auth';
 import { useToast } from '../context/ToastContext';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
-  session: any;
+  session: AuthSession | null;
 }
 
 const ProfileEditPage: React.FC<Props> = ({ session }) => {
@@ -51,8 +52,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
       setNewPassword('');
       setConfirmPassword('');
       
-    } catch (err: any) {
-      showToast(err.message || 'Error al actualizar perfil.', 'error');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Error al actualizar perfil.', 'error');
     } finally {
       setIsLoading(false);
     }

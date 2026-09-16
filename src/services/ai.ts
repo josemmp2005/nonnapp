@@ -67,7 +67,7 @@ export const generateRecipeAI = async (
 
       recipeCache.set(cacheKey, result.data);
       return result.data;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generando receta:', error);
       if (error instanceof ApiError && error.status === 403 && error.message === 'EMAIL_NOT_VERIFIED') {
         throw new EmailNotVerifiedError();
@@ -75,7 +75,7 @@ export const generateRecipeAI = async (
       if (isPlanRequiredError(error)) {
         throw new PlanRequiredError();
       }
-      throw new Error(error.message || 'No se pudo generar la receta. Intenta de nuevo.');
+      throw new Error(error instanceof Error ? error.message : 'No se pudo generar la receta. Intenta de nuevo.');
     }
   });
 };

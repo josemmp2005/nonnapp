@@ -46,9 +46,9 @@ const ResetPasswordPage: React.FC = () => {
       setTimeout(() => {
         navigate('/auth');
       }, 1500);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error al actualizar contraseña:', err);
-      showToast(err.message || 'El enlace no es válido o ha expirado', 'error');
+      showToast(err instanceof Error ? err.message : 'El enlace no es válido o ha expirado', 'error');
     } finally {
       setIsLoading(false);
     }

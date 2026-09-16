@@ -1,5 +1,13 @@
 import rateLimit from 'express-rate-limit';
 
+// Los tests de integración disparan muchos más intentos de login/signup en
+// segundos de los que un usuario real haría en 15 minutos — sin esto,
+// cualquier suite con más de 8 requests a /login (incluidos los intentos con
+// password incorrecta a propósito) empezaría a fallar por 429, no por el
+// comportamiento que se quiere probar. Solo se salta en NODE_ENV=test, nunca
+// en producción.
+const skipInTests = () => process.env.NODE_ENV === 'test';
+
 // Cada ruta necesita SU PROPIA instancia (su propio store): reutilizar el
 // mismo objeto middleware en /signup, /login y /forgot-password compartiría
 // el contador entre las tres, y agotar los intentos de login bloquearía
@@ -9,6 +17,7 @@ const authLimiterConfig = {
   limit: 8,
   standardHeaders: true as const,
   legacyHeaders: false,
+  skip: skipInTests,
   message: { error: 'Demasiados intentos. Inténtalo de nuevo en unos minutos.' },
 };
 
@@ -25,6 +34,7 @@ export const createTokenRateLimiter = () =>
     limit: 20,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: skipInTests,
     message: { error: 'Demasiados intentos. Inténtalo de nuevo en unos minutos.' },
   });
 
@@ -36,6 +46,7 @@ export const createApiRateLimiter = () =>
     limit: 300,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: skipInTests,
     message: { error: 'Demasiadas peticiones. Inténtalo de nuevo en unos minutos.' },
   });
 
@@ -51,6 +62,7 @@ export const createAiRateLimiter = () =>
     limit: 30,
     standardHeaders: true,
     legacyHeaders: false,
+    skip: skipInTests,
     keyGenerator: (req) => req.userId || req.ip || 'anonymous',
     message: { error: 'Demasiadas generaciones seguidas. Espera unos minutos antes de volver a intentarlo.' },
   });

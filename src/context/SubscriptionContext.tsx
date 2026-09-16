@@ -177,6 +177,11 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode; session: Auth
   );
 };
 
+// El hook vive en el mismo archivo que el Provider a propósito (patrón
+// Context+Provider+hook habitual) — solo afecta al Fast Refresh de Vite en
+// desarrollo (una recarga completa en vez de HMR si se edita este archivo),
+// nunca a producción ni a la lógica.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {

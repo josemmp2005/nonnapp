@@ -8,10 +8,11 @@ import { Sparkles, Coffee, Zap, Utensils, ArrowRight } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
 import ChefTableWidget from './ChefTableWidget';
 import RecipePreviewModal from './RecipePreviewModal';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
   userProfile: UserProfileType;
-  session: any;
+  session: AuthSession | null;
 }
 
 const Dashboard: React.FC<Props> = ({ session }) => {
@@ -21,25 +22,21 @@ const Dashboard: React.FC<Props> = ({ session }) => {
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [quickInput, setQuickInput] = useState('');
   const [previewId, setPreviewId] = useState<number | null>(null);
-  
-  // Saludo basado en la hora
-  const [greeting, setGreeting] = useState('');
+
+  // Saludo basado en la hora — puro cálculo derivado, no necesita
+  // estado+efecto (solo cambiaría si se recarga la página igualmente).
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Buenos días' : hour < 20 ? 'Buenas tardes' : 'Buenas noches';
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Buenos días');
-    else if (hour < 20) setGreeting('Buenas tardes');
-    else setGreeting('Buenas noches');
-    
+    const loadHistory = async () => {
+      setIsHistoryLoading(true);
+      const history = await fetchRecentRecipes();
+      setRecentRecipes(history);
+      setIsHistoryLoading(false);
+    };
     loadHistory();
   }, []);
-
-  const loadHistory = async () => {
-    setIsHistoryLoading(true);
-    const history = await fetchRecentRecipes();
-    setRecentRecipes(history);
-    setIsHistoryLoading(false);
-  };
 
   const handleQuickInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();

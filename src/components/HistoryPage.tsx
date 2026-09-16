@@ -5,9 +5,10 @@ import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
 import { useSubscription } from '../context/SubscriptionContext';
 import RecipePreviewModal from './RecipePreviewModal';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
-  session: any;
+  session: AuthSession | null;
 }
 
 const HistoryPage: React.FC<Props> = ({ session }) => {
@@ -23,17 +24,16 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session?.user?.id) {
-      loadData();
-    }
-  }, [session]);
+    if (!session?.user?.id) return;
 
-  const loadData = async () => {
-    setLoading(true);
-    const data = await fetchUserHistory();
-    setRecipes(data);
-    setLoading(false);
-  };
+    const loadData = async () => {
+      setLoading(true);
+      const data = await fetchUserHistory();
+      setRecipes(data);
+      setLoading(false);
+    };
+    loadData();
+  }, [session]);
 
   const filteredRecipes = (recipes || [])
     .filter(r => {

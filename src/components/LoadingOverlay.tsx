@@ -20,6 +20,11 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
 
   useEffect(() => {
     if (!isVisible) {
+      // Reset síncrono a propósito: sin él, la próxima vez que isVisible
+      // vuelva a true el mensaje seguiría por donde se quedó en vez de
+      // empezar desde el principio. No hay ninguna operación async que
+      // difiera esto a un callback.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMessageIndex(0);
       return;
     }

@@ -11,11 +11,12 @@ import SkillLevelSection from './preferences/SkillLevelSection';
 import AllergiesSection from './preferences/AllergiesSection';
 import DislikedIngredientsSection from './preferences/DislikedIngredientsSection';
 import UtensilsSection from './preferences/UtensilsSection';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
   profile: UserProfile;
   setProfile: (p: UserProfile) => void;
-  session: any;
+  session: AuthSession | null;
 }
 
 // Pasarela de pago real aún no implementada — bloqueado temporalmente para
@@ -53,7 +54,7 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
       setSaved(true);
       showToast('Preferencias guardadas correctamente', 'success');
       setTimeout(() => setSaved(false), 2000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Error saving preferences:', err);
       showToast('No se pudieron guardar los cambios. Intenta de nuevo.', 'error');
     } finally {

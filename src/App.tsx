@@ -33,7 +33,7 @@ const NotFound = lazy(() => import('./components/NotFound'));
 // Protected Route Component
 interface ProtectedRouteProps {
   children?: React.ReactNode;
-  session: any;
+  session: AuthSession | null;
   loading: boolean;
 }
 
@@ -90,13 +90,17 @@ const App: React.FC = () => {
   // Cargar preferencias reales del usuario cuando cambia la sesión.
   useEffect(() => {
     let mounted = true;
-    if (!session?.user) {
-      setUserProfile(DEFAULT_USER_PROFILE);
-      return;
-    }
-    getUserPreferences().then((profile) => {
+
+    const loadProfile = async () => {
+      if (!session?.user) {
+        setUserProfile(DEFAULT_USER_PROFILE);
+        return;
+      }
+      const profile = await getUserPreferences();
       if (mounted) setUserProfile(profile);
-    });
+    };
+    loadProfile();
+
     return () => {
       mounted = false;
     };
