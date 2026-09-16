@@ -95,11 +95,17 @@ export const generateRecipeSchema = z.object({
 
 export const chatSchema = z.object({
   question: z.string().trim().min(1, 'question es obligatorio').max(1000),
-  recipeContext: z
-    .object({
-      recipe_metadata: z.object({ title: z.string() }).passthrough(),
-    })
-    .passthrough(),
+  // Sin `.passthrough()` a propósito: antes `ingredients`/`steps` no estaban
+  // declarados aquí (pasaban sin validar), y routes/ai.ts les hace `.map()`
+  // directamente sobre lo que mande el cliente, fuera del try/catch de la
+  // ruta — un valor no-array ahí no lanza un 400, lanza una excepción no
+  // capturada que tumba el proceso entero (Express 4 no atrapa rechazos de
+  // promesas en handlers async). Validar la forma real cierra el hueco.
+  recipeContext: z.object({
+    recipe_metadata: z.object({ title: z.string().max(200) }),
+    ingredients: z.array(recipeIngredientSchema).max(100).optional(),
+    steps: z.array(recipeStepSchema).max(100).optional(),
+  }),
   history: z
     .array(z.object({ role: z.enum(['user', 'model']), text: z.string().max(2000) }))
     .max(50)
