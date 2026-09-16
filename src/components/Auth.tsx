@@ -94,8 +94,8 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
         showToast('¡Registro exitoso! Revisa tu email para verificar tu cuenta.', 'success');
         navigate('/app');
       }
-    } catch (err: any) {
-      showToast(err.message || 'Ocurrió un error inesperado.', 'error');
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Ocurrió un error inesperado.', 'error');
     } finally {
       setIsLoading(false);
     }

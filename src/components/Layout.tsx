@@ -5,11 +5,12 @@ import { signOut } from '../services/auth';
 import Sidebar from './Sidebar';
 import { Logo } from './Logo';
 import { useTheme } from '../context/ThemeContext';
+import type { AuthSession } from '../services/auth';
 
 interface LayoutProps {
   children: React.ReactNode;
-  session: any;
-  onAuthChange: (session: any) => void;
+  session: AuthSession | null;
+  onAuthChange: (session: AuthSession | null) => void;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
