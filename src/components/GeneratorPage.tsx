@@ -4,53 +4,26 @@ import { useLocation } from 'react-router-dom';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, generateRecipeImage, EmailNotVerifiedError, PlanRequiredError } from '../services/gemini-edge';
+import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError } from '../services/ai';
 import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
+import type { AuthSession } from '../services/auth';
 import { Sparkles, Lock, Crown } from 'lucide-react';
 
 interface Props {
   userProfile: UserProfile;
-  session: any;
+  session: AuthSession | null;
 }
 
 const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit, incrementRecipeCount, markDailyLimitReached } = useSubscription();
   const location = useLocation();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
-  const [currentImage, setCurrentImage] = useState<string | null>(null);
-
-  // Safety check: if userProfile is not available, show error
-  if (!userProfile) {
-    return (
-      <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Auto-trigger if navigated with state
-  useEffect(() => {
-    if (location.state && location.state.autoTrigger && userProfile) {
-      const { prompt, mode, servings, timeLimit } = location.state;
-      handleGenerate({
-        prompt,
-        mode: mode || 'text',
-        servings: servings || 2,
-        timeLimit: timeLimit || 'unlimited',
-        ingredients: mode === 'pantry' ? prompt : undefined
-      });
-      // Clear state to prevent loop if user navigates back (optional, but good practice)
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, userProfile]);
 
   const handleGenerate = async (params: GenerationParams) => {
     // Validate userProfile before proceeding
@@ -68,42 +41,27 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
     setIsLoading(true);
     setCurrentRecipe(null);
-    setCurrentImage(null);
 
     try {
       // 1. Generate Recipe Text
       const generatedRecipe = await generateRecipeAI(
-        params.prompt, 
-        params.mode, 
-        userProfile, 
+        params.prompt,
+        params.mode,
         params.timeLimit,
         params.ingredients,
         params.servings,
-        params.utensils
+        params.utensils,
+        params.hasKitchenRobot
       );
       generatedRecipe.recipe_metadata.servings = params.servings; 
       
       setCurrentRecipe(generatedRecipe);
 
-      // 3. Generate Image (only for paid plans)
-      let generatedImage: string | null = null;
-      if (limits.hasImageGeneration) {
-        const imagePrompt = `
-          Professional high-end food photography of the final dish: ${generatedRecipe.recipe_metadata.title}.
-          Visual context: ${generatedRecipe.recipe_metadata.description.substring(0, 150)}.
-          Style: Michelin star plating, 8k resolution, hyper-realistic, soft studio lighting, shallow depth of field (bokeh).
-          CRITICAL: Real food only. No people, no text.
-        `.trim();
-
-        generatedImage = await generateRecipeImage(imagePrompt);
-        setCurrentImage(generatedImage);
-      }
-
-      // 4. Save to DB and increment counter
+      // 3. Save to DB and increment counter
       const userId = session?.user?.id;
       if (userId) {
         try {
-          await saveRecipeToDB(generatedRecipe, params.prompt, generatedImage);
+          await saveRecipeToDB(generatedRecipe, params.prompt, null);
           incrementRecipeCount(); // Increment after successful generation
 
           // Se calcula a partir del valor ya leído arriba en vez de releer
@@ -116,7 +74,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           } else {
             showToast('Receta generada y guardada.', 'success');
           }
-        } catch (saveError: any) {
+        } catch (saveError) {
           // Detectar error de límite diario desde el backend
           if (saveError instanceof DailyLimitError) {
             // El servidor manda: si dice que ya no quedan, el contador local
@@ -125,7 +83,6 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
             showToast('❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.', 'error');
             // No mostrar la receta si no se pudo guardar por límite
             setCurrentRecipe(null);
-            setCurrentImage(null);
             return;
           }
           // Otro tipo de error al guardar
@@ -134,7 +91,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         }
       }
 
-    } catch (err: any) {
+    } catch (err) {
       if (err instanceof EmailNotVerifiedError) {
         showToast('Verifica tu email antes de generar recetas. Revisa tu bandeja de entrada.', 'error');
       } else if (err instanceof PlanRequiredError) {
@@ -148,9 +105,40 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
     }
   };
 
+  // Auto-trigger si se navega con state (Dashboard/ChefTableWidget pasan
+  // location.state.autoTrigger). Este efecto DEBE llamarse siempre en el
+  // mismo orden en cada render — por eso vive antes del `if (!userProfile)`
+  // de abajo, que solo decide qué se pinta, no si el hook se ejecuta.
+  useEffect(() => {
+    if (location.state && location.state.autoTrigger && userProfile) {
+      const { prompt, mode, servings, timeLimit } = location.state;
+      handleGenerate({
+        prompt,
+        mode: mode || 'text',
+        servings: servings || 2,
+        timeLimit: timeLimit || 'unlimited',
+        ingredients: mode === 'pantry' ? prompt : undefined
+      });
+      // Limpia el state para que no se repita si el usuario navega hacia atrás.
+      window.history.replaceState({}, document.title);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state, userProfile]);
+
+  // Safety check: si userProfile no está listo, se muestra un loader en vez
+  // de la pantalla real — va DESPUÉS de todos los hooks, nunca antes.
+  if (!userProfile) {
+    return (
+      <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
+        </div>
+      </div>
+    );
+  }
+
   const resetView = () => {
     setCurrentRecipe(null);
-    setCurrentImage(null);
   };
 
   return (
@@ -208,11 +196,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           />
         </div>
       ) : (
-        <RecipeDisplay 
-          recipe={currentRecipe} 
-          imageUrl={currentImage} 
+        <RecipeDisplay
+          recipe={currentRecipe}
+          imageUrl={null}
           onGenerateAgain={resetView}
-          isPro={limits.hasImageGeneration}
         />
       )}
     </div>

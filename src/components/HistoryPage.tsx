@@ -4,14 +4,17 @@ import { Search, Clock, Flame, ChevronRight, Loader2, Calendar, Filter, ArrowDow
 import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
 import { useSubscription } from '../context/SubscriptionContext';
+import RecipePreviewModal from './RecipePreviewModal';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
-  session: any;
+  session: AuthSession | null;
 }
 
 const HistoryPage: React.FC<Props> = ({ session }) => {
   const [recipes, setRecipes] = useState<RecipeDB[]>([]);
   const [loading, setLoading] = useState(true);
+  const [previewId, setPreviewId] = useState<number | null>(null);
   const { limits } = useSubscription();
   
   const [search, setSearch] = useState('');
@@ -21,17 +24,16 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (session?.user?.id) {
-      loadData();
-    }
-  }, [session]);
+    if (!session?.user?.id) return;
 
-  const loadData = async () => {
-    setLoading(true);
-    const data = await fetchUserHistory();
-    setRecipes(data);
-    setLoading(false);
-  };
+    const loadData = async () => {
+      setLoading(true);
+      const data = await fetchUserHistory();
+      setRecipes(data);
+      setLoading(false);
+    };
+    loadData();
+  }, [session]);
 
   const filteredRecipes = (recipes || [])
     .filter(r => {
@@ -131,9 +133,9 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
         <>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayRecipes.map((recipe) => (
-            <div 
+            <div
               key={recipe.id}
-              onClick={() => navigate(`/app/recipe/${recipe.id}`)}
+              onClick={() => recipe.id != null && setPreviewId(recipe.id)}
               className="bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group overflow-hidden flex flex-col h-full"
             >
               <div className="aspect-video bg-primary/10 relative overflow-hidden">
@@ -183,7 +185,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                 </p>
 
                 <div className="pt-4 border-t border-[#241B10]/5 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium text-primary">
-                  <span>Ver Receta Completa</span>
+                  <span>Vista Previa</span>
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
@@ -216,6 +218,10 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
           </div>
         )}
       </>
+      )}
+
+      {previewId != null && (
+        <RecipePreviewModal recipeId={previewId} onClose={() => setPreviewId(null)} />
       )}
     </div>
   );

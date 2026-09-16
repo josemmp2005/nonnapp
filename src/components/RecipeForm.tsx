@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Wand2, Search, Refrigerator, Clock, Lock } from 'lucide-react';
+import { Wand2, Search, Refrigerator, Clock, Lock, CookingPot } from 'lucide-react';
 import type { GenerationParams } from '../types';
 
 interface Props {
@@ -13,6 +13,7 @@ const RecipeForm: React.FC<Props> = ({ isLoading, onSubmit, hasAdvancedPantry = 
   const [input, setInput] = useState('');
   const [servings, setServings] = useState(2);
   const [timeLimit, setTimeLimit] = useState('unlimited');
+  const [hasKitchenRobot, setHasKitchenRobot] = useState(false);
 
   const handleModeChange = (newMode: 'text' | 'pantry') => {
     if (newMode === 'pantry' && !hasAdvancedPantry) {
@@ -24,13 +25,14 @@ const RecipeForm: React.FC<Props> = ({ isLoading, onSubmit, hasAdvancedPantry = 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    
+
     onSubmit({
       mode,
       prompt: input,
       servings,
       timeLimit,
-      ingredients: mode === 'pantry' ? input : undefined
+      ingredients: mode === 'pantry' ? input : undefined,
+      hasKitchenRobot
     });
   };
 
@@ -123,6 +125,36 @@ const RecipeForm: React.FC<Props> = ({ isLoading, onSubmit, hasAdvancedPantry = 
                   <Clock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8C7C63] dark:text-[#7C715E] pointer-events-none" />
                </div>
            </div>
+           <div className="flex-1 min-w-[150px]">
+              <label className="text-xs font-semibold text-[#8C7C63] dark:text-[#7C715E] uppercase mb-2 flex items-center gap-1.5">
+                <CookingPot className="w-3.5 h-3.5" />
+                Robot de Cocina
+              </label>
+              <div className="flex bg-[#FCF6EC] dark:bg-[#221B12] rounded-lg p-1 border border-[#241B10]/15 dark:border-[#F5E6CD]/15">
+                <button
+                  type="button"
+                  onClick={() => setHasKitchenRobot(true)}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-colors ${
+                    hasKitchenRobot
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'
+                  }`}
+                >
+                  Sí
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHasKitchenRobot(false)}
+                  className={`flex-1 py-2 rounded-md text-sm font-semibold transition-colors ${
+                    !hasKitchenRobot
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'
+                  }`}
+                >
+                  No
+                </button>
+              </div>
+           </div>
         </div>
 
         <button
@@ -135,7 +167,7 @@ const RecipeForm: React.FC<Props> = ({ isLoading, onSubmit, hasAdvancedPantry = 
         </button>
         
         <p className="text-center text-xs text-[#8C7C63] dark:text-[#6E6350]">
-          Utilizamos Gemini Flash 2.5 + Nano Banana para la mejor experiencia.
+          Recetas generadas con IA para la mejor experiencia.
         </p>
       </form>
     </div>

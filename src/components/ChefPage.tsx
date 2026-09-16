@@ -26,7 +26,7 @@ const ChefPage: React.FC = () => {
             </h1>
             
             <p className="text-xl text-[#3A2E1D] dark:text-[#D4D4D8] leading-relaxed mb-8">
-              Accede a nuestra selección de Nonnas expertas y chatea con ellas sobre sus recetas tradicionales. Disponible en los planes <span className="font-bold text-primary">La Mamma</span> y <span className="font-bold text-primary">La Nonna</span>.
+              Accede a nuestra selección de Nonnas expertas y chatea con ellas sobre sus recetas tradicionales. Disponible en el plan <span className="font-bold text-primary">La Nonna</span>.
             </p>
 
             <div className="bg-white dark:bg-[#18130D] rounded-2xl p-8 shadow-xl border border-amber-200 dark:border-amber-800 space-y-4 text-left">

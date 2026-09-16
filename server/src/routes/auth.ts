@@ -27,7 +27,12 @@ const RESEND_VERIFICATION_COOLDOWN_MS = 60 * 1000; // 1 min entre reenvíos por 
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
-  sameSite: 'lax' as const,
+  // 'none' en producción: frontend (Vercel) y backend (Render) viven en
+  // dominios distintos, así que la cookie de sesión viaja en fetch()
+  // cross-site — con 'lax' el navegador la descarta y el login parece
+  // funcionar (200 OK) pero /api/auth/me nunca ve la cookie después.
+  // Requiere Secure (ya activo con isProd), si no el navegador la rechaza.
+  sameSite: isProd ? ('none' as const) : ('lax' as const),
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',
 };
@@ -103,10 +108,16 @@ router.post('/signup', createStrictAuthRateLimiter(), validateBody(signupSchema)
     const { token } = await createSession(user.id);
     res.cookie(SESSION_COOKIE, token, cookieOptions);
 
-    // Best-effort: un fallo de email no debe tumbar el registro.
-    sendVerificationEmail(user.id, user.email, user.username).catch((err) =>
-      console.warn('No se pudo enviar el email de verificación:', err)
-    );
+    // Best-effort: un fallo de email no debe tumbar el registro. Se manda
+    // primero (y se espera) el de verificación, y solo después el de
+    // bienvenida — en paralelo, Resend (plan gratuito) devuelve 429 por
+    // límite de tasa (2 req/s) si se disparan los dos casi a la vez, y el
+    // de verificación es el que de verdad hace falta para poder usar la app.
+    try {
+      await sendVerificationEmail(user.id, user.email, user.username);
+    } catch (err) {
+      console.warn('No se pudo enviar el email de verificación:', err);
+    }
     sendMail(
       user.email,
       '¡Bienvenido a Sabora! 🍳',

@@ -15,10 +15,10 @@ export const env = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
-  geminiApiKey: process.env.GEMINI_API_KEY || '',
-  geminiModelImage: process.env.GEMINI_MODEL_IMAGE || 'imagen-3.0-generate-001',
-  gmailUser: process.env.GMAIL_USER || '',
-  gmailAppPassword: process.env.GMAIL_APP_PASSWORD || '',
+  // Resend (API HTTP, no SMTP) — SMTP saliente está bloqueado en el plan
+  // gratuito de Render (y de otros PaaS similares), ver server/src/lib/mailer.ts.
+  resendApiKey: process.env.RESEND_API_KEY || '',
+  resendFrom: process.env.RESEND_FROM || 'Sabora <onboarding@resend.dev>',
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',

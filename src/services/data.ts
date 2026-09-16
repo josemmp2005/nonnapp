@@ -75,9 +75,11 @@ export const saveChefPreferences = async (profile: UserProfile): Promise<{ error
 export const fetchSubscription = (): Promise<SubscriptionData> => apiFetch<SubscriptionData>('/api/subscription');
 
 // Endpoint de demo (sin pago real) — ver server/src/routes/subscription.ts
-export const toggleSubscription = async (currentStatus: boolean): Promise<{ error: Error | null }> => {
+export type PlanTypeLower = 'nipote' | 'mamma' | 'nonna';
+
+export const changeSubscription = async (plan: PlanTypeLower): Promise<{ error: Error | null }> => {
   try {
-    await apiFetch('/api/subscription/toggle', { method: 'POST', body: { currentStatus } });
+    await apiFetch('/api/subscription/change', { method: 'POST', body: { plan } });
     return { error: null };
   } catch (err) {
     return { error: err as Error };

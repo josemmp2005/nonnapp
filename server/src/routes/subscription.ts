@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { pool, withTransaction } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';
 import { validateBody } from '../lib/validate.js';
-import { toggleSubscriptionSchema } from '../lib/schemas.js';
-import { getActiveSubscription } from '../lib/subscription.js';
+import { changeSubscriptionSchema } from '../lib/schemas.js';
+import { getActivePlan, getActiveSubscription } from '../lib/subscription.js';
 
 const router = Router();
 router.use(requireAuth, requireVerifiedEmail);
@@ -41,33 +41,57 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Endpoint de DEMO (sin pasarela de pago real): permite al propio usuario
-// activar/desactivar el plan "Mamma" para probar las funciones premium.
-// Sigue exigiendo sesión y solo puede afectar a req.userId, nunca a otro usuario.
-router.post('/toggle', validateBody(toggleSubscriptionSchema), async (req, res) => {
-  const { currentStatus } = req.body;
+// Pasarela de pago real aún no implementada — bloqueado temporalmente para
+// el primer despliegue público (nadie debe poder autoconcederse un plan de
+// pago llamando a esta ruta directamente, sin pasar por la UI). Cambiar a
+// true (y el mismo flag en src/components/PreferencesPage.tsx) para
+// reactivar el cambio de plan.
+const PLAN_CHANGES_ENABLED = false;
+
+// Endpoint de DEMO (sin pasarela de pago real, sin cargo alguno): cambia el
+// plan activo del propio usuario a cualquiera de los 3 — el frontend simula
+// una pantalla de pago antes de llamar aquí para los planes de pago, pero la
+// simulación es puramente de cara al usuario, este endpoint no la valida ni
+// la necesita. Sigue exigiendo sesión y solo puede afectar a req.userId.
+router.post('/change', validateBody(changeSubscriptionSchema), async (req, res) => {
+  if (!PLAN_CHANGES_ENABLED) {
+    return res.status(503).json({
+      error: 'SUBSCRIPTION_CHANGES_DISABLED',
+      message:
+        'La pasarela de pago está deshabilitada temporalmente. Si quieres mejorar tu plan, contacta con info.nonnap@gmail.com. Disculpa las molestias.',
+    });
+  }
+
+  const { plan } = req.body;
 
   try {
+    const currentPlan = await getActivePlan(pool, req.userId!);
+    if (currentPlan === plan) {
+      return res.status(204).send();
+    }
+
     await withTransaction(async (client) => {
-      if (currentStatus) {
-        await client.query(
-          `UPDATE subscriptions SET is_active = false
-           WHERE user_id = $1 AND plan_type IN ('mamma', 'nonna') AND is_active = true`,
-          [req.userId]
-        );
-      } else {
-        await client.query(
-          `INSERT INTO subscriptions (user_id, plan_type, is_active, start_date)
-           VALUES ($1, 'mamma', true, NOW())`,
-          [req.userId]
-        );
-      }
+      // Cierra CUALQUIER suscripción activa (la de signup ya inserta una fila
+      // 'nipote' is_active=true que antes nunca se desactivaba al cambiar de
+      // plan, dejando dos filas "activas" a la vez — el ORDER BY de
+      // getActiveSubscription acertaba por casualidad, no por diseño).
+      await client.query(
+        `UPDATE subscriptions SET is_active = false, end_date = NOW()
+         WHERE user_id = $1 AND is_active = true`,
+        [req.userId]
+      );
+
+      await client.query(
+        `INSERT INTO subscriptions (user_id, plan_type, is_active, start_date)
+         VALUES ($1, $2, true, NOW())`,
+        [req.userId, plan]
+      );
     });
 
     return res.status(204).send();
   } catch (err) {
-    console.error('Error actualizando suscripción (demo):', err);
-    return res.status(500).json({ error: 'No se pudo actualizar la suscripción' });
+    console.error('Error cambiando de plan (demo):', err);
+    return res.status(500).json({ error: 'No se pudo cambiar de plan' });
   }
 });
 

@@ -22,29 +22,32 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
   Nipote: {
     maxRecipesPerDay: 2,
     hasAdvancedPantry: false,
-    hasImageGeneration: false,
     hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: false,
     hasPrioritySupport: false,
+    hasChefPreferences: false,
   },
   Mamma: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
-    hasChefChat: true,
+    // El chat del chef y La Mesa de la Nonna pasaron a ser exclusivos de La
+    // Nonna — antes los tenía también La Mamma. La generación de fotos se
+    // eliminó de la app por completo (ya no se usa Gemini para nada).
+    hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: true,
     hasPrioritySupport: false,
+    hasChefPreferences: true,
   },
   Nonna: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
     hasChefChat: true,
     hasWeeklyPlanner: true,
     hasFullHistory: true,
     hasPrioritySupport: true,
+    hasChefPreferences: true,
   },
 };
 
@@ -174,6 +177,11 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode; session: Auth
   );
 };
 
+// El hook vive en el mismo archivo que el Provider a propósito (patrón
+// Context+Provider+hook habitual) — solo afecta al Fast Refresh de Vite en
+// desarrollo (una recarga completa en vez de HMR si se edita este archivo),
+// nunca a producción ni a la lógica.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {

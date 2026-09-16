@@ -3,20 +3,28 @@
  */
 
 interface QueueItem {
-  fn: () => Promise<any>;
-  resolve: (value: any) => void;
-  reject: (error: any) => void;
+  fn: () => Promise<unknown>;
+  resolve: (value: unknown) => void;
+  reject: (error: unknown) => void;
 }
 
 class RateLimiter {
   private queue: QueueItem[] = [];
   private processing = false;
   private lastCallTime = 0;
-  private minInterval = 5000; // 5 segundos para evitar rate limits de Gemini
+  private minInterval = 5000; // 5 segundos entre llamadas a la IA (Groq)
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     return new Promise((resolve, reject) => {
-      this.queue.push({ fn, resolve, reject });
+      // La cola es heterogénea (una única lista sirve llamadas con distintos
+      // T) — de ahí el cast puntual aquí en vez de un `any` genérico en toda
+      // la interfaz; en tiempo de ejecución cada `resolve` sigue siendo el
+      // de su propia promesa, con su T real.
+      this.queue.push({
+        fn: fn as () => Promise<unknown>,
+        resolve: resolve as (value: unknown) => void,
+        reject,
+      });
       this.processQueue();
     });
   }
@@ -59,7 +67,7 @@ class RateLimiter {
 }
 
 // Instancia global
-export const geminiRateLimiter = new RateLimiter();
+export const aiRateLimiter = new RateLimiter();
 
 /**
  * Cache simple para evitar llamadas duplicadas

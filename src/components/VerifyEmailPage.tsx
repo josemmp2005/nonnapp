@@ -22,13 +22,14 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
     if (ranOnce.current) return;
     ranOnce.current = true;
 
-    if (!token) {
-      setStatus('error');
-      setErrorMessage('Enlace no válido: falta el token de verificación.');
-      return;
-    }
+    const verify = async () => {
+      if (!token) {
+        setStatus('error');
+        setErrorMessage('Enlace no válido: falta el token de verificación.');
+        return;
+      }
 
-    verifyEmailWithToken(token).then(({ error }) => {
+      const { error } = await verifyEmailWithToken(token);
       if (error) {
         setStatus('error');
         setErrorMessage(error.message || 'El enlace no es válido o ha expirado.');
@@ -37,8 +38,9 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
       setStatus('success');
       onEmailVerified?.();
       showToast('✅ Email verificado correctamente', 'success');
-    });
-  }, [token]);
+    };
+    verify();
+  }, [token, onEmailVerified, showToast]);
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">

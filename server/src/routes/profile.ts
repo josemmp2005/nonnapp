@@ -33,13 +33,16 @@ router.get('/preferences', async (req, res) => {
     }
 
     const row = rows[0];
+    // Il Nipote se queda con lo mínimo: aunque hubiera datos guardados de un
+    // plan de pago anterior (downgrade), no se devuelven ni se usan mientras
+    // el plan activo sea gratis.
     return res.json({
-      allergies: row.allergies || '',
-      disliked_ingredients: row.disliked_ingredients || '',
+      allergies: isPro ? row.allergies || '' : '',
+      disliked_ingredients: isPro ? row.disliked_ingredients || '' : '',
       cooking_skill: row.hability || 'intermediate',
-      use_allergies: !!row.allergies,
+      use_allergies: isPro && !!row.allergies,
       use_utensils: false,
-      available_utensils: row.available_utensils || '',
+      available_utensils: isPro ? row.available_utensils || '' : '',
       is_pro: isPro,
     });
   } catch (err) {
@@ -50,6 +53,17 @@ router.get('/preferences', async (req, res) => {
 
 router.put('/preferences', validateBody(preferencesSchema), async (req, res) => {
   const { allergies, disliked_ingredients, cooking_skill } = req.body;
+
+  // Alergias/ingredientes son de pago (igual que el modo despensa, la foto o
+  // el chat) — se comprueba aquí porque la UI bloqueada no basta, cualquiera
+  // puede llamar a esta ruta directamente. El nivel de habilidad se queda
+  // libre para todos: no cuesta nada y no es una de las funciones de pago.
+  if (allergies.trim() !== '' || disliked_ingredients.trim() !== '') {
+    const plan = await getActivePlan(pool, req.userId!);
+    if (plan === 'nipote') {
+      return res.status(403).json({ error: 'PLAN_REQUIRED', plan, requiredPlans: ['mamma', 'nonna'] });
+    }
+  }
 
   try {
     await pool.query(

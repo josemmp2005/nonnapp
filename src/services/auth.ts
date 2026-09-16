@@ -138,6 +138,14 @@ export const verifyEmailWithToken = async (token: string): Promise<{ error: Auth
   }
 };
 
+const getRetryAfterSeconds = (data: unknown): number | undefined => {
+  if (data && typeof data === 'object' && 'retryAfterSeconds' in data) {
+    const value = (data as Record<string, unknown>).retryAfterSeconds;
+    return typeof value === 'number' ? value : undefined;
+  }
+  return undefined;
+};
+
 export const resendVerificationEmail = async (): Promise<{
   error: AuthError | null;
   retryAfterSeconds?: number;
@@ -147,9 +155,7 @@ export const resendVerificationEmail = async (): Promise<{
     return { error: null };
   } catch (err) {
     const retryAfterSeconds =
-      err instanceof ApiError && err.status === 429 && typeof (err.data as any)?.retryAfterSeconds === 'number'
-        ? (err.data as any).retryAfterSeconds
-        : undefined;
+      err instanceof ApiError && err.status === 429 ? getRetryAfterSeconds(err.data) : undefined;
     return { error: asAuthError(err), retryAfterSeconds };
   }
 };

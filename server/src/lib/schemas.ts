@@ -87,17 +87,10 @@ export const generateRecipeSchema = z.object({
   servings: z.number().int().positive().max(50).optional(),
   timeLimit: z.string().max(50).optional(),
   utensils: z.string().max(1000).optional(),
-  userProfile: z
-    .object({
-      allergies: z.string().max(1000).optional(),
-      disliked_ingredients: z.string().max(1000).optional(),
-      cooking_skill: z.string().max(50).optional(),
-    })
-    .optional(),
-});
-
-export const generateImageSchema = z.object({
-  prompt: z.string().trim().min(1, 'prompt es obligatorio').max(2000),
+  hasKitchenRobot: z.boolean().optional(),
+  // Nota: ya no se acepta `userProfile` aquí — alergias/ingredientes/nivel
+  // se leen siempre del lado del servidor (server/src/routes/ai.ts), nunca
+  // de lo que mande el cliente, para que el bloqueo por plan sea real.
 });
 
 export const chatSchema = z.object({
@@ -115,6 +108,6 @@ export const chatSchema = z.object({
 
 // --- subscription ---
 
-export const toggleSubscriptionSchema = z.object({
-  currentStatus: z.boolean().optional(),
+export const changeSubscriptionSchema = z.object({
+  plan: z.enum(['nipote', 'mamma', 'nonna']),
 });

@@ -4,7 +4,7 @@ Este documento explica la app desde el punto de vista de lo que hace, no de cóm
 
 ## Qué es
 
-Sabora genera recetas de cocina con IA a partir de lo que el usuario tiene en la despensa o de una idea de plato, con foto del resultado, pasos claros y un "chef" al que preguntarle dudas mientras cocina.
+Sabora genera recetas de cocina con IA a partir de lo que el usuario tiene en la despensa o de una idea de plato, con pasos claros y un "chef" al que preguntarle dudas mientras cocina.
 
 ## Páginas y flujo
 
@@ -37,16 +37,17 @@ Dos modos, elegibles en `/app/generate`:
 - **Texto** (siempre disponible): describes lo que te apetece ("una cena romántica vegana...") y la IA inventa la receta.
 - **Despensa** (solo planes de pago): listas los ingredientes que tienes ("huevos, tomate, arroz...") y la IA prioriza usarlos.
 
-Se puede además fijar raciones, un límite de tiempo de cocinado y (si el plan lo permite) los utensilios disponibles. La IA tiene en cuenta las alergias, ingredientes no deseados y nivel de habilidad guardados en Preferencias.
+Se puede además fijar raciones, un límite de tiempo de cocinado, si se tiene robot de cocina (tipo Thermomix) y (si el plan lo permite) los utensilios disponibles. La IA tiene en cuenta las alergias, ingredientes no deseados y nivel de habilidad guardados en Preferencias.
 
 Al generar:
 1. Se pide el texto de la receta (título, descripción, ingredientes con cantidad, utensilios, pasos) — motor: **Groq**.
-2. Si el plan incluye imágenes, se genera una foto del plato — motor: **Gemini** (si no hay clave de Gemini configurada, la receta se genera igual, solo que sin foto).
-3. Se guarda en el historial del usuario. Los planes gratis tienen un límite de **2 recetas al día**; al superarlo, se avisa y no se genera más hasta el día siguiente (el límite se comprueba en el servidor, no se puede saltar borrando datos del navegador).
+2. Se guarda en el historial del usuario. Los planes gratis tienen un límite de **2 recetas al día**; al superarlo, se avisa y no se genera más hasta el día siguiente (el límite se comprueba en el servidor, no se puede saltar borrando datos del navegador).
+
+No hay generación de fotos del plato — se usó Gemini para eso hasta que se quitó de la app por completo.
 
 ## El chef de IA (chat)
 
-Botón flotante disponible mientras se ve una receta (planes de pago). Es una conversación con contexto de la receta actual — se le puede preguntar por sustituciones de ingredientes, aclarar un paso, etc. El historial de la conversación no se guarda: si se cierra el chat o se recarga la página, se pierde.
+Botón flotante disponible mientras se ve una receta (plan La Nonna). Es una conversación con contexto de la receta actual — se le puede preguntar por sustituciones de ingredientes, aclarar un paso, etc. El historial de la conversación no se guarda: si se cierra el chat o se recarga la página, se pierde.
 
 ## Planes
 
@@ -54,15 +55,16 @@ Botón flotante disponible mientras se ve una receta (planes de pago). Es una co
 |---|---|---|---|
 | Recetas por día | 2 | Ilimitadas | Ilimitadas |
 | Modo despensa | ✗ | ✔ | ✔ |
-| Foto de la receta | ✗ | ✔ | ✔ |
-| Chat con el chef | ✗ | ✔ | ✔ |
+| Chat con el chef | ✗ | ✗ | ✔ |
+| La Mesa de la Nonna | ✗ | ✗ | ✔ |
+| Alergias / ingredientes / utensilios | ✗ | ✔ | ✔ |
 | Historial completo | Últimas 3 | ✔ | ✔ |
 | Planificador semanal | ✗ | ✗ | ✔ |
 | Soporte prioritario | ✗ | ✗ | ✔ |
 
 Notas importantes:
-- **El pago no está implementado de verdad.** En Preferencias hay un botón "Obtener Pro" que activa el plan La Mamma directamente, sin pasarela de cobro — es una demo para poder probar las funciones de pago, no un checkout real.
-- **Los límites de Il Nipote se aplican en el servidor, no solo escondiendo botones.** Modo despensa, foto y chat devuelven un error si se intenta usarlos sin plan de pago aunque se salte la interfaz (por ejemplo llamando a la API directamente) — no basta con que la app no muestre el botón.
+- **El pago no está implementado de verdad.** En Preferencias, "Cambiar de plan" abre un selector con los 3 planes (Il Nipote / La Mamma / La Nonna) y, al elegir uno de pago, una pantalla de "pago" con campos de tarjeta — es una simulación: cualquier número vale, hay un pequeño delay para que se sienta real, y no hay pasarela de cobro ni cargo alguno. Cancelar vuelve a Il Nipote tras una confirmación (sin paso de pago).
+- **Los límites de Il Nipote y La Mamma se aplican en el servidor, no solo escondiendo botones.** Modo despensa, las secciones de alergias/ingredientes/utensilios en Configuración del Chef, el chat y La Mesa de la Nonna devuelven un error si se intenta usarlos sin el plan que corresponde, aunque se salte la interfaz (por ejemplo llamando a la API directamente) — no basta con que la app no muestre el botón. El nivel de habilidad (Principiante/Intermedio/Avanzado) es lo único que no está gated, disponible para todos los planes.
 - El planificador semanal y las "recetas secretas de temporada" de La Nonna son, por ahora, solo promesas de la landing — no hay ninguna pantalla ni funcionalidad construida para ellas todavía.
 
 ## Preferencias del chef
