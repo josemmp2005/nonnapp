@@ -1,21 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ChefHat, ArrowRight } from 'lucide-react';
+import { IngredientIcon } from './IngredientIcon';
+import { Reveal } from './shared';
 
 const FinalCtaSection: React.FC = () => (
-  <section className="relative border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 bg-[#FCF6EC] dark:bg-[#130F0A] py-20 md:py-28 text-center overflow-hidden">
-    <div className="pointer-events-none absolute top-5 left-1/2 -translate-x-1/2 w-[520px] h-[260px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.12)_0%,rgba(249,115,22,0)_72%)] dark:bg-[radial-gradient(circle,rgba(249,115,22,0.1)_0%,rgba(249,115,22,0)_72%)]" />
+  <section className="relative border-t border-white/10 bg-[#122318] py-20 md:py-28 text-center overflow-hidden">
+    <div className="pointer-events-none absolute top-5 left-1/2 -translate-x-1/2 w-[560px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.14)_0%,rgba(249,115,22,0)_72%)]" />
+
+    {/* Ingredientes decorativos, parcialmente cortados por los bordes */}
+    <IngredientIcon ingredient="tomato" className="hidden sm:block absolute -left-6 top-10 w-24 h-24 text-white/[0.06] rotate-[-8deg]" />
+    <IngredientIcon ingredient="avocado" className="hidden sm:block absolute -right-8 top-1/3 w-28 h-28 text-white/[0.06] rotate-[10deg]" />
+    <IngredientIcon ingredient="onion" className="hidden sm:block absolute left-8 -bottom-8 w-24 h-24 text-white/[0.06] rotate-[6deg]" />
+    <IngredientIcon ingredient="broccoli" className="hidden sm:block absolute -right-6 -bottom-6 w-28 h-28 text-white/[0.06] rotate-[-10deg]" />
+
     <div className="max-w-xl mx-auto px-6 relative z-10">
-      <h2 className="mb-8 text-3xl md:text-[40px] font-bold tracking-tight leading-tight text-[#241B10] dark:text-[#F8F2E6]">
-        La mesa está servida.<br />Solo faltas tú.
-      </h2>
-      <Link
-        to="/app"
-        className="group inline-flex items-center gap-2 px-7 py-3 bg-primary text-[#130F0A] text-sm font-semibold rounded-lg shadow-lg shadow-primary/25 hover:bg-orange-400 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300"
-      >
-        Empezar a cocinar
-        <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-      </Link>
-      <p className="mt-5 text-xs text-[#8C7C63] dark:text-[#6C6C72]">Prueba gratis. Sin tarjeta de crédito.</p>
+      <Reveal>
+        <h2 className="mb-5 text-3xl md:text-[40px] font-bold tracking-tight leading-tight text-white">
+          Tu próxima receta está a un ingrediente de distancia.
+        </h2>
+        <p className="mb-9 text-sm md:text-base text-white/60 max-w-md mx-auto">
+          Abre la nevera. Cuéntanos qué tienes. Nonnapp se encarga del resto.
+        </p>
+        <Link
+          to="/app"
+          className="group inline-flex items-center gap-2.5 px-8 py-4 bg-primary text-white text-base font-bold rounded-xl shadow-lg shadow-black/20 hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300"
+        >
+          <ChefHat className="w-5 h-5" />
+          Comenzar a cocinar
+          <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </Link>
+        <p className="mt-5 text-xs text-white/40">Prueba gratis. Sin tarjeta de crédito.</p>
+      </Reveal>
     </div>
   </section>
 );
