@@ -33,7 +33,7 @@ sabora-app/
       env.ts                 Lectura/validación de variables de entorno
       middleware/auth.ts      Verifica el JWT de la cookie, exige sesión
       lib/groq.ts             Cliente HTTP a la API de Groq
-      lib/mailer.ts           Envío de emails (Resend, API HTTP)
+      lib/mailer.ts           Envío de emails (Brevo, API HTTP)
       routes/                 Un archivo por área: auth, recipes, profile, subscription, ai
   docker-compose.yml      Postgres + Adminer (dev) + server/web (stack completo, ver más abajo)
   Dockerfile              Imagen del frontend (build Vite + nginx)
@@ -89,7 +89,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 
 ### Tests
 
-- **Backend** (`server/tests/`): tests de integración con Supertest contra la app de Express real (`server/src/app.ts`, sin necesidad de levantar el puerto) y una base de datos Postgres real — no se mockea `pg`, así que cubren de verdad el bloqueo por plan (`requirePlan`), el límite diario de Il Nipote, el aislamiento de recetas entre usuarios (IDOR), y los flujos de auth. Groq y Resend sí se mockean (`vi.mock`) — nunca llaman a una API externa real.
+- **Backend** (`server/tests/`): tests de integración con Supertest contra la app de Express real (`server/src/app.ts`, sin necesidad de levantar el puerto) y una base de datos Postgres real — no se mockea `pg`, así que cubren de verdad el bloqueo por plan (`requirePlan`), el límite diario de Il Nipote, el aislamiento de recetas entre usuarios (IDOR), y los flujos de auth. Groq y Brevo sí se mockean (`vi.mock`) — nunca llaman a una API externa real.
   - Necesitan Postgres arrancado (`docker compose up -d` desde la raíz) y usan una base de datos separada de la de desarrollo: `sabora_test` (se crea sola la primera vez, ver `server/tests/globalSetup.ts`). Configuración en `server/.env.test` (sin secretos, seguro de commitear).
   - `cd server && npm test`
 - **Frontend** (`src/utils/*.test.ts`): tests unitarios de lógica pura (rate limiter, caché) con Vitest. No hay tests de componentes React todavía — queda como mejora futura si se añade React Testing Library.
@@ -117,7 +117,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
 | `APP_URL` | Usada para construir el link de "restablecer contraseña" en el email |
 | `GROQ_API_KEY` / `GROQ_MODEL` | Generación de recetas y chat del chef |
-| `RESEND_API_KEY` / `RESEND_FROM` | Opcional — envío real de emails (verificación, bienvenida, reset de contraseña) vía [Resend](https://resend.com) (API HTTP, no SMTP — el SMTP saliente está bloqueado en el plan gratuito de Render y similares). Sin `RESEND_API_KEY`, el email se loguea en consola en vez de enviarse |
+| `BREVO_API_KEY` / `BREVO_FROM` | Opcional — envío real de emails (verificación, bienvenida, reset de contraseña) vía [Brevo](https://brevo.com) (API HTTP, no SMTP — el SMTP saliente está bloqueado en el plan gratuito de Render y similares). `BREVO_FROM` debe ser un email verificado en Brevo (Senders, Domains & Dedicated IPs → Senders) — no hace falta dominio propio, y a diferencia de Resend permite mandar a cualquier destinatario en el plan gratuito. Sin `BREVO_API_KEY`, el email se loguea en consola en vez de enviarse |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Opcional — login con Google. Credenciales de Google Cloud Console; `GOOGLE_REDIRECT_URI` debe coincidir exactamente con la que se da de alta ahí. Sin ellas, el botón de Google redirige con un error en vez de romper el resto del login |
 
 ### Ver la base de datos (Adminer)
@@ -167,6 +167,7 @@ Frontend, backend y base de datos en tres servicios gratuitos, cada uno con su d
    | `DB_SSL` | `true` |
    | `JWT_SECRET` | Genera uno: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"` |
    | `GROQ_API_KEY` / `GROQ_MODEL` | Tu clave de Groq |
+   | `BREVO_API_KEY` / `BREVO_FROM` | Opcional — tu clave de Brevo y el remitente verificado, para que lleguen los emails de verdad (ver tabla de variables más abajo) |
    | `CORS_ORIGIN` / `APP_URL` | La URL de Vercel del paso 3 (se rellena después de crearla, y se vuelve a desplegar) |
 
    Render asigna su propio `PORT` (el servidor ya lo respeta vía `env.ts`) y expone la API en algo como `https://sabora-api.onrender.com`. El esquema de la BBDD se aplica solo al arrancar — no hace falta ningún paso manual. En el plan gratuito el servicio "duerme" tras 15 min sin tráfico y el primer request tras eso tarda ~30-50s en responder (arranque en frío) — normal, no es un fallo.

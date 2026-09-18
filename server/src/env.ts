@@ -15,10 +15,12 @@ export const env = {
   corsOrigin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   groqApiKey: process.env.GROQ_API_KEY || '',
   groqModel: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
-  // Resend (API HTTP, no SMTP) — SMTP saliente está bloqueado en el plan
+  // Brevo (API HTTP, no SMTP) — SMTP saliente está bloqueado en el plan
   // gratuito de Render (y de otros PaaS similares), ver server/src/lib/mailer.ts.
-  resendApiKey: process.env.RESEND_API_KEY || '',
-  resendFrom: process.env.RESEND_FROM || 'Sabora <onboarding@resend.dev>',
+  // El remitente debe ser un email verificado en Brevo (Senders, Domains &
+  // Dedicated IPs → Senders) — no hace falta un dominio propio.
+  brevoApiKey: process.env.BREVO_API_KEY || '',
+  brevoFrom: process.env.BREVO_FROM || 'Sabora <no-reply@example.com>',
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
