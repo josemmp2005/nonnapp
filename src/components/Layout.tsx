@@ -47,7 +47,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
           onLogout={handleLogout}
         />
 
-        <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-[#FCF6EC]/90 dark:bg-[#130F0A]/90 backdrop-blur-md z-30 shadow-sm flex items-center px-4 justify-between border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10">
+        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#FCF6EC]/90 dark:bg-[#130F0A]/90 backdrop-blur-md z-30 shadow-sm flex items-center px-4 justify-between border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10">
            <Logo className="w-8 h-8" textClassName="text-xl" />
            <button
              onClick={() => setIsMobileMenuOpen(true)}
@@ -57,10 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
            </button>
         </div>
 
-        <main className="flex-grow md:pl-20 pt-20 md:pt-8 px-4 md:px-8 pb-10 transition-all duration-300 w-full max-w-[1600px] mx-auto relative">
-          <div className="hidden md:flex fixed top-6 right-8 items-center gap-2 opacity-50 select-none pointer-events-none grayscale hover:grayscale-0 transition-all">
-             <Logo className="h-9 w-auto" textClassName="text-lg text-[#8C7C63] dark:text-[#6E6350]" />
-          </div>
+        <main className="flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 transition-all duration-300 w-full max-w-[1600px] mx-auto relative">
           {children}
         </main>
       </div>

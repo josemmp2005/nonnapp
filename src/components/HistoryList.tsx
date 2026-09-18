@@ -1,6 +1,6 @@
 import React from 'react';
 import type { RecipeDB } from '../types';
-import { Clock, ChevronRight } from 'lucide-react';
+import { Clock, ChevronRight, ChefHat } from 'lucide-react';
 
 interface Props {
   recipes: RecipeDB[];
@@ -30,7 +30,20 @@ const HistoryList: React.FC<Props> = ({ recipes, isLoading = false, onSelect }) 
     );
   }
 
-  if (!recipes || recipes.length === 0) return null;
+  if (!recipes || recipes.length === 0) {
+    return (
+      <div className="mt-12" id="history-section">
+        <h3 className="text-lg font-bold text-[#3A2E1D] dark:text-[#D4D4D8] mb-4 px-1">Recientes</h3>
+        <div className="flex flex-col items-center justify-center text-center py-10 px-6 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl">
+          <div className="w-12 h-12 rounded-full bg-white dark:bg-[#221B12] shadow-sm flex items-center justify-center mb-3">
+            <ChefHat className="w-6 h-6 text-[#8C7C63]" />
+          </div>
+          <p className="font-semibold text-[#3A2E1D] dark:text-[#D4D4D8]">Todavía no tienes recetas</p>
+          <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] mt-1">Genera tu primera receta y aparecerá aquí.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12" id="history-section">
