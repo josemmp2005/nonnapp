@@ -36,8 +36,9 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
             <span className="text-xs font-bold text-primary uppercase tracking-wider">Modo Cocina</span>
             <h2 className="font-bold text-[#241B10] dark:text-[#F8F2E6] line-clamp-1 text-lg">{title}</h2>
         </div>
-        <button 
+        <button
           onClick={onClose}
+          aria-label="Salir del modo cocina"
           className="p-2 bg-primary/10 rounded-full hover:bg-[#241B10]/10 dark:hover:bg-white/5 transition-colors"
         >
           <X className="w-6 h-6 text-[#5C4E3A] dark:text-[#A89C86]" />

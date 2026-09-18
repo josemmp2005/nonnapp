@@ -3,10 +3,13 @@ import { Sparkles, Clock, Bookmark, ChefHat } from 'lucide-react';
 import { Reveal } from './shared';
 import { IngredientIcon } from './IngredientIcon';
 
-const DEMO_GIF_SRC = '/videos/nonnapp-demo-mobile.gif';
+const DEMO_VIDEO_SRC = '/videos/nonnapp-demo-mobile.mp4';
 
-// Si el GIF no carga (por lo que sea), se cae a un mockup estático de la
-// interfaz en vez de dejar un hueco roto.
+// Vídeo en vez de GIF: mismo resultado visual (autoplay, loop, sin
+// controles) pero ~10x más ligero (300 KB vs. los 3 MB del GIF original),
+// que era el mayor causante del peso total de la landing en Lighthouse.
+// Si no carga (por lo que sea), se cae a un mockup estático de la interfaz
+// en vez de dejar un hueco roto.
 const PhoneFallbackMockup: React.FC = () => (
   <div className="absolute inset-0 flex flex-col bg-[#0D0A06]">
     <div className="px-4 pt-8 pb-3 border-b border-white/10">
@@ -29,7 +32,7 @@ const PhoneFallbackMockup: React.FC = () => (
 );
 
 const DemoVideoSection: React.FC = () => {
-  const [gifFailed, setGifFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
 
   return (
     <section className="bg-[#152A1E] py-16 md:py-24 relative overflow-hidden">
@@ -49,13 +52,19 @@ const DemoVideoSection: React.FC = () => {
               object-cover no tenga que recortar los laterales y cortar texto */}
           <div className="relative w-[240px] sm:w-[280px] aspect-[500/782] mx-auto rounded-[2.5rem] border-[6px] border-[#0D0A06] bg-[#0D0A06] shadow-2xl overflow-hidden">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-[#0D0A06] rounded-b-2xl z-20" />
-            {!gifFailed ? (
-              <img
-                src={DEMO_GIF_SRC}
-                alt="Demo de Nonnapp: introducir ingredientes y generar una receta"
+            {!videoFailed ? (
+              <video
+                src={DEMO_VIDEO_SRC}
+                width={500}
+                height={782}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                aria-hidden="true"
                 className="absolute inset-0 w-full h-full object-cover"
-                loading="lazy"
-                onError={() => setGifFailed(true)}
+                onError={() => setVideoFailed(true)}
               />
             ) : (
               <PhoneFallbackMockup />

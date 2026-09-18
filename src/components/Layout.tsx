@@ -51,6 +51,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
            <Logo className="w-8 h-8" textClassName="text-xl" />
            <button
              onClick={() => setIsMobileMenuOpen(true)}
+             aria-label="Abrir menú"
              className="p-2 text-[#5C4E3A] dark:text-[#C3B89F] hover:bg-[#241B10]/5 dark:hover:bg-white/5 rounded-lg transition-all duration-300 active:scale-90"
            >
              <Menu className="w-6 h-6" />
@@ -75,6 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
+              aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
               className="p-2 text-[#8C7C63] hover:bg-[#241B10]/5 dark:text-[#7C715E] dark:hover:bg-white/5 rounded-full transition-all duration-300 hover:rotate-45 active:scale-90"
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}

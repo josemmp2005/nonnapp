@@ -136,6 +136,7 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
           <button
             onClick={onClose}
             disabled={isProcessing}
+            aria-label="Cerrar"
             className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20 disabled:opacity-50 transition-colors"
           >
             <X className="w-5 h-5" />

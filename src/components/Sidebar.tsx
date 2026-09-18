@@ -118,7 +118,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div className="lg:hidden w-full flex justify-between items-center px-4 mb-6 flex-shrink-0">
           <Logo className="w-8 h-8" textClassName="text-lg" />
-          <button onClick={onClose} className="p-2 text-[#8C7C63] hover:bg-[#241B10]/5 dark:text-[#7C715E] dark:hover:bg-white/5 rounded-full transition-all duration-300 active:scale-90">
+          <button onClick={onClose} aria-label="Cerrar menú" className="p-2 text-[#8C7C63] hover:bg-[#241B10]/5 dark:text-[#7C715E] dark:hover:bg-white/5 rounded-full transition-all duration-300 active:scale-90">
             <X className="w-5 h-5" />
           </button>
         </div>

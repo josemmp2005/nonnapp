@@ -50,7 +50,7 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
           <h3 className="text-lg font-bold flex items-center gap-2">
             <ShoppingCart className="w-5 h-5" /> Lista de la Compra
           </h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20">
+          <button onClick={onClose} aria-label="Cerrar" className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20">
             <X className="w-5 h-5" />
           </button>
         </div>
