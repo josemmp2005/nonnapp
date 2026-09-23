@@ -14,6 +14,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { SubscriptionProvider } from './context/SubscriptionContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import EmailVerificationGate from './components/EmailVerificationGate';
+import InstallHelpModal from './components/InstallHelpModal';
 
 // Lazy Load Components for Performance
 const LandingPage = lazy(() => import('./components/LandingPage'));
@@ -226,6 +227,7 @@ const App: React.FC = () => {
                 </Routes>
               </Suspense>
             </Layout>
+            <InstallHelpModal />
           </Router>
         </ErrorBoundary>
         </SubscriptionProvider>

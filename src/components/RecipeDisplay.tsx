@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock, Crown } from 'lucide-react';
+import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import CookMode from './CookMode';
 import ShoppingListModal from './ShoppingListModal';
 import ChefChat from './ChefChat';
+import { NonnaAvatar } from './ui/NonnaAvatar';
 import { Reveal } from './ui/Reveal';
 
 interface Props {
@@ -24,7 +25,7 @@ const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) =
 
   const handleChefChatClick = () => {
     if (!limits.hasChefChat) {
-      showToast('El chat con el Chef está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!', 'info');
+      showToast('El chat con Nonna está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!', 'info');
     }
   };
 
@@ -66,13 +67,16 @@ Generado por nonnapp
             ) : (
               <button
                 onClick={handleChefChatClick}
-                aria-label="Chat con el Chef (Premium)"
-                className="fixed bottom-24 right-4 md:right-8 z-40 bg-gradient-to-r from-primary to-orange-600 hover:from-orange-600 hover:to-primary text-white p-4 rounded-full shadow-2xl hover:shadow-primary/50 transition hover:scale-110 active:scale-95 group"
+                aria-label="Chat con Nonna (plan La Nonna)"
+                className="fixed bottom-24 right-4 md:right-8 z-40 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-soft-lg ring-2 ring-white dark:ring-surface-dark hover:scale-105 hover:-translate-y-0.5 active:scale-[0.97] transition duration-200"
               >
-                <div className="relative" aria-hidden="true">
-                  <Lock className="w-6 h-6" />
-                  <Crown className="w-3 h-3 absolute -top-1 -right-1 text-amber-300" />
-                </div>
+                <NonnaAvatar pose="chat" alt="" className="w-full h-full opacity-80 saturate-50" />
+                <span
+                  aria-hidden="true"
+                  className="absolute -right-1 -top-1 w-6 h-6 rounded-full bg-gold flex items-center justify-center shadow-soft border-2 border-white dark:border-surface-dark"
+                >
+                  <Lock className="w-3 h-3 text-white" />
+                </span>
               </button>
             )}
          </div>

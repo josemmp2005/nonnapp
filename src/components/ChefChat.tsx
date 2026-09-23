@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Loader2, Bot } from 'lucide-react';
+import { X, Send, Loader2 } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { askChefAboutRecipe } from '../services/ai';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import { NonnaAvatar } from './ui/NonnaAvatar';
 
 interface Props {
   recipe: AIRecipeResponse;
@@ -16,7 +17,7 @@ interface Message {
 const ChefChat: React.FC<Props> = ({ recipe }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: '¡Hola! Soy tu asistente de cocina. ¿Tienes alguna duda sobre esta receta?' }
+    { role: 'model', text: '¡Hola! Soy Nonna. ¿Tienes alguna duda sobre esta receta?' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,15 +58,16 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
     }
   };
 
+  // Botón flotante con la cara de la Nonna (64px en escritorio, 56px en móvil)
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        aria-label="Abrir chat con el chef"
-        className="fixed bottom-6 right-6 z-40 bg-[#241B10] dark:bg-primary text-white p-4 rounded-full shadow-2xl hover:scale-110 hover:-translate-y-1 active:scale-95 transition duration-300 flex items-center justify-center group"
+        aria-label="Abrir chat con Nonna"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-soft-lg ring-2 ring-white dark:ring-surface-dark hover:scale-105 hover:-translate-y-0.5 active:scale-[0.97] transition duration-200"
       >
-        <MessageCircle className="w-7 h-7 group-hover:rotate-12 transition-transform" />
-        <span className="absolute right-0 top-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#18130D]"></span>
+        <NonnaAvatar pose="chat" alt="" className="w-full h-full" />
+        <span className="absolute right-0 top-0 w-3.5 h-3.5 bg-success rounded-full border-2 border-white dark:border-surface-dark"></span>
       </button>
     );
   }
@@ -73,40 +75,37 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
   return (
     <div
       role="dialog"
-      aria-label="Chat con el chef"
-      className="fixed bottom-6 right-4 md:right-6 z-40 w-[90vw] md:w-96 bg-white dark:bg-[#18130D] rounded-2xl shadow-2xl border border-[#241B10]/15 dark:border-[#F5E6CD]/15 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 h-[500px] max-h-[80vh]"
+      aria-label="Chat con Nonna"
+      className="fixed bottom-6 right-4 md:right-6 z-40 w-[90vw] md:w-96 bg-surface dark:bg-surface-dark rounded-3xl shadow-2xl border border-ink/15 dark:border-ink-light/15 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 h-[500px] max-h-[80vh]"
     >
-      
+
       {/* Header */}
-      <div className="p-4 bg-[#241B10] dark:bg-[#0D0A06] text-white flex justify-between items-center">
-        <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-white/10 rounded-lg">
-                <Bot className="w-5 h-5" />
+      <div className="p-4 bg-ink dark:bg-paper-dark text-white flex justify-between items-center">
+        <div className="flex items-center gap-3">
+            <div className="relative">
+                <NonnaAvatar pose="chat" alt="" className="w-11 h-11 ring-2 ring-white/20" />
+                <span className="absolute right-0 bottom-0 w-3 h-3 bg-success rounded-full border-2 border-ink dark:border-paper-dark"></span>
             </div>
             <div>
-                <h3 className="font-bold text-sm">Chef Assistant</h3>
-                <p className="text-xs text-[#6B5D48]">En línea</p>
+                <h3 className="font-bold text-base leading-tight">Nonna</h3>
+                <p className="text-xs text-white/60">Tu ayudante de cocina</p>
             </div>
         </div>
-        <button onClick={() => setIsOpen(false)} aria-label="Cerrar chat" className="text-[#6B5D48] hover:text-white transition-colors">
+        <button onClick={() => setIsOpen(false)} aria-label="Cerrar chat" className="text-white/60 hover:text-white transition-colors">
           <X className="w-5 h-5" />
         </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-[#FCF6EC] dark:bg-[#130F0A]/50">
+      <div className="flex-grow overflow-y-auto p-4 space-y-4 bg-cream dark:bg-cream-dark/50">
         {messages.map((msg, idx) => (
           <div key={idx} className={`flex gap-2 animate-in fade-in slide-in-from-bottom-1 duration-300 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            {msg.role === 'model' && (
-                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot className="w-3 h-3 text-white" />
-                </div>
-            )}
-            <div 
+            {msg.role === 'model' && <NonnaAvatar pose="chat" alt="" className="w-8 h-8 mt-0.5" />}
+            <div
                 className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed
-                ${msg.role === 'user' 
-                    ? 'bg-primary text-white rounded-br-none' 
-                    : 'bg-white dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#F0E4CE] rounded-bl-none shadow-sm'
+                ${msg.role === 'user'
+                    ? 'bg-primary text-white rounded-br-none'
+                    : 'bg-surface dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 text-body dark:text-ink-light rounded-bl-none shadow-sm'
                 }`}
             >
               {msg.text}
@@ -114,14 +113,15 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
           </div>
         ))}
         {loading && (
-            <div className="flex justify-start gap-2">
-               <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot className="w-3 h-3 text-white" />
-                </div>
-               <div className="bg-white dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 p-3 rounded-2xl rounded-bl-none shadow-sm flex gap-1 items-center">
-                  <div className="w-1.5 h-1.5 bg-[#8C7C63] rounded-full animate-bounce"></div>
-                  <div className="w-1.5 h-1.5 bg-[#8C7C63] rounded-full animate-bounce delay-75"></div>
-                  <div className="w-1.5 h-1.5 bg-[#8C7C63] rounded-full animate-bounce delay-150"></div>
+            <div className="flex justify-start gap-2" role="status" aria-live="polite">
+               <NonnaAvatar pose="thinking" alt="" className="w-8 h-8 mt-0.5" />
+               <div className="bg-surface dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 px-3.5 py-3 rounded-2xl rounded-bl-none shadow-sm flex gap-2.5 items-center">
+                  <div className="flex gap-1 items-center" aria-hidden="true">
+                    <div className="w-1.5 h-1.5 bg-muted-dark rounded-full animate-bounce"></div>
+                    <div className="w-1.5 h-1.5 bg-muted-dark rounded-full animate-bounce delay-75"></div>
+                    <div className="w-1.5 h-1.5 bg-muted-dark rounded-full animate-bounce delay-150"></div>
+                  </div>
+                  <span className="text-xs text-muted dark:text-muted-dark">Nonna está pensando...</span>
                </div>
             </div>
         )}
@@ -129,18 +129,19 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="p-3 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 bg-white dark:bg-[#18130D] flex gap-2">
+      <form onSubmit={handleSend} className="p-3 border-t border-ink/10 dark:border-ink-light/10 bg-surface dark:bg-surface-dark flex gap-2">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Pregunta algo..."
-          className="flex-grow bg-primary/10 rounded-full px-4 py-2.5 text-sm text-[#241B10] dark:text-[#F8F2E6] outline-none focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#2A2114] transition placeholder:text-[#6B5D48] dark:placeholder:text-[#6B5D48]"
+          placeholder="Pregunta a Nonna..."
+          className="flex-grow bg-primary/10 rounded-full px-4 py-2.5 text-sm text-ink dark:text-ink-light outline-none focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#2A2114] transition placeholder:text-muted"
         />
-        <button 
-            type="submit" 
+        <button
+            type="submit"
             disabled={!input.trim() || loading}
-            className="p-2.5 bg-primary text-white rounded-full hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Enviar pregunta"
+            className="p-2.5 bg-primary text-white rounded-full hover:bg-primary-600 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
         </button>

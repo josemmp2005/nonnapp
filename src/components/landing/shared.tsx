@@ -1,15 +1,6 @@
 import React from 'react';
-import nonnaWink from '../../assets/nonna/nonna-wink.webp';
 export { Reveal } from '../ui/Reveal';
-
-// Mascota 3D (recorte con transparencia) en vez de una foto — se apoya sobre
-// un fondo circular suave en lugar de recortarla con object-cover, para no
-// perder ni recortar el dibujo.
-export const NonnaAvatar: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
-  <div className={`${className} rounded-full bg-accent/10 flex-shrink-0 flex items-center justify-center overflow-hidden`}>
-    <img src={nonnaWink} alt="La Nonna" className="w-[130%] h-[130%] object-contain object-bottom" />
-  </div>
-);
+export { NonnaAvatar } from '../ui/NonnaAvatar';
 
 // Nota de consolidación de color: varias secciones de landing tenían tonos
 // "apagados"/"texto en oscuro" ligeramente distintos entre sí (deriva propia

@@ -63,7 +63,7 @@ const HowItWorksSection: React.FC = () => (
           <span className="flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent text-lg font-display font-semibold mb-5">3</span>
           <h3 className="text-lg font-bold text-ink dark:text-ink-light mb-1.5">Pregunta a Nonna</h3>
           <p className="text-sm text-muted dark:text-muted-dark mb-5 max-w-[220px]">Si algo no queda claro mientras cocinas, ella responde al momento.</p>
-          <NonnaAvatar className="w-16 h-16 shadow-sm" />
+          <NonnaAvatar pose="wink" className="w-16 h-16 shadow-sm" />
         </Reveal>
       </div>
     </div>

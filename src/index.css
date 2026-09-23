@@ -220,6 +220,81 @@ body {
     }
 }
 
+/* Movimiento continuo del hero (solo sin prefers-reduced-motion). Se usa la
+   propiedad `translate` (independiente de `transform`) para el parallax, así
+   no pisa las rotaciones/escalas/animaciones que ya llevan esos elementos.
+   Las variables --mx/--my (ratón, -1..1) y --sy (scroll, 0..1) las escribe
+   useHeroMotion. */
+@keyframes hero-breathe {
+    from { transform: scale(1.02); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes hero-bob {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -7px; }
+}
+
+@keyframes hero-drift {
+    0% { transform: translate(0, -6px) rotate(0deg); opacity: 0; }
+    12% { opacity: 0.85; }
+    50% { transform: translate(18px, 34px) rotate(38deg); }
+    88% { opacity: 0.85; }
+    100% { transform: translate(-8px, 78px) rotate(84deg); opacity: 0; }
+}
+
+@keyframes hero-twinkle {
+    0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+    30% { transform: scale(1) rotate(30deg); opacity: 1; }
+    60% { transform: scale(0.9) rotate(60deg); opacity: 1; }
+    75% { transform: scale(0.2) rotate(90deg); opacity: 0; }
+}
+
+@keyframes hero-heart {
+    0%, 100% { transform: scale(1); }
+    12% { transform: scale(1.22); }
+    24% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-breathe {
+        animation: hero-breathe 12s ease-in-out infinite alternate;
+        transform-origin: 75% 55%;
+    }
+    .hero-bob {
+        animation: hero-bob 7s ease-in-out infinite;
+    }
+    .hero-drift {
+        animation: hero-drift var(--dur, 12s) ease-in-out infinite;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-twinkle {
+        animation: hero-twinkle var(--dur, 3.8s) ease-in-out infinite;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-heart {
+        display: inline-block;
+        animation: hero-heart 2.8s ease-in-out infinite;
+    }
+    /* capas de parallax: cuanto mayor el número, más se mueve */
+    .hero-depth-1 {
+        translate: calc(var(--mx, 0) * -5px) calc(var(--my, 0) * -3px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hero-depth-2 {
+        translate: calc(var(--mx, 0) * -14px) calc(var(--my, 0) * -9px + var(--sy, 0) * 14px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hero-depth-3 {
+        translate: calc(var(--mx, 0) * 12px) calc(var(--my, 0) * 8px + var(--sy, 0) * -18px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* fuera de pantalla no gastamos batería animando */
+    .hero-paused * {
+        animation-play-state: paused !important;
+    }
+}
+
 @media (prefers-reduced-motion: no-preference) {
     .hero-in {
         animation: hero-rise 650ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
