@@ -63,3 +63,19 @@ const shutdown = (signal: string) => {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+// Red de seguridad: Express 4 no atrapa un rechazo de promesa lanzado dentro
+// de un handler `async` que no tenga su propio try/catch (a diferencia de un
+// throw síncrono, que sí captura). Sin este listener, Node considera un
+// unhandledRejection un error fatal y mata el proceso entero — una sola
+// request mal formada tumbaría la API para todos los usuarios a la vez. Esto
+// no soluciona el bug de origen (cada ruta debe seguir validando su propio
+// input, como en lib/schemas.ts), es el último cinturón de seguridad para
+// que un fallo así se quede en un log, no en una caída del servicio.
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ unhandledRejection (revisa el try/catch de la ruta que lo causó):', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ uncaughtException (revisa el try/catch de la ruta que lo causó):', err);
+});

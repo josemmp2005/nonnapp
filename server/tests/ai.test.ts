@@ -72,3 +72,75 @@ describe('POST /api/ai/generate-recipe', () => {
     expect(systemMessage).not.toContain('valor-inyectado-por-el-cliente');
   });
 });
+
+describe('POST /api/ai/chat', () => {
+  const validRecipeContext = {
+    recipe_metadata: { title: 'Tortilla de patatas' },
+    ingredients: [{ item: 'Huevo', quantity: '3' }],
+    steps: [{ step_number: 1, instruction: 'Batir los huevos.' }],
+  };
+
+  it('bloquea el chat para planes que no son Nonna (403 PLAN_REQUIRED)', async () => {
+    const user = await createUser({ plan: 'mamma' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/chat')
+      .set('Cookie', cookie)
+      .send({ question: '¿Puedo sustituir el huevo?', recipeContext: validRecipeContext });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('PLAN_REQUIRED');
+  });
+
+  it('responde con la receta como contexto para un usuario Nonna', async () => {
+    const user = await createUser({ plan: 'nonna' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/chat')
+      .set('Cookie', cookie)
+      .send({ question: '¿Puedo sustituir el huevo?', recipeContext: validRecipeContext });
+
+    expect(res.status).toBe(200);
+    expect(res.body.reply).toBeDefined();
+  });
+
+  // Regresión de seguridad: antes `recipeContext.ingredients`/`.steps` no se
+  // validaban (chatSchema los dejaba pasar con `.passthrough()`) y la ruta
+  // les hacía `.map()` directamente, fuera del try/catch, para construir el
+  // prompt. Un valor no-array ahí (ej. un string) lanzaba una excepción sin
+  // capturar que — sin el error handler global que tampoco existía — podía
+  // tumbar el proceso de Node entero para todos los usuarios, no solo dar un
+  // error al que la mandó. Ahora chatSchema exige que sean arrays con la
+  // forma correcta, así que esto debe dar 400, nunca un 500 ni tumbar nada.
+  it('rechaza con 400 un recipeContext.ingredients que no es un array, en vez de crashear', async () => {
+    const user = await createUser({ plan: 'nonna' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/chat')
+      .set('Cookie', cookie)
+      .send({
+        question: '¿Puedo sustituir el huevo?',
+        recipeContext: { recipe_metadata: { title: 'x' }, ingredients: 'no soy un array', steps: [] },
+      });
+
+    expect(res.status).toBe(400);
+  });
+
+  it('rechaza con 400 un recipeContext.steps que no es un array, en vez de crashear', async () => {
+    const user = await createUser({ plan: 'nonna' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/chat')
+      .set('Cookie', cookie)
+      .send({
+        question: '¿Cuánto tarda esto?',
+        recipeContext: { recipe_metadata: { title: 'x' }, ingredients: [], steps: { not: 'an array' } },
+      });
+
+    expect(res.status).toBe(400);
+  });
+});
