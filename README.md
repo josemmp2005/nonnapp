@@ -115,7 +115,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `DB_SSL` | `true` solo con un Postgres gestionado que exige TLS (Neon, Render...). El de docker-compose no lo soporta |
 | `JWT_SECRET` | Firma de las cookies de sesión — cambiarlo cierra la sesión a todo el mundo |
 | `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
-| `APP_URL` | Usada para construir el link de "restablecer contraseña" en el email |
+| `APP_URL` | URL del frontend a la que el servidor manda al usuario: redirect tras el login con Google y links de los emails (verificar, restablecer contraseña, bienvenida). Opcional: si falta se usa `CORS_ORIGIN`. En producción, un valor `localhost` se ignora a favor de `CORS_ORIGIN` (y se avisa en el log) |
 | `GROQ_API_KEY` / `GROQ_MODEL` | Generación de recetas y chat del chef |
 | `BREVO_API_KEY` / `BREVO_FROM` | Opcional — envío real de emails (verificación, bienvenida, reset de contraseña) vía [Brevo](https://brevo.com) (API HTTP, no SMTP — el SMTP saliente está bloqueado en el plan gratuito de Render y similares). `BREVO_FROM` debe ser un email verificado en Brevo (Senders, Domains & Dedicated IPs → Senders) — no hace falta dominio propio, y a diferencia de Resend permite mandar a cualquier destinatario en el plan gratuito. Sin `BREVO_API_KEY`, el email se loguea en consola en vez de enviarse |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Opcional — login con Google. Credenciales de Google Cloud Console; `GOOGLE_REDIRECT_URI` debe coincidir exactamente con la que se da de alta ahí. Sin ellas, el botón de Google redirige con un error en vez de romper el resto del login |
@@ -193,6 +193,8 @@ El error más típico es **`Error 400: redirect_uri_mismatch`**: la URL de retor
 4. Al arrancar, el backend escribe en el log `🔑 Login con Google activo — redirect_uri: …` con la URL **exacta** que envía (y avisa con un ⚠️ si en producción apunta a `localhost`). Esa es la que tiene que estar en Google.
 5. Si sigue fallando: en la pantalla de error de Google → *"detalles del error"* → copia el `redirect_uri` que recibió y regístralo tal cual, o corrige `GOOGLE_REDIRECT_URI` para que coincida.
 6. Con la pantalla de consentimiento en modo *Prueba*, solo pueden entrar las cuentas añadidas como *usuarios de prueba* (error distinto: `access_denied`).
+
+**Tras loguear con Google vuelvo a `localhost`** — el login funciona pero el redirect final (y los links de los emails) apuntan a `APP_URL`, que por defecto es el frontend de desarrollo. En Render define `CORS_ORIGIN` con la URL real del frontend (p.ej. `https://nonnapp.vercel.app`, sin barra final): `APP_URL` la hereda si no la defines. El log de arranque muestra `🌐 Frontend — APP_URL: … | CORS_ORIGIN: …` para comprobar qué valores se están usando.
 
 ## Esquema de datos
 
