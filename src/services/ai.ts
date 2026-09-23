@@ -29,6 +29,15 @@ export class PlanRequiredError extends Error {
 const isPlanRequiredError = (error: unknown): boolean =>
   error instanceof ApiError && error.status === 403 && error.message === 'PLAN_REQUIRED';
 
+// Foto genérica solo para el modo mock de desarrollo — en producción la
+// imagen real la elige el backend (server/src/lib/recipeImages.ts).
+const MOCK_IMAGE_URL = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=1200&q=80';
+
+export interface GeneratedRecipe {
+  recipe: AIRecipeResponse;
+  imageUrl: string;
+}
+
 /**
  * Genera una receta llamando a la API propia (server/src/routes/ai.ts), que
  * es quien tiene la clave de Groq — nunca el navegador. Alergias/ingredientes
@@ -44,29 +53,33 @@ export const generateRecipeAI = async (
   servings?: number,
   utensils?: string,
   hasKitchenRobot?: boolean
-): Promise<AIRecipeResponse> => {
+): Promise<GeneratedRecipe> => {
   if (USE_MOCK_RECIPE) {
     console.warn('⚠️ USANDO DATOS MOCK - la IA está en rate limit');
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    return getMockRecipe(prompt);
+    return { recipe: getMockRecipe(prompt), imageUrl: MOCK_IMAGE_URL };
   }
 
   const cacheKey = JSON.stringify({ prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot });
   const cached = recipeCache.get(cacheKey);
   if (cached) {
     console.log('✅ Receta obtenida del caché');
-    return cached as AIRecipeResponse;
+    return cached as GeneratedRecipe;
   }
 
   return aiRateLimiter.execute(async () => {
     try {
-      const result = await apiFetch<{ success: boolean; data: AIRecipeResponse }>('/api/ai/generate-recipe', {
-        method: 'POST',
-        body: { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot },
-      });
+      const result = await apiFetch<{ success: boolean; data: AIRecipeResponse; imageUrl: string }>(
+        '/api/ai/generate-recipe',
+        {
+          method: 'POST',
+          body: { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot },
+        }
+      );
 
-      recipeCache.set(cacheKey, result.data);
-      return result.data;
+      const generated: GeneratedRecipe = { recipe: result.data, imageUrl: result.imageUrl };
+      recipeCache.set(cacheKey, generated);
+      return generated;
     } catch (error) {
       console.error('Error generando receta:', error);
       if (error instanceof ApiError && error.status === 403 && error.message === 'EMAIL_NOT_VERIFIED') {

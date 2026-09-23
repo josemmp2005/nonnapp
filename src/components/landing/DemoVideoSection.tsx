@@ -35,7 +35,7 @@ const DemoVideoSection: React.FC = () => {
   const [videoFailed, setVideoFailed] = useState(false);
 
   return (
-    <section className="bg-[#152A1E] py-16 md:py-24 relative overflow-hidden">
+    <section className="bg-[#18130D] py-16 md:py-24 relative overflow-hidden">
       <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.10)_0%,rgba(249,115,22,0)_72%)]" />
 
       <div className="max-w-5xl mx-auto px-6 relative z-10 text-center">

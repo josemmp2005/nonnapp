@@ -111,3 +111,11 @@ export const chatSchema = z.object({
 export const changeSubscriptionSchema = z.object({
   plan: z.enum(['nipote', 'mamma', 'nonna']),
 });
+
+// --- planner ---
+
+export const plannerSlotSchema = z.object({
+  day: z.number().int().min(0).max(6),
+  slot: z.enum(['breakfast', 'lunch', 'dinner']),
+  recipeId: z.number().int().positive().nullable(),
+});

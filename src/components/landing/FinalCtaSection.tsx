@@ -5,7 +5,7 @@ import { IngredientIcon } from './IngredientIcon';
 import { Reveal } from './shared';
 
 const FinalCtaSection: React.FC = () => (
-  <section className="relative border-t border-white/10 bg-[#122318] py-20 md:py-28 text-center overflow-hidden">
+  <section className="relative border-t border-white/10 bg-[#18130D] py-20 md:py-28 text-center overflow-hidden">
     <div className="pointer-events-none absolute top-5 left-1/2 -translate-x-1/2 w-[560px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.14)_0%,rgba(249,115,22,0)_72%)]" />
 
     {/* Ingredientes decorativos, parcialmente cortados por los bordes */}

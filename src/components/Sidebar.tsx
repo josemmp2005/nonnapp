@@ -11,6 +11,7 @@ import {
   Sun,
   LayoutDashboard,
   UtensilsCrossed,
+  CalendarDays,
   type LucideIcon,
 } from 'lucide-react';
 import { Logo } from './Logo';
@@ -170,6 +171,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             label="Historial"
             active={isActive('/app/history')}
             onClick={() => handleNavigation('/app/history')}
+          />
+
+          <MenuItem
+            icon={CalendarDays}
+            label="Planificador"
+            active={isActive('/app/planner')}
+            onClick={() => handleNavigation('/app/planner')}
           />
         </div>
 

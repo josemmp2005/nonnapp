@@ -10,6 +10,7 @@ import recipesRoutes from './routes/recipes.js';
 import profileRoutes from './routes/profile.js';
 import subscriptionRoutes from './routes/subscription.js';
 import aiRoutes from './routes/ai.js';
+import plannerRoutes from './routes/planner.js';
 
 // Extraído de index.ts para que los tests puedan importar la app de Express
 // (con supertest) sin arrancar un servidor real ni aplicar el esquema —
@@ -43,6 +44,7 @@ app.use('/api/recipes', recipesRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/planner', plannerRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: `Ruta no encontrada: ${req.method} ${req.path}` });

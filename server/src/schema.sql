@@ -141,3 +141,19 @@ CREATE TABLE IF NOT EXISTS recipe_utensils (
 -- backend (routes/auth.ts) dentro de la misma transacción del signup,
 -- no como trigger silencioso — así un fallo real se ve en el signup en vez
 -- de tragarse (como pasaba con el EXCEPTION WHEN OTHERS de handle_new_user).
+
+-- Planificador semanal (plan La Nonna): una plantilla fija de 7 días x 3
+-- comidas, sin fecha de calendario — se reasigna semana a semana, no guarda
+-- historial de semanas pasadas. UNIQUE permite upsert por hueco con un solo
+-- ON CONFLICT.
+CREATE TABLE IF NOT EXISTS weekly_plan_items (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+  day_of_week SMALLINT NOT NULL CHECK (day_of_week BETWEEN 0 AND 6),
+  meal_slot TEXT NOT NULL CHECK (meal_slot IN ('breakfast', 'lunch', 'dinner')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, day_of_week, meal_slot)
+);
+
+CREATE INDEX IF NOT EXISTS idx_weekly_plan_items_user ON weekly_plan_items(user_id);

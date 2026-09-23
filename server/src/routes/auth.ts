@@ -5,6 +5,7 @@ import { pool, withTransaction } from '../db.js';
 import { requireAuth, createSession, revokeSession, revokeAllUserSessions, SESSION_COOKIE } from '../middleware/auth.js';
 import { isProd, env } from '../env.js';
 import { sendMail } from '../lib/mailer.js';
+import { verificationEmailTemplate, welcomeEmailTemplate, resetPasswordEmailTemplate } from '../lib/emailTemplates.js';
 import { getGoogleAuthUrl, exchangeGoogleCode, getGoogleUserInfo } from '../lib/google.js';
 import { createStrictAuthRateLimiter, createTokenRateLimiter } from '../middleware/rateLimit.js';
 import { validateBody } from '../lib/validate.js';
@@ -64,14 +65,8 @@ const sendVerificationEmail = async (userId: string, email: string, username: st
   );
 
   const verifyLink = `${env.appUrl}/verify-email?token=${rawToken}`;
-  await sendMail(
-    email,
-    'Confirma tu email en Nonnapp',
-    `<p>Hola <strong>${username}</strong>, confirma tu email para verificar tu cuenta de Nonnapp.</p>
-     <p><a href="${verifyLink}">${verifyLink}</a></p>
-     <p>El enlace caduca en 24 horas.</p>`,
-    `Confirma tu email aquí: ${verifyLink} (caduca en 24 horas)`
-  );
+  const { subject, html, text } = verificationEmailTemplate(username, verifyLink);
+  await sendMail(email, subject, html, text);
 };
 
 router.post('/signup', createStrictAuthRateLimiter(), validateBody(signupSchema), async (req, res) => {
@@ -118,12 +113,10 @@ router.post('/signup', createStrictAuthRateLimiter(), validateBody(signupSchema)
     } catch (err) {
       console.warn('No se pudo enviar el email de verificación:', err);
     }
-    sendMail(
-      user.email,
-      '¡Bienvenido a Nonnapp! 🍳',
-      `<p>Hola <strong>${user.username}</strong>, gracias por unirte a Nonnapp.</p>`,
-      `Hola ${user.username}, gracias por unirte a Nonnapp.`
-    ).catch((err) => console.warn('No se pudo enviar el email de bienvenida:', err));
+    const welcomeEmail = welcomeEmailTemplate(user.username, env.appUrl);
+    sendMail(user.email, welcomeEmail.subject, welcomeEmail.html, welcomeEmail.text).catch((err) =>
+      console.warn('No se pudo enviar el email de bienvenida:', err)
+    );
 
     return res.status(201).json({ user: toPublicUser(user) });
   } catch (err) {
@@ -254,13 +247,8 @@ router.post('/forgot-password', createStrictAuthRateLimiter(), validateBody(forg
       );
 
       const resetLink = `${env.appUrl}/reset-password?token=${rawToken}`;
-      await sendMail(
-        user.email,
-        'Restablece tu contraseña de Nonnapp',
-        `<p>Haz clic en el siguiente enlace para restablecer tu contraseña. Caduca en 30 minutos.</p>
-         <p><a href="${resetLink}">${resetLink}</a></p>`,
-        `Restablece tu contraseña aquí: ${resetLink}`
-      );
+      const resetEmail = resetPasswordEmailTemplate(resetLink);
+      await sendMail(user.email, resetEmail.subject, resetEmail.html, resetEmail.text);
     }
 
     return res.json(GENERIC_FORGOT_RESPONSE);

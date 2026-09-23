@@ -24,6 +24,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
 
   const handleGenerate = async (params: GenerationParams) => {
     // Validate userProfile before proceeding
@@ -44,7 +45,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
     try {
       // 1. Generate Recipe Text
-      const generatedRecipe = await generateRecipeAI(
+      const { recipe: generatedRecipe, imageUrl } = await generateRecipeAI(
         params.prompt,
         params.mode,
         params.timeLimit,
@@ -53,15 +54,16 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         params.utensils,
         params.hasKitchenRobot
       );
-      generatedRecipe.recipe_metadata.servings = params.servings; 
-      
+      generatedRecipe.recipe_metadata.servings = params.servings;
+
       setCurrentRecipe(generatedRecipe);
+      setCurrentImageUrl(imageUrl);
 
       // 3. Save to DB and increment counter
       const userId = session?.user?.id;
       if (userId) {
         try {
-          await saveRecipeToDB(generatedRecipe, params.prompt, null);
+          await saveRecipeToDB(generatedRecipe, params.prompt, imageUrl);
           incrementRecipeCount(); // Increment after successful generation
 
           // Se calcula a partir del valor ya leído arriba en vez de releer
@@ -83,6 +85,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
             showToast('❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.', 'error');
             // No mostrar la receta si no se pudo guardar por límite
             setCurrentRecipe(null);
+            setCurrentImageUrl(null);
             return;
           }
           // Otro tipo de error al guardar
@@ -140,6 +143,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
   const resetView = () => {
     setCurrentRecipe(null);
+    setCurrentImageUrl(null);
   };
 
   return (
@@ -200,7 +204,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         <div key="result" className="animate-in fade-in duration-300">
           <RecipeDisplay
             recipe={currentRecipe}
-            imageUrl={null}
+            imageUrl={currentImageUrl}
             onGenerateAgain={resetView}
           />
         </div>

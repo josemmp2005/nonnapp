@@ -23,6 +23,7 @@ const ChefPage = lazy(() => import('./components/ChefPage'));
 const PreferencesPage = lazy(() => import('./components/PreferencesPage'));
 const ProfileEditPage = lazy(() => import('./components/ProfileEditPage'));
 const HistoryPage = lazy(() => import('./components/HistoryPage'));
+const PlannerPage = lazy(() => import('./components/PlannerPage'));
 const RecipeDetailPage = lazy(() => import('./components/RecipeDetailPage'));
 const TermsPage = lazy(() => import('./components/TermsPage'));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage'));
@@ -205,8 +206,16 @@ const App: React.FC = () => {
                       </ProtectedRoute>
                     } 
                   />
-                  <Route 
-                    path="/app/recipe/:id" 
+                  <Route
+                    path="/app/planner"
+                    element={
+                      <ProtectedRoute session={session} loading={loading}>
+                        <PlannerPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/app/recipe/:id"
                     element={
                       <ProtectedRoute session={session} loading={loading}>
                         <RecipeDetailPage />
