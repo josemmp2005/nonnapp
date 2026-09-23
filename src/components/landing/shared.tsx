@@ -1,6 +1,6 @@
 import React from 'react';
 import nonnaPhoto from '../../assets/nonna.webp';
-import { useInView } from '../../hooks/useInView';
+export { Reveal } from '../ui/Reveal';
 
 export const NonnaAvatar: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
   <img
@@ -15,37 +15,6 @@ export const CheckIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5
     <path d="M4 12l5 5L20 6" />
   </svg>
 );
-
-interface RevealProps {
-  children: React.ReactNode;
-  className?: string;
-  delayMs?: number;
-}
-
-// Fade al entrar en viewport. Sustituye a un "animate-in" fijo en el mount
-// (que no distingue si la sección ya estaba visible al cargar o si se llega
-// a ella haciendo scroll) por algo que reacciona de verdad al scroll, sin
-// librería de animación. Solo opacity (nada de translate-y): el
-// IntersectionObserver dispara casi al instante para todo lo que ya es
-// visible al cargar la página (hero, stats...), así que un desplazamiento
-// ahí cuenta como Cumulative Layout Shift real para Lighthouse aunque sea
-// solo un transform. Siempre renderiza un <div> — como elemento de flex/grid
-// se comporta igual que un <span> para el layout, así que no hace falta
-// soportar una etiqueta variable (y su lío de tipos de `ref`) solo por eso.
-export const Reveal: React.FC<RevealProps> = ({ children, className = '', delayMs = 0 }) => {
-  const { ref, isInView } = useInView<HTMLDivElement>();
-  return (
-    <div
-      ref={ref}
-      className={`transition-opacity duration-700 ease-out motion-reduce:transition-none ${
-        isInView ? 'opacity-100' : 'opacity-0'
-      } ${className}`}
-      style={{ transitionDelay: isInView ? `${delayMs}ms` : '0ms' }}
-    >
-      {children}
-    </div>
-  );
-};
 
 // Eyebrow + título + (opcional) subtítulo — el mismo patrón que ya usaban
 // HowItWorksSection/FeaturesSection/PricingSection a mano, ahora reutilizable
@@ -84,7 +53,7 @@ export const RecipeMeta: React.FC<{
   light?: boolean;
   className?: string;
 }> = ({ time, difficulty, calories, light = false, className = '' }) => {
-  const base = light ? 'text-white/80' : 'text-[#8C7C63] dark:text-[#7C715E]';
+  const base = light ? 'text-white/80' : 'text-[#6B5D48] dark:text-[#9A8D74]';
   return (
     <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium ${base} ${className}`}>
       {time && (

@@ -48,7 +48,7 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
       {/* Progress Bar */}
       <div className="w-full bg-primary/10 h-1.5">
         <div 
-            className="bg-primary h-1.5 transition-all duration-500 ease-out"
+            className="bg-primary h-1.5 transition-[width] duration-500 ease-out"
             style={{ width: `${progress}%` }}
         ></div>
       </div>
@@ -59,14 +59,14 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
             {steps[currentStep].step_number}
          </span>
          
-         <h3 className="text-2xl md:text-4xl font-bold text-[#241B10] dark:text-[#F8F2E6] leading-snug md:leading-tight animate-in slide-in-from-bottom-4 fade-in duration-500 key={currentStep}">
+         <h3
+            key={currentStep}
+            className="text-2xl md:text-4xl font-bold text-[#241B10] dark:text-[#F8F2E6] leading-snug md:leading-tight animate-in slide-in-from-bottom-4 fade-in duration-500"
+         >
             {steps[currentStep].instruction}
          </h3>
 
          {/* Future implementation: Image for this step would go here */}
-         <div className="mt-8 text-[#8C7C63] dark:text-[#6E6350] text-sm italic">
-            Visual Tag: {steps[currentStep].visual_tag}
-         </div>
       </div>
 
       {/* Controls */}
@@ -74,7 +74,7 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
         <button
             onClick={handlePrev}
             disabled={currentStep === 0}
-            className="flex-1 py-6 rounded-2xl bg-white dark:bg-[#18130D] border-2 border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] font-bold text-lg hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm flex items-center justify-center gap-2"
+            className="flex-1 py-6 rounded-2xl bg-white dark:bg-[#18130D] border-2 border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] font-bold text-lg hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
         >
             <ChevronLeft className="w-6 h-6" />
             Anterior
@@ -82,7 +82,7 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
 
         <button
             onClick={handleNext}
-            className={`flex-1 py-6 rounded-2xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] flex items-center justify-center gap-2
+            className={`flex-1 py-6 rounded-2xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition transform active:scale-[0.98] flex items-center justify-center gap-2
                 ${currentStep === steps.length - 1 ? 'bg-green-500 hover:bg-green-600' : 'bg-primary hover:bg-orange-600'}
             `}
         >

@@ -4,6 +4,7 @@ import type { SubscriptionPlan } from '../types';
 import { changeSubscription } from '../services/data';
 import type { PlanTypeLower } from '../services/data';
 import { useToast } from '../context/ToastContext';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 interface PlanInfo {
   key: PlanTypeLower;
@@ -121,12 +122,25 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
   const inputClass =
     'w-full p-3 rounded-xl border border-[#241B10]/15 dark:border-[#F5E6CD]/15 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-[#FCF6EC] dark:bg-[#221B12] text-[#241B10] dark:text-[#F8F2E6]';
 
+  useEscapeKey(() => {
+    if (!isProcessing) onClose();
+  });
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white dark:bg-[#130F0A] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="plan-checkout-title"
+      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in"
+      onClick={() => !isProcessing && onClose()}
+    >
+      <div
+        className="bg-white dark:bg-[#130F0A] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-4 border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10 bg-primary text-white flex-shrink-0">
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <Crown className="w-5 h-5" />
+          <h3 id="plan-checkout-title" className="text-lg font-bold flex items-center gap-2">
+            <Crown aria-hidden="true" className="w-5 h-5" />
             {step === 'select'
               ? 'Cambiar de plan'
               : step === 'pay'
@@ -143,7 +157,7 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
           </button>
         </div>
 
-        <div className="overflow-y-auto p-6">
+        <div key={step} className="overflow-y-auto p-6 animate-in fade-in duration-200">
           {step === 'select' && (
             <div className="grid md:grid-cols-3 gap-4">
               {PLANS.map((plan) => {
@@ -151,22 +165,22 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
                 return (
                   <div
                     key={plan.key}
-                    className={`rounded-2xl border-2 p-5 flex flex-col transition-all ${
+                    className={`rounded-2xl border-2 p-5 flex flex-col transition ${
                       isCurrent
                         ? 'border-primary bg-primary/5'
                         : 'border-[#241B10]/10 dark:border-[#F5E6CD]/10 hover:border-primary/40'
                     }`}
                   >
                     <h4 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6]">La {plan.display}</h4>
-                    <p className="text-xs text-[#8C7C63] dark:text-[#7C715E] mb-3">{plan.tagline}</p>
+                    <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mb-3">{plan.tagline}</p>
                     <div className="flex items-baseline gap-1 mb-4">
                       <span className="text-2xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">{plan.price}</span>
-                      <span className="text-xs text-[#8C7C63] dark:text-[#7C715E]">{plan.priceLabel}</span>
+                      <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{plan.priceLabel}</span>
                     </div>
                     <ul className="space-y-2 mb-6 flex-grow">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex items-start gap-2 text-sm text-[#3A2E1D] dark:text-[#D4D4D8]">
-                          <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                          <Check aria-hidden="true" className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
                           {feature}
                         </li>
                       ))}
@@ -174,7 +188,7 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
                     <button
                       onClick={() => handleSelectPlan(plan)}
                       disabled={isCurrent}
-                      className={`w-full py-2.5 rounded-xl font-bold text-sm transition-all ${
+                      className={`w-full py-2.5 rounded-xl font-bold text-sm transition ${
                         isCurrent
                           ? 'bg-primary/10 text-primary cursor-default'
                           : 'bg-primary hover:bg-orange-600 text-white active:scale-95'
@@ -191,18 +205,19 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
           {step === 'pay' && selectedPlan && (
             <form onSubmit={handleConfirmPayment} className="space-y-4 max-w-md mx-auto">
               <div className="flex items-start gap-2 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg p-3">
-                <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <ShieldCheck aria-hidden="true" className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 Simulación de pago — no hay pasarela real ni se te va a cobrar nada. Cualquier dato de tarjeta funciona.
               </div>
 
               <div className="flex items-baseline justify-between p-4 rounded-xl bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-                <span className="text-sm text-[#8C7C63] dark:text-[#7C715E]">La {selectedPlan.display} · mensual</span>
+                <span className="text-sm text-[#6B5D48] dark:text-[#9A8D74]">La {selectedPlan.display} · mensual</span>
                 <span className="text-xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">{selectedPlan.price}</span>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nombre en la tarjeta</label>
+                <label htmlFor="checkout-card-name" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nombre en la tarjeta</label>
                 <input
+                  id="checkout-card-name"
                   type="text"
                   value={cardName}
                   onChange={(e) => setCardName(e.target.value)}
@@ -212,10 +227,11 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Número de tarjeta</label>
+                <label htmlFor="checkout-card-number" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Número de tarjeta</label>
                 <div className="relative">
-                  <CreditCard className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                  <CreditCard aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
+                    id="checkout-card-number"
                     type="text"
                     inputMode="numeric"
                     value={cardNumber}
@@ -228,8 +244,9 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Caducidad</label>
+                  <label htmlFor="checkout-card-expiry" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Caducidad</label>
                   <input
+                    id="checkout-card-expiry"
                     type="text"
                     inputMode="numeric"
                     value={expiry}
@@ -239,8 +256,9 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">CVC</label>
+                  <label htmlFor="checkout-card-cvc" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">CVC</label>
                   <input
+                    id="checkout-card-cvc"
                     type="text"
                     inputMode="numeric"
                     value={cvc}
@@ -254,7 +272,7 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg transition active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <>
@@ -269,9 +287,9 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
                 type="button"
                 onClick={() => setStep('select')}
                 disabled={isProcessing}
-                className="w-full flex items-center justify-center gap-1.5 text-sm text-[#8C7C63] dark:text-[#7C715E] hover:text-primary transition-colors disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-1.5 text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary active:scale-95 transition disabled:opacity-50"
               >
-                <ArrowLeft className="w-4 h-4" /> Volver a los planes
+                <ArrowLeft aria-hidden="true" className="w-4 h-4" /> Volver a los planes
               </button>
             </form>
           )}
@@ -279,12 +297,12 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
           {step === 'confirmCancel' && (
             <div className="max-w-md mx-auto text-center py-4">
               <div className="w-14 h-14 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-7 h-7 text-amber-500" />
+                <AlertTriangle aria-hidden="true" className="w-7 h-7 text-amber-500" />
               </div>
               <h4 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
                 ¿Cancelar tu suscripción?
               </h4>
-              <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] mb-6">
+              <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-6">
                 Volverás a Il Nipote: perderás el modo despensa y la personalización de alergias/ingredientes
                 {currentPlan === 'Nonna' ? ', además del chat del chef y La Mesa de la Nonna' : ''}. El límite pasará a 2 recetas al día.
               </p>
@@ -292,14 +310,14 @@ const PlanCheckoutModal: React.FC<Props> = ({ currentPlan, onClose, onChanged })
                 <button
                   onClick={() => setStep('select')}
                   disabled={isProcessing}
-                  className="flex-1 py-3 rounded-xl font-bold text-sm border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] hover:bg-[#241B10]/5 dark:hover:bg-white/5 transition-all disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl font-bold text-sm border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] hover:bg-[#241B10]/5 dark:hover:bg-white/5 active:scale-95 transition disabled:opacity-50"
                 >
                   Seguir con mi plan
                 </button>
                 <button
                   onClick={handleConfirmCancel}
                   disabled={isProcessing}
-                  className="flex-1 py-3 rounded-xl font-bold text-sm bg-red-500 hover:bg-red-600 text-white transition-all active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-xl font-bold text-sm bg-red-500 hover:bg-red-600 text-white transition active:scale-95 disabled:opacity-60 flex items-center justify-center gap-2"
                 >
                   {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sí, cancelar'}
                 </button>

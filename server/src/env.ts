@@ -20,7 +20,7 @@ export const env = {
   // El remitente debe ser un email verificado en Brevo (Senders, Domains &
   // Dedicated IPs → Senders) — no hace falta un dominio propio.
   brevoApiKey: process.env.BREVO_API_KEY || '',
-  brevoFrom: process.env.BREVO_FROM || 'Sabora <no-reply@example.com>',
+  brevoFrom: process.env.BREVO_FROM || 'Nonnapp <no-reply@example.com>',
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',

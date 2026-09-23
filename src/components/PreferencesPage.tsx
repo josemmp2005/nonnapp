@@ -74,7 +74,7 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Configuración del Chef</h1>
-        <p className="text-[#8C7C63] dark:text-[#7C715E] mt-2">Personaliza cómo la IA genera tus recetas.</p>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">Personaliza cómo la IA genera tus recetas.</p>
       </div>
 
       <div className="space-y-6">
@@ -127,7 +127,7 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition-all transform active:scale-95 shadow-lg ${saved ? 'bg-green-500' : 'bg-primary hover:bg-orange-600 shadow-orange-200 dark:shadow-none'} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition transform active:scale-95 shadow-lg ${saved ? 'bg-green-500' : 'bg-primary hover:bg-orange-600 shadow-orange-200 dark:shadow-none'} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isSaving ? (
               <>

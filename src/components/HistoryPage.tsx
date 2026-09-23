@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Clock, Flame, ChevronRight, Loader2, Calendar, Filter, ArrowDownUp, Lock, Crown } from 'lucide-react';
+import { Search, Clock, Flame, ChevronRight, Calendar, Filter, ArrowDownUp, Lock, Crown } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
 import { useSubscription } from '../context/SubscriptionContext';
+import { useToast } from '../context/ToastContext';
 import RecipePreviewModal from './RecipePreviewModal';
+import { Reveal } from './ui/Reveal';
 import type { AuthSession } from '../services/auth';
 
 interface Props {
@@ -16,7 +18,8 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
   const [loading, setLoading] = useState(true);
   const [previewId, setPreviewId] = useState<number | null>(null);
   const { limits } = useSubscription();
-  
+  const { showToast } = useToast();
+
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
@@ -28,11 +31,17 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
 
     const loadData = async () => {
       setLoading(true);
-      const data = await fetchUserHistory();
-      setRecipes(data);
-      setLoading(false);
+      try {
+        const data = await fetchUserHistory();
+        setRecipes(data);
+      } catch {
+        showToast('No se pudo cargar tu historial', 'error');
+      } finally {
+        setLoading(false);
+      }
     };
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   const filteredRecipes = (recipes || [])
@@ -63,28 +72,30 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in duration-500 pb-20">
       
-      <div className="mb-8 pr-32">
+      <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Historial de Recetas</h1>
-        <p className="text-[#8C7C63] dark:text-[#7C715E] mt-1">Explora todas las recetas que has creado</p>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1">Explora todas las recetas que has creado</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-8">
-        
+
         <div className="relative flex-grow">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C7C63] dark:text-[#6E6350] w-5 h-5" />
-          <input 
-            type="text" 
-            placeholder="Buscar por nombre o ingredientes..." 
+          <Search aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B5D48] dark:text-[#9A8D74] w-5 h-5" />
+          <input
+            type="text"
+            aria-label="Buscar por nombre o ingredientes"
+            placeholder="Buscar por nombre o ingredientes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition-all text-[#241B10] dark:text-[#F8F2E6]"
+            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition text-[#241B10] dark:text-[#F8F2E6]"
           />
         </div>
 
         <div className="w-full md:w-48 relative">
-           <select 
+           <select
              value={difficulty}
              onChange={(e) => setDifficulty(e.target.value)}
+             aria-label="Filtrar por dificultad"
              className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-[#3A2E1D] dark:text-[#D4D4D8] cursor-pointer"
            >
              <option value="all">Todas las dificultades</option>
@@ -92,39 +103,49 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
              <option value="Media">Media</option>
              <option value="Difícil">Difícil</option>
            </select>
-           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#8C7C63] dark:text-[#6E6350]">
-             <Filter className="w-4 h-4" />
+           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B5D48] dark:text-[#9A8D74]">
+             <Filter aria-hidden="true" className="w-4 h-4" />
            </div>
         </div>
 
         <div className="w-full md:w-48 relative">
-           <select 
+           <select
              value={sortOrder}
              onChange={(e) => setSortOrder(e.target.value)}
+             aria-label="Ordenar recetas"
              className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-[#3A2E1D] dark:text-[#D4D4D8] cursor-pointer"
            >
              <option value="newest">Más Recientes</option>
              <option value="oldest">Más Antiguas</option>
            </select>
-           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#8C7C63] dark:text-[#6E6350]">
-             <ArrowDownUp className="w-4 h-4" />
+           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B5D48] dark:text-[#9A8D74]">
+             <ArrowDownUp aria-hidden="true" className="w-4 h-4" />
            </div>
         </div>
 
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm overflow-hidden">
+              <div className="aspect-video bg-[#241B10]/10 dark:bg-[#221B12]" />
+              <div className="p-5 space-y-3">
+                <div className="h-4 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-3/4" />
+                <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-1/2" />
+                <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-full" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : filteredRecipes.length === 0 ? (
         <div className="text-center py-20 bg-white dark:bg-[#18130D] rounded-3xl border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15">
-           <div className="text-6xl mb-4">🍲</div>
+           <div aria-hidden="true" className="text-6xl mb-4">🍲</div>
            <h3 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6]">No se encontraron recetas</h3>
-           <p className="text-[#8C7C63] dark:text-[#7C715E] mt-2 mb-6">Intenta ajustar los filtros o crea una nueva receta.</p>
-           <button 
+           <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 mb-6">Intenta ajustar los filtros o crea una nueva receta.</p>
+           <button
              onClick={() => navigate('/app')}
-             className="px-6 py-2 bg-primary text-white font-bold rounded-xl hover:bg-orange-600 transition-colors"
+             className="px-6 py-2 bg-primary text-white font-bold rounded-xl hover:bg-orange-600 active:scale-95 transition-colors"
            >
              Crear Nueva Receta
            </button>
@@ -132,11 +153,12 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
       ) : (
         <>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayRecipes.map((recipe) => (
-            <div
-              key={recipe.id}
+            {displayRecipes.map((recipe, i) => (
+            <Reveal key={recipe.id} delayMs={Math.min(i, 5) * 60}>
+            <button
+              type="button"
               onClick={() => recipe.id != null && setPreviewId(recipe.id)}
-              className="bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group overflow-hidden flex flex-col h-full"
+              className="w-full text-left bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition cursor-pointer group overflow-hidden flex flex-col h-full"
             >
               <div className="aspect-video bg-primary/10 relative overflow-hidden">
                 {recipe.main_image_url ? (
@@ -146,18 +168,18 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 ) : (
-                   <div className="w-full h-full flex items-center justify-center bg-orange-50 dark:bg-orange-900/10 text-orange-200 dark:text-orange-900/50">
+                   <div aria-hidden="true" className="w-full h-full flex items-center justify-center bg-orange-50 dark:bg-orange-900/10 text-orange-200 dark:text-orange-900/50">
                       <span className="text-4xl">🍳</span>
                    </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
-                
+
                 <div className="absolute bottom-3 left-3 right-3 flex justify-between text-white text-xs font-medium">
                   <span className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
-                    <Clock className="w-3 h-3" /> {recipe.recipe_metadata?.cooking_time || 'N/A'}
+                    <Clock aria-hidden="true" className="w-3 h-3" /> {recipe.recipe_metadata?.cooking_time || 'N/A'}
                   </span>
                   <span className="flex items-center gap-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-lg">
-                    <Flame className="w-3 h-3 text-orange-400" /> {recipe.recipe_metadata?.calories || 0} kcal
+                    <Flame aria-hidden="true" className="w-3 h-3 text-orange-400" /> {recipe.recipe_metadata?.calories || 0} kcal
                   </span>
                 </div>
               </div>
@@ -167,8 +189,8 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                    <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors line-clamp-2">
                      {recipe.recipe_metadata?.title || 'Receta sin título'}
                    </h3>
-                   <div className="flex items-center gap-2 mt-2 text-xs text-[#8C7C63] dark:text-[#6E6350]">
-                     <Calendar className="w-3 h-3" />
+                   <div className="flex items-center gap-2 mt-2 text-xs text-[#6B5D48] dark:text-[#9A8D74]">
+                     <Calendar aria-hidden="true" className="w-3 h-3" />
                      {new Date(recipe.created_at || '').toLocaleDateString()}
                      <span className="w-1 h-1 bg-[#241B10]/20 dark:bg-[#2A2114] rounded-full"></span>
                      <span className={`capitalize font-medium ${
@@ -179,17 +201,18 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                      </span>
                    </div>
                 </div>
-                
-                <p className="text-[#8C7C63] dark:text-[#7C715E] text-sm line-clamp-3 mb-4 flex-grow">
+
+                <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm line-clamp-3 mb-4 flex-grow">
                   {recipe.recipe_metadata?.description || 'Sin descripción'}
                 </p>
 
                 <div className="pt-4 border-t border-[#241B10]/5 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium text-primary">
                   <span>Vista Previa</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  <ChevronRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
-            </div>
+            </button>
+            </Reveal>
           ))}
         </div>
 
@@ -198,11 +221,11 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
           <div className="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-8 text-center">
             <div className="flex justify-center mb-4">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl">
-                <Lock className="w-8 h-8 text-white" />
+                <Lock aria-hidden="true" className="w-8 h-8 text-white" />
               </div>
             </div>
             <h3 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center justify-center gap-2">
-              <Crown className="w-6 h-6 text-amber-500" />
+              <Crown aria-hidden="true" className="w-6 h-6 text-amber-500" />
               Desbloquea tu Historial Completo
             </h3>
             <p className="text-[#5C4E3A] dark:text-[#A89C86] mb-4 max-w-2xl mx-auto">
@@ -211,7 +234,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
             </p>
             <button
               onClick={() => navigate('/app/profile')}
-              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition-all hover:scale-105 shadow-lg"
+              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition hover:scale-105 active:scale-95 shadow-lg"
             >
               Ver Planes Premium
             </button>

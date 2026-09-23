@@ -16,7 +16,7 @@ const PLAN_DESCRIPTIONS: Record<SubscriptionData['plan_type'], string> = {
 };
 
 const SubscriptionCard: React.FC<Props> = ({ subscription, isCurrentlyPro, onOpenPlanModal }) => (
-  <section className="bg-gradient-to-r from-[#241B10] to-[#18130D] dark:from-[#18130D] dark:to-[#0D0A06] p-6 rounded-2xl border border-white/10 shadow-lg text-white transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10">
+  <section className="bg-gradient-to-r from-[#241B10] to-[#18130D] dark:from-[#18130D] dark:to-[#0D0A06] p-6 rounded-2xl border border-white/10 shadow-lg text-white transition duration-300 hover:shadow-2xl hover:shadow-primary/10">
     <div className="flex items-center gap-3 mb-4">
       <div className="bg-yellow-500/20 p-2 rounded-lg">
         <Crown className="w-5 h-5 text-yellow-400" />
@@ -42,7 +42,7 @@ const SubscriptionCard: React.FC<Props> = ({ subscription, isCurrentlyPro, onOpe
 
       <button
         onClick={onOpenPlanModal}
-        className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all duration-300 shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-95 whitespace-nowrap min-w-[140px] justify-center
+        className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition duration-300 shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-95 whitespace-nowrap min-w-[140px] justify-center
             ${
               isCurrentlyPro
                 ? 'bg-white/10 hover:bg-white/20 text-[#D4D4D8] border border-white/10'

@@ -5,10 +5,12 @@ import HistoryList from './HistoryList';
 import { fetchRecentRecipes } from '../services/data';
 import type { UserProfile as UserProfileType, RecipeDB } from '../types';
 import { Sparkles, Coffee, Zap, Utensils, ArrowRight } from 'lucide-react';
+import { Reveal } from './ui/Reveal';
 import { useSubscription } from '../context/SubscriptionContext';
 import ChefTableWidget from './ChefTableWidget';
 import RecipePreviewModal from './RecipePreviewModal';
 import type { AuthSession } from '../services/auth';
+import { useToast } from '../context/ToastContext';
 
 interface Props {
   userProfile: UserProfileType;
@@ -17,6 +19,7 @@ interface Props {
 
 const Dashboard: React.FC<Props> = ({ session }) => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit } = useSubscription();
   const [recentRecipes, setRecentRecipes] = useState<RecipeDB[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
@@ -31,11 +34,17 @@ const Dashboard: React.FC<Props> = ({ session }) => {
   useEffect(() => {
     const loadHistory = async () => {
       setIsHistoryLoading(true);
-      const history = await fetchRecentRecipes();
-      setRecentRecipes(history);
-      setIsHistoryLoading(false);
+      try {
+        const history = await fetchRecentRecipes();
+        setRecentRecipes(history);
+      } catch {
+        showToast('No se pudieron cargar tus recetas recientes', 'error');
+      } finally {
+        setIsHistoryLoading(false);
+      }
     };
     loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleQuickInputSubmit = (e: React.FormEvent) => {
@@ -96,7 +105,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                 <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">
                     {greeting}, <span className="text-primary">{username}</span>
                 </h1>
-                <p className="text-[#8C7C63] dark:text-[#7C715E] mt-1 flex items-center gap-2">
+                <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1 flex items-center gap-2">
                     <Utensils className="w-4 h-4" />
                     Tu cocina inteligente está lista.
                 </p>
@@ -108,7 +117,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                     <span className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6]">
                       {limits.maxRecipesPerDay === Infinity ? '∞' : remaining}
                     </span>
-                    <span className="text-[10px] text-[#8C7C63] uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">
                       {limits.maxRecipesPerDay === Infinity ? 'Recetas' : 'Hoy'}
                     </span>
                 </div>
@@ -116,7 +125,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                     <span className="text-2xl font-bold text-primary flex items-center gap-1">
                         {planNames[subscription.plan_type]}
                     </span>
-                    <span className="text-[10px] text-[#8C7C63] uppercase font-bold tracking-wider">Plan</span>
+                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">Plan</span>
                 </div>
             </div>
         </div>
@@ -132,7 +141,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                         value={quickInput}
                         onChange={(e) => setQuickInput(e.target.value)}
                         placeholder="Ej: Pasta con champiñones, algo con pollo..." 
-                        className="w-full pl-6 pr-14 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 focus:bg-white/20 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                        className="w-full pl-6 pr-14 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 focus:bg-white/20 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                     />
                     <button 
                         type="submit"
@@ -153,45 +162,53 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         <div>
             <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 px-1">Acciones Rápidas</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               <button 
+               <Reveal delayMs={0}>
+               <button
                  onClick={() => triggerQuickAction('surprise')}
-                 className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl text-white shadow-lg shadow-purple-200 dark:shadow-none hover:scale-[1.02] transition-transform text-left relative overflow-hidden group"
+                 className="w-full p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl text-white shadow-lg shadow-purple-200 dark:shadow-none hover:scale-[1.02] active:scale-[0.98] transition-transform text-left relative overflow-hidden group"
                >
                   <div className="relative z-10">
-                      <Sparkles className="w-6 h-6 mb-2 text-purple-100" />
+                      <Sparkles aria-hidden="true" className="w-6 h-6 mb-2 text-purple-100" />
                       <span className="font-bold block">Sorpréndeme</span>
                       <span className="text-xs text-purple-100 opacity-80">Algo nuevo hoy</span>
                   </div>
-                  <Sparkles className="absolute -right-4 -bottom-4 w-20 h-20 text-white opacity-10 group-hover:rotate-12 transition-transform" />
+                  <Sparkles aria-hidden="true" className="absolute -right-4 -bottom-4 w-20 h-20 text-white opacity-10 group-hover:rotate-12 transition-transform" />
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={70}>
+               <button
                  onClick={() => triggerQuickAction('breakfast')}
-                 className="p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] transition-all text-left group"
+                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
-                  <Coffee className="w-6 h-6 mb-2 text-orange-500" />
+                  <Coffee aria-hidden="true" className="w-6 h-6 mb-2 text-orange-500" />
                   <span className="font-bold block">Desayuno Rápido</span>
-                  <span className="text-xs text-[#8C7C63]">Listo en 15 min</span>
+                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">Listo en 15 min</span>
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={140}>
+               <button
                  onClick={() => triggerQuickAction('healthy')}
-                 className="p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] transition-all text-left group"
+                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
-                  <Zap className="w-6 h-6 mb-2 text-green-500" />
+                  <Zap aria-hidden="true" className="w-6 h-6 mb-2 text-green-500" />
                   <span className="font-bold block">Modo Fit</span>
-                  <span className="text-xs text-[#8C7C63]">Bajo en calorías</span>
+                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">Bajo en calorías</span>
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={210}>
+               <button
                   onClick={() => navigate('/app/generate')}
-                  className="p-4 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl flex flex-col items-center justify-center text-center text-[#8C7C63] hover:border-primary hover:text-primary transition-colors"
+                  className="w-full h-full p-4 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl flex flex-col items-center justify-center text-center text-[#6B5D48] dark:text-[#9A8D74] hover:border-primary hover:text-primary active:scale-[0.98] transition-colors"
                >
                   <div className="w-8 h-8 rounded-full bg-white dark:bg-[#221B12] shadow-sm flex items-center justify-center mb-2">
-                    <Utensils className="w-4 h-4" />
+                    <Utensils aria-hidden="true" className="w-4 h-4" />
                   </div>
                   <span className="text-xs font-bold">Generador Avanzado</span>
                </button>
+               </Reveal>
             </div>
         </div>
 

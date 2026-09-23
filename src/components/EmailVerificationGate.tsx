@@ -75,17 +75,17 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
         <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
           Verifica tu email para continuar
         </h2>
-        <p className="text-[#8C7C63] dark:text-[#7C715E] text-sm mb-1">
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-1">
           Te hemos enviado un enlace de confirmación a
         </p>
         <p className="text-[#3A2E1D] dark:text-[#D4D4D8] font-semibold mb-6 break-all">{email}</p>
-        <p className="text-[#8C7C63] dark:text-[#7C715E] text-sm mb-6">
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-6">
           Haz clic en el enlace del email para desbloquear la app. Si no lo encuentras, revisa spam o pide que te lo reenviemos.
         </p>
         <button
           onClick={handleResend}
           disabled={isResending || cooldown > 0}
-          className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isResending
             ? 'Enviando...'
@@ -96,7 +96,7 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
 
         <Link
           to="/"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-[#8C7C63] dark:text-[#7C715E] hover:text-primary font-medium transition-colors"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Volver a inicio

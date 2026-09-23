@@ -13,7 +13,7 @@ const MeetNonnaSection: React.FC = () => (
             <img src={nonnaPhoto} alt="La Nonna" className="w-full h-full object-cover" />
           </div>
           <div className="text-sm font-semibold text-[#241B10] dark:text-[#F8F2E6]">La Nonna</div>
-          <div className="text-xs text-[#8C7C63] dark:text-[#7C715E] mt-0.5">Tu chef de IA</div>
+          <div className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-0.5">Tu chef de IA</div>
         </div>
 
         <div>
@@ -23,7 +23,7 @@ const MeetNonnaSection: React.FC = () => (
             Le hemos enseñado a nuestra IA a razonar como una abuela italiana: aprovechar cada ingrediente, saltarse la receta cuando hace falta y añadir siempre ese cariño que ninguna app tiene.
           </p>
           <div className="font-voice text-lg text-[#8A5A2B] dark:text-[#F0DFC4] mb-0.5">"Bambino, con lo que tienes en la nevera ya tenemos cena."</div>
-          <div className="font-hand text-lg text-[#8C7C63] dark:text-[#C3B89F] mb-5">— La Nonna</div>
+          <div className="font-hand text-lg text-[#6B5D48] dark:text-[#C3B89F] mb-5">— La Nonna</div>
           <div className="flex flex-wrap gap-2">
             {TAGS.map((tag) => (
               <span

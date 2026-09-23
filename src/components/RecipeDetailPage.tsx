@@ -46,7 +46,7 @@ const RecipeDetailPage: React.FC = () => {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-[#241B10] mb-2">Error</h2>
-        <p className="text-[#8C7C63] mb-6">{error || 'No se pudo cargar la receta.'}</p>
+        <p className="text-[#6B5D48] mb-6">{error || 'No se pudo cargar la receta.'}</p>
         <button 
           onClick={() => navigate('/app/history')}
           className="text-primary font-bold hover:underline"
@@ -61,7 +61,7 @@ const RecipeDetailPage: React.FC = () => {
     <div className="max-w-5xl mx-auto pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-[#8C7C63] hover:text-[#241B10] dark:hover:text-white mb-6 font-medium transition-colors"
+        className="flex items-center gap-2 text-[#6B5D48] hover:text-[#241B10] dark:hover:text-white mb-6 font-medium transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Volver

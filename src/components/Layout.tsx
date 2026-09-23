@@ -52,13 +52,13 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
            <button
              onClick={() => setIsMobileMenuOpen(true)}
              aria-label="Abrir menú"
-             className="p-2 text-[#5C4E3A] dark:text-[#C3B89F] hover:bg-[#241B10]/5 dark:hover:bg-white/5 rounded-lg transition-all duration-300 active:scale-90"
+             className="p-2 text-[#5C4E3A] dark:text-[#C3B89F] hover:bg-[#241B10]/5 dark:hover:bg-white/5 rounded-lg transition duration-300 active:scale-90"
            >
              <Menu className="w-6 h-6" />
            </button>
         </div>
 
-        <main className="flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 transition-all duration-300 w-full max-w-[1600px] mx-auto relative">
+        <main className="flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 w-full max-w-[1600px] mx-auto relative">
           {children}
         </main>
       </div>
@@ -77,19 +77,19 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
             <button
               onClick={toggleTheme}
               aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
-              className="p-2 text-[#8C7C63] hover:bg-[#241B10]/5 dark:text-[#7C715E] dark:hover:bg-white/5 rounded-full transition-all duration-300 hover:rotate-45 active:scale-90"
+              className="p-2 text-[#6B5D48] hover:bg-[#241B10]/5 dark:text-[#9A8D74] dark:hover:bg-white/5 rounded-full transition duration-300 hover:rotate-45 active:scale-90"
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
             </button>
 
             {session && isVerified ? (
               <>
-                <Link to="/app" className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300 shadow-lg shadow-orange-500/20">
+                <Link to="/app" className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-orange-500/20">
                   Ir a la Cocina
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-[#8C7C63] dark:text-[#7C715E] hover:text-red-500 hover:scale-110 active:scale-90 transition-all duration-300"
+                  className="p-2 text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
                   title="Cerrar Sesión"
                 >
                   <LogOut className="w-5 h-5" />
@@ -98,13 +98,13 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
             ) : session ? (
               <button
                 onClick={handleLogout}
-                className="p-2 text-[#8C7C63] dark:text-[#7C715E] hover:text-red-500 hover:scale-110 active:scale-90 transition-all duration-300"
+                className="p-2 text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
                 title="Cerrar Sesión"
               >
                 <LogOut className="w-5 h-5" />
               </button>
             ) : (
-              <Link to="/auth" className="px-5 py-2.5 bg-[#241B10] dark:bg-[#F8F2E6] text-[#F8F2E6] dark:text-[#241B10] font-bold text-sm rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-95 transition-all duration-300 shadow-lg">
+              <Link to="/auth" className="px-5 py-2.5 bg-[#241B10] dark:bg-[#F8F2E6] text-[#F8F2E6] dark:text-[#241B10] font-bold text-sm rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-95 transition duration-300 shadow-lg">
                 Iniciar Sesión
               </Link>
             )}
@@ -117,7 +117,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
       </main>
 
       <footer className="mt-auto transition-colors duration-300 border-t bg-[#FCF6EC] dark:bg-[#130F0A] border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-sm gap-4 text-[#8C7C63] dark:text-[#7C715E]">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-sm gap-4 text-[#6B5D48] dark:text-[#9A8D74]">
           <div className="flex items-center gap-2">
              <Logo className="w-6 h-6 grayscale opacity-50" showText={false} />
              <p>© {new Date().getFullYear()} nonnapp.</p>

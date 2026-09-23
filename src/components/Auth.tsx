@@ -3,9 +3,10 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { signInWithEmail, signUpWithEmail, requestPasswordReset } from '../services/auth';
 import type { AuthSession } from '../services/auth';
 import { API_URL } from '../services/api';
-import { Mail, Lock, Loader2, ArrowRight, User, Eye, EyeOff, Check } from 'lucide-react';
+import { Mail, Lock, Loader2, ArrowRight, User, Eye, EyeOff } from 'lucide-react';
 import { Logo } from './Logo';
 import { useToast } from '../context/ToastContext';
+import { PasswordCheckItem } from './ui/PasswordCheckItem';
 
 const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
@@ -110,7 +111,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
-      <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/5">
+      <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 transition duration-300 hover:shadow-2xl hover:shadow-primary/5">
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
           <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
@@ -120,7 +121,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                 ? 'Bienvenido de nuevo'
                 : 'Únete a nonnapp'}
           </h2>
-          <p className="text-[#8C7C63] dark:text-[#7C715E] mt-2 text-sm text-center">
+          <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
             {isForgotPassword
               ? 'Te enviaremos un email para restablecer tu contraseña.'
               : isLogin
@@ -134,7 +135,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 py-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl font-semibold text-[#3A2E1D] dark:text-[#D4D4D8] bg-white dark:bg-[#221B12] hover:bg-[#241B10]/5 dark:hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+              className="w-full flex items-center justify-center gap-3 py-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl font-semibold text-[#3A2E1D] dark:text-[#D4D4D8] bg-white dark:bg-[#221B12] hover:bg-[#241B10]/5 dark:hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0 transition duration-300"
             >
               <GoogleIcon className="w-5 h-5" />
               Continuar con Google
@@ -142,7 +143,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
 
             <div className="flex items-center gap-3 my-6">
               <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
-              <span className="text-xs text-[#8C7C63] dark:text-[#7C715E] uppercase tracking-wide">o con email</span>
+              <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wide">o con email</span>
               <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
             </div>
           </>
@@ -153,16 +154,17 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           {!isLogin && !isForgotPassword && (
             <div className="animate-in slide-in-from-top-2 fade-in space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Nombre de Usuario</label>
+                <label htmlFor="auth-username" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Nombre de Usuario</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
+                    id="auth-username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="ChefMaster2025"
                     required={!isLogin && !isForgotPassword}
-                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                   />
                 </div>
               </div>
@@ -170,16 +172,17 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           )}
 
           <div className="space-y-1">
-            <label className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Email</label>
+            <label htmlFor="auth-email" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Email</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+              <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
               <input
+                id="auth-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
                 required
-                className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
+                className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
               />
             </div>
           </div>
@@ -187,52 +190,47 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           {!isForgotPassword && (
             <>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Contraseña</label>
+                <label htmlFor="auth-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Contraseña</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                  <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
+                    id="auth-password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full pl-10 pr-12 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full pl-10 pr-12 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-[#8C7C63] hover:text-[#5C4E3A] dark:hover:text-[#D4D4D8] transition-colors"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    className="absolute right-3 top-3.5 text-[#6B5D48] hover:text-[#5C4E3A] dark:hover:text-[#D4D4D8] transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
 
-                {!isLogin && (
-                  <div className="flex items-center gap-2 mt-1 px-1">
-                    {isPasswordLengthValid ? <Check className="w-3 h-3 text-green-500" /> : <div className="w-3 h-3 rounded-full border border-[#241B10]/20 dark:border-[#F5E6CD]/15"></div>}
-                    <span className={`text-xs ${isPasswordLengthValid ? 'text-green-600' : 'text-[#8C7C63]'}`}>Mínimo 6 caracteres</span>
-                  </div>
-                )}
+                {!isLogin && <PasswordCheckItem ok={isPasswordLengthValid} label="Mínimo 6 caracteres" />}
               </div>
 
               {!isLogin && (
                 <div className="space-y-1 animate-in fade-in">
-                  <label className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Confirmar Contraseña</label>
+                  <label htmlFor="auth-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Confirmar Contraseña</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                    <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                     <input
+                      id="auth-confirm-password"
                       type={showPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required={!isLogin}
-                      className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
+                      className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                     />
                   </div>
-                  <div className="flex items-center gap-2 mt-1 px-1">
-                    {doPasswordsMatch ? <Check className="w-3 h-3 text-green-500" /> : <div className="w-3 h-3 rounded-full border border-[#241B10]/20 dark:border-[#F5E6CD]/15"></div>}
-                    <span className={`text-xs ${doPasswordsMatch ? 'text-green-600' : 'text-[#8C7C63]'}`}>Las contraseñas coinciden</span>
-                  </div>
+                  <PasswordCheckItem ok={doPasswordsMatch} label="Las contraseñas coinciden" />
                 </div>
               )}
 
@@ -256,7 +254,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           <button
             type="submit"
             disabled={isLoading || (!isForgotPassword && !isLogin && (!isPasswordLengthValid || !doPasswordsMatch))}
-            className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-[0.98] flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -276,12 +274,12 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                 setIsForgotPassword(false);
                 setEmail('');
               }}
-              className="text-sm text-[#8C7C63] dark:text-[#7C715E] hover:text-primary font-medium"
+              className="text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium"
             >
               ← Volver al inicio de sesión
             </button>
           ) : (
-            <p className="text-sm text-[#8C7C63] dark:text-[#7C715E]">
+            <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74]">
               {isLogin ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
               <button
                 onClick={() => {

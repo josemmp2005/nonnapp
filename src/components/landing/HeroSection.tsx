@@ -45,17 +45,17 @@ const HeroSection: React.FC = () => (
           <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
           <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
-          <span className="ml-2 text-[11px] text-[#6E6350]">nonnapp.com/app/generate</span>
+          <span className="ml-2 text-[11px] text-[#9A8D74]">nonnapp.com/app/generate</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-[260px_1fr]">
           <div className="p-6 border-b sm:border-b-0 sm:border-r border-[#F5E6CD]/10">
-            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#6E6350] mb-3">Tus ingredientes</div>
+            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#9A8D74] mb-3">Tus ingredientes</div>
             <div className="flex flex-wrap gap-2 mb-5">
               <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Huevos</span>
               <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Tomate</span>
               <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Pan duro</span>
             </div>
-            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#6E6350] mb-2">Modo</div>
+            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#9A8D74] mb-2">Modo</div>
             <div className="text-sm text-[#E7DCC5] mb-5">Cero desperdicio</div>
             <div className="text-center py-2.5 bg-primary text-[#130F0A] text-sm font-semibold rounded-lg">Generar receta</div>
           </div>
@@ -70,7 +70,7 @@ const HeroSection: React.FC = () => (
             <div className="flex items-start justify-between mb-4 gap-3">
               <div>
                 <div className="text-base font-bold text-[#F8F2E6] mb-1">Pappa al Pomodoro Toscana</div>
-                <div className="text-xs text-[#6E6350]">Sugerida por la Nonna · basada en tu despensa</div>
+                <div className="text-xs text-[#9A8D74]">Sugerida por la Nonna · basada en tu despensa</div>
               </div>
               <span className="px-2.5 py-1 bg-primary/15 text-orange-400 text-[11px] font-semibold rounded whitespace-nowrap">Cero desperdicio</span>
             </div>

@@ -51,10 +51,10 @@ const MenuItem: React.FC<MenuItemProps> = ({
   <button
     onClick={onClick}
     className={`
-      group/item flex items-center w-full p-4 transition-all duration-200 overflow-hidden whitespace-nowrap relative
-      ${danger ? 'text-[#8C7C63] dark:text-[#7C715E] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''}
+      group/item flex items-center w-full p-4 transition duration-200 overflow-hidden whitespace-nowrap relative
+      ${danger ? 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''}
       ${!danger && active ? 'text-primary bg-primary/10 font-semibold' : ''}
-      ${!danger && !active ? 'text-[#8C7C63] dark:text-[#7C715E] hover:text-primary dark:hover:text-primary hover:bg-primary/5' : ''}
+      ${!danger && !active ? 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary dark:hover:text-primary hover:bg-primary/5' : ''}
       ${isUser ? 'lg:mb-6 lg:mt-4' : ''}
     `}
   >
@@ -71,7 +71,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
     </div>
 
     <span className={`
-      ml-4 font-medium transition-all duration-300
+      ml-4 font-medium transition duration-300
       lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0
       ${danger ? 'text-red-500' : (active ? 'text-primary' : 'text-[#3A2E1D] dark:text-[#D4D4D8]')}
     `}>
@@ -111,14 +111,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`
           fixed top-0 left-0 h-full bg-white dark:bg-[#18130D] z-50 shadow-xl lg:shadow-none border-r border-[#241B10]/10 dark:border-[#F5E6CD]/10
-          transition-all duration-300 ease-in-out group
+          transition duration-300 ease-in-out group
           w-64 lg:w-20 lg:hover:w-64 flex flex-col py-4 overflow-hidden
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         <div className="lg:hidden w-full flex justify-between items-center px-4 mb-6 flex-shrink-0">
           <Logo className="w-8 h-8" textClassName="text-lg" />
-          <button onClick={onClose} aria-label="Cerrar menú" className="p-2 text-[#8C7C63] hover:bg-[#241B10]/5 dark:text-[#7C715E] dark:hover:bg-white/5 rounded-full transition-all duration-300 active:scale-90">
+          <button onClick={onClose} aria-label="Cerrar menú" className="p-2 text-[#6B5D48] hover:bg-[#241B10]/5 dark:text-[#9A8D74] dark:hover:bg-white/5 rounded-full transition duration-300 active:scale-90">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -176,12 +176,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="group/item flex items-center w-full p-4 text-[#8C7C63] dark:text-[#7C715E] hover:text-primary dark:hover:text-primary hover:bg-primary/5 transition-all duration-200 overflow-hidden whitespace-nowrap mb-1"
+          className="group/item flex items-center w-full p-4 text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary dark:hover:text-primary hover:bg-primary/5 transition duration-200 overflow-hidden whitespace-nowrap mb-1"
         >
           <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 transition-transform duration-300 group-hover/item:rotate-45">
             {theme === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
           </div>
-          <span className="ml-4 font-medium transition-all duration-300 lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0 text-[#3A2E1D] dark:text-[#D4D4D8]">
+          <span className="ml-4 font-medium transition duration-300 lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0 text-[#3A2E1D] dark:text-[#D4D4D8]">
             {theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
           </span>
         </button>

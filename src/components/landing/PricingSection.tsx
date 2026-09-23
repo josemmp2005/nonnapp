@@ -11,7 +11,7 @@ const PricingSection: React.FC = () => (
       <div className="text-center mb-12 md:mb-14">
         <span className="block text-xs font-semibold text-primary mb-2.5">La Famiglia</span>
         <h2 className="mb-3 text-2xl md:text-[34px] font-bold tracking-tight text-[#241B10] dark:text-[#F8F2E6]">Elige tu lugar en la mesa</h2>
-        <p className="text-sm text-[#8C7C63] dark:text-[#8B8B90]">Desde el nieto que aprende hasta la Nonna que lo sabe todo.</p>
+        <p className="text-sm text-[#6B5D48] dark:text-[#8B8B90]">Desde el nieto que aprende hasta la Nonna que lo sabe todo.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
@@ -19,7 +19,7 @@ const PricingSection: React.FC = () => (
         {/* Il Nipote */}
         <div className="bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 p-8 rounded-xl flex flex-col transition-all duration-300 hover:border-primary/40 hover:shadow-xl hover:shadow-black/5 hover:-translate-y-2">
           <h3 className="mb-1 text-base font-semibold text-[#241B10] dark:text-[#F8F2E6]">Il Nipote</h3>
-          <p className="mb-5 text-xs text-[#8C7C63] dark:text-[#6C6C72]">El nieto aprendiz</p>
+          <p className="mb-5 text-xs text-[#6B5D48] dark:text-[#6C6C72]">El nieto aprendiz</p>
           <div className="mb-6 text-3xl font-bold tracking-tight text-[#241B10] dark:text-[#F8F2E6]">Gratis</div>
           <div className="flex flex-col gap-3 mb-7 flex-grow">
             <div className="flex items-center gap-2.5 text-[13px] text-[#3A2E1D] dark:text-[#B4B4B9]">
@@ -62,10 +62,10 @@ const PricingSection: React.FC = () => (
             La Nonna
             <svg className="w-3.5 h-3.5 text-[#9C7A32] dark:text-[#C9A876]" viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l-1.5-9L8 12l4-8 4 8 5.5-3L20 18z" /></svg>
           </h3>
-          <p className="mb-5 text-xs text-[#8C7C63] dark:text-[#6C6C72]">La matriarca suprema</p>
+          <p className="mb-5 text-xs text-[#6B5D48] dark:text-[#6C6C72]">La matriarca suprema</p>
           <div className="flex items-baseline gap-1.5 mb-6">
             <span className="text-[30px] font-bold tracking-tight text-[#241B10] dark:text-[#F8F2E6]">19,99€</span>
-            <span className="text-xs text-[#8C7C63] dark:text-[#6C6C72]">/mes</span>
+            <span className="text-xs text-[#6B5D48] dark:text-[#6C6C72]">/mes</span>
           </div>
           <div className="flex flex-col gap-3 mb-7 flex-grow">
             <div className="flex items-center gap-2.5 text-[13px] text-[#3A2E1D] dark:text-[#D4D4D8] font-medium">

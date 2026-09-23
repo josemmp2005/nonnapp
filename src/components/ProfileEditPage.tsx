@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Mail, Save, Loader2 } from 'lucide-react';
+import { User, Lock, Mail, Save, Loader2, Check } from 'lucide-react';
 import { updateUsername, updateUserPassword } from '../services/auth';
 import { useToast } from '../context/ToastContext';
 import type { AuthSession } from '../services/auth';
+import { PasswordCheckItem } from './ui/PasswordCheckItem';
 
 interface Props {
   session: AuthSession | null;
@@ -12,13 +13,14 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
   const { showToast } = useToast();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  
+
   // Password State
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   // UI State
   const [isLoading, setIsLoading] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (session?.user) {
@@ -26,6 +28,9 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
       setUsername(session.user.user_metadata?.username || session.user.email?.split('@')[0] || '');
     }
   }, [session]);
+
+  const isPasswordLengthValid = newPassword.length >= 6;
+  const doPasswordsMatch = newPassword.length > 0 && newPassword === confirmPassword;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,9 +46,9 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
 
       // 2. Update Password if provided
       if (newPassword) {
-        if (newPassword.length < 6) throw new Error("La contraseña debe tener al menos 6 caracteres.");
-        if (newPassword !== confirmPassword) throw new Error("Las contraseñas no coinciden.");
-        
+        if (!isPasswordLengthValid) throw new Error("La contraseña debe tener al menos 6 caracteres.");
+        if (!doPasswordsMatch) throw new Error("Las contraseñas no coinciden.");
+
         const { error: passwordError } = await updateUserPassword(newPassword);
         if (passwordError) throw passwordError;
       }
@@ -51,7 +56,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
       showToast('Perfil actualizado correctamente.', 'success');
       setNewPassword('');
       setConfirmPassword('');
-      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Error al actualizar perfil.', 'error');
     } finally {
@@ -63,7 +69,7 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
     <div className="max-w-3xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Editar Perfil</h1>
-        <p className="text-[#8C7C63] dark:text-[#7C715E] mt-2">Actualiza tu información personal y seguridad.</p>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">Actualiza tu información personal y seguridad.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -81,7 +87,7 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                     {username ? username.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] text-center">
+                <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] text-center">
                   Avatar generado automáticamente
                 </p>
               </div>
@@ -94,31 +100,34 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             {/* Personal Info Card */}
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <User className="w-5 h-5 text-[#8C7C63]" /> Información Personal
+                <User aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> Información Personal
               </h3>
-              
+
               <div>
-                <label className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Email</label>
+                <label htmlFor="profile-email" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Email</label>
                 <div className="relative opacity-60">
-                  <Mail className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                  <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
+                    id="profile-email"
                     type="email"
                     value={email}
                     disabled
                     className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl cursor-not-allowed text-[#3A2E1D] dark:text-[#D4D4D8]"
                   />
                 </div>
+                <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">El email no se puede cambiar por ahora.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Nombre de Usuario</label>
+                <label htmlFor="profile-username" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Nombre de Usuario</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3.5 w-5 h-5 text-[#8C7C63]" />
+                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
+                    id="profile-username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="Tu nombre visible"
                   />
                 </div>
@@ -128,32 +137,36 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             {/* Security Card */}
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <Lock className="w-5 h-5 text-[#8C7C63]" /> Seguridad
+                <Lock aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> Seguridad
               </h3>
-              
+
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nueva Contraseña</label>
+                  <label htmlFor="profile-new-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nueva Contraseña</label>
                   <input
+                    id="profile-new-password"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
+                  {newPassword.length > 0 && <PasswordCheckItem ok={isPasswordLengthValid} label="Mínimo 6 caracteres" />}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Confirmar Contraseña</label>
+                  <label htmlFor="profile-confirm-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Confirmar Contraseña</label>
                   <input
+                    id="profile-confirm-password"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
+                  {newPassword.length > 0 && <PasswordCheckItem ok={doPasswordsMatch} label="Las contraseñas coinciden" />}
                 </div>
               </div>
-              <p className="text-xs text-[#8C7C63] italic">
+              <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] italic">
                 Deja estos campos vacíos si no deseas cambiar tu contraseña.
               </p>
             </div>
@@ -162,13 +175,18 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             <div className="flex justify-end pt-2">
               <button
                 type="submit"
-                disabled={isLoading}
-                className="flex items-center gap-2 px-8 py-3 bg-primary text-white rounded-xl font-bold hover:bg-orange-600 transition-all shadow-lg shadow-orange-200 dark:shadow-none active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || (newPassword.length > 0 && (!isPasswordLengthValid || !doPasswordsMatch))}
+                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition active:scale-95 shadow-lg ${saved ? 'bg-green-500' : 'bg-primary hover:bg-orange-600 shadow-orange-200 dark:shadow-none'} disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     Guardando...
+                  </>
+                ) : saved ? (
+                  <>
+                    <Check className="w-5 h-5" />
+                    Guardado
                   </>
                 ) : (
                   <>

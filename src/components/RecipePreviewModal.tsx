@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Clock, Flame, Users, ChefHat, Loader2, ArrowRight } from 'lucide-react';
+import { X, Clock, Flame, Users, ChefHat, ArrowRight } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { getFullRecipeById } from '../services/data';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 interface Props {
   recipeId: number | string;
@@ -15,10 +16,18 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    const data = await getFullRecipeById(recipeId);
+    if (data) setRecipe(data);
+    else setError(true);
+    setLoading(false);
+  }, [recipeId]);
+
   useEffect(() => {
     let cancelled = false;
-
-    const load = async () => {
+    (async () => {
       setLoading(true);
       setError(false);
       const data = await getFullRecipeById(recipeId);
@@ -26,26 +35,21 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
       if (data) setRecipe(data);
       else setError(true);
       setLoading(false);
-    };
-    load();
-
+    })();
     return () => {
       cancelled = true;
     };
   }, [recipeId]);
 
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [onClose]);
+  useEscapeKey(onClose);
 
   const meta = recipe?.recipe_metadata;
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={meta?.title || 'Vista previa de receta'}
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in"
       onClick={onClose}
     >
@@ -54,16 +58,30 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-24">
-            <Loader2 className="w-8 h-8 text-primary animate-spin" />
-            <p className="text-sm text-[#8C7C63] dark:text-[#7C715E]">Cargando receta...</p>
+          <div className="animate-pulse">
+            <div className="aspect-video bg-[#241B10]/10 dark:bg-[#221B12]" />
+            <div className="p-5 space-y-3">
+              <div className="h-5 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-2/3" />
+              <div className="flex gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-6 w-16 bg-[#241B10]/10 dark:bg-[#221B12] rounded-lg" />
+                ))}
+              </div>
+              <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-full" />
+              <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-4/5" />
+            </div>
           </div>
         ) : error || !recipe ? (
           <div className="flex flex-col items-center justify-center gap-3 py-24 px-6 text-center">
             <p className="text-[#241B10] dark:text-[#F8F2E6] font-bold">No se pudo cargar la receta.</p>
-            <button onClick={onClose} className="text-primary font-medium hover:underline">
-              Cerrar
-            </button>
+            <div className="flex items-center gap-4">
+              <button onClick={load} className="text-primary font-medium hover:underline">
+                Reintentar
+              </button>
+              <button onClick={onClose} className="text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:underline">
+                Cerrar
+              </button>
+            </div>
           </div>
         ) : (
           <>
@@ -75,7 +93,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-orange-50 dark:bg-orange-900/10 text-orange-200 dark:text-orange-900/50">
+                <div aria-hidden="true" className="w-full h-full flex items-center justify-center bg-orange-50 dark:bg-orange-900/10 text-orange-200 dark:text-orange-900/50">
                   <span className="text-5xl">🍳</span>
                 </div>
               )}
@@ -95,16 +113,16 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
             <div className="p-5 overflow-y-auto flex-grow">
               <div className="flex flex-wrap gap-2 mb-4 text-xs font-medium">
                 <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <Clock className="w-3.5 h-3.5" /> {meta?.cooking_time || 'N/A'}
+                  <Clock aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.cooking_time || 'N/A'}
+                </span>
+                <span className="flex items-center gap-1 bg-secondary/10 text-secondary px-2.5 py-1.5 rounded-lg">
+                  <Flame aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.calories || 0} kcal
                 </span>
                 <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <Flame className="w-3.5 h-3.5" /> {meta?.calories || 0} kcal
+                  <Users aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.servings || 2} raciones
                 </span>
-                <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <Users className="w-3.5 h-3.5" /> {meta?.servings || 2} raciones
-                </span>
-                <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <ChefHat className="w-3.5 h-3.5" /> {meta?.difficulty || 'Media'}
+                <span className="flex items-center gap-1 bg-secondary/10 text-secondary px-2.5 py-1.5 rounded-lg">
+                  <ChefHat aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.difficulty || 'Media'}
                 </span>
               </div>
 
@@ -114,7 +132,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
 
               {recipe.ingredients && recipe.ingredients.length > 0 && (
                 <div className="mb-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wide text-[#8C7C63] dark:text-[#6E6350] mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-[#6B5D48] dark:text-[#9A8D74] mb-2">
                     Ingredientes ({recipe.ingredients.length})
                   </h3>
                   <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-[#3A2E1D] dark:text-[#D4D4D8]">
@@ -129,7 +147,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                     ))}
                   </ul>
                   {recipe.ingredients.length > 8 && (
-                    <p className="text-xs text-[#8C7C63] dark:text-[#6E6350] mt-2">
+                    <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-2">
                       +{recipe.ingredients.length - 8} más...
                     </p>
                   )}
@@ -140,10 +158,10 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
             <div className="p-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex-shrink-0">
               <button
                 onClick={() => navigate(`/app/recipe/${recipeId}`)}
-                className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl transition-colors active:scale-[0.98]"
               >
                 Ver receta completa
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight aria-hidden="true" className="w-4 h-4" />
               </button>
             </div>
           </>

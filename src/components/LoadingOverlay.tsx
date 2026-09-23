@@ -39,10 +39,14 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-[#130F0A]/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-[#130F0A]/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors"
+    >
       <div className="text-center max-w-sm px-6 flex flex-col items-center">
-        
-        <div className="relative w-32 h-32 mx-auto mb-8 flex items-end justify-center">
+
+        <div aria-hidden="true" className="relative w-32 h-32 mx-auto mb-8 flex items-end justify-center">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-10 z-0 pointer-events-none">
              <div className="steam-particle w-4 h-4 left-6 top-6" style={{ animationDelay: '0s' }}></div>
              <div className="steam-particle w-5 h-5 left-10 top-4" style={{ animationDelay: '0.5s' }}></div>
@@ -63,7 +67,7 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
         <div className="h-8 overflow-hidden relative w-full">
           <p 
             key={messageIndex}
-            className="text-[#8C7C63] dark:text-[#7C715E] font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
+            className="text-[#6B5D48] dark:text-[#9A8D74] font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
           >
             {MESSAGES[messageIndex]}
           </p>

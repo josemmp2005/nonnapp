@@ -10,7 +10,7 @@ import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
 import type { AuthSession } from '../services/auth';
-import { Sparkles, Lock, Crown } from 'lucide-react';
+import { Sparkles, Lock, Crown, Loader2 } from 'lucide-react';
 
 interface Props {
   userProfile: UserProfile;
@@ -130,8 +130,9 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   if (!userProfile) {
     return (
       <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <p className="text-[#8C7C63] dark:text-[#7C715E]">Cargando perfil de usuario...</p>
+        <div className="text-center flex flex-col items-center gap-3">
+          <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-[#6B5D48] dark:text-[#9A8D74]">Cargando perfil de usuario...</p>
         </div>
       </div>
     );
@@ -147,15 +148,15 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       <LoadingOverlay isVisible={isLoading} />
 
       {!currentRecipe ? (
-        <div className="space-y-8">
+        <div key="form" className="space-y-8 animate-in fade-in duration-300">
           <div className="text-center space-y-4 mb-8 pt-4">
              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl mb-2 shadow-inner">
-                <Sparkles className="w-8 h-8 text-primary" />
+                <Sparkles aria-hidden="true" className="w-8 h-8 text-primary" />
              </div>
              <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">
                El Laboratorio del Chef
              </h1>
-             <p className="text-[#8C7C63] dark:text-[#7C715E] max-w-xl mx-auto text-lg">
+             <p className="text-[#6B5D48] dark:text-[#9A8D74] max-w-xl mx-auto text-lg">
                Describe tu antojo o dime qué ingredientes tienes. La IA creará la receta perfecta.
              </p>
           </div>
@@ -165,7 +166,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 shadow-sm">
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 mt-0.5">
-                  <Lock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <Lock aria-hidden="true" className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-1">
@@ -181,26 +182,28 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
                     })()}
                   </p>
                 </div>
-                <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium text-sm transition-all shadow-md hover:shadow-lg">
-                  <Crown className="w-4 h-4" />
+                <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium text-sm transition active:scale-95 shadow-md hover:shadow-lg">
+                  <Crown aria-hidden="true" className="w-4 h-4" />
                   Actualizar
                 </button>
               </div>
             </div>
           )}
 
-          <RecipeForm 
-            isLoading={isLoading} 
+          <RecipeForm
+            isLoading={isLoading}
             onSubmit={handleGenerate}
             hasAdvancedPantry={limits.hasAdvancedPantry}
           />
         </div>
       ) : (
-        <RecipeDisplay
-          recipe={currentRecipe}
-          imageUrl={null}
-          onGenerateAgain={resetView}
-        />
+        <div key="result" className="animate-in fade-in duration-300">
+          <RecipeDisplay
+            recipe={currentRecipe}
+            imageUrl={null}
+            onGenerateAgain={resetView}
+          />
+        </div>
       )}
     </div>
   );

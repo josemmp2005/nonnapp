@@ -113,7 +113,7 @@ const InteractiveDemoSection: React.FC = () => {
                   <button
                     onClick={handleGenerate}
                     disabled={selected.length === 0}
-                    className="inline-flex items-center gap-2 px-7 py-3 bg-primary hover:bg-orange-600 disabled:bg-[#241B10]/10 dark:disabled:bg-[#F5E6CD]/10 disabled:text-[#8C7C63] disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-orange-200 dark:shadow-none transition-all active:scale-95"
+                    className="inline-flex items-center gap-2 px-7 py-3 bg-primary hover:bg-orange-600 disabled:bg-[#241B10]/10 dark:disabled:bg-[#F5E6CD]/10 disabled:text-[#6B5D48] disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-orange-200 dark:shadow-none transition-all active:scale-95"
                   >
                     <Sparkles className="w-4 h-4" />
                     Generar receta

@@ -57,13 +57,13 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
             <div className="flex p-1 bg-primary/10 rounded-xl">
                 <button
                 onClick={() => setChefTab('styles')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
                 Sus Secretos
                 </button>
                 <button
                 onClick={() => setChefTab('featured')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#8C7C63] dark:text-[#7C715E] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
                 Recetas de Familia
                 </button>
@@ -76,7 +76,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                 <button
                     key={preset.id}
                     onClick={() => triggerChefSpecial(preset)}
-                    className={`group relative h-72 rounded-2xl overflow-hidden text-left shadow-md hover:shadow-xl transition-all ${isLocked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}
+                    className={`group relative h-72 rounded-2xl overflow-hidden text-left shadow-md hover:shadow-xl transition ${isLocked ? 'cursor-not-allowed' : 'hover:-translate-y-1'}`}
                     disabled={isLocked}
                 >
                     <img
@@ -119,10 +119,11 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
         ) : (
             <div className={`grid gap-6 animate-in fade-in slide-in-from-right-2 ${variant === 'full' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'}`}>
                 {FEATURED_RECIPES.map((recipe) => (
-                <div
+                <button
+                    type="button"
                     key={recipe.id}
                     onClick={() => openFeaturedRecipe(recipe)}
-                    className={`bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl transition-all group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={`w-full text-left bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl transition group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                     <div className="h-48 relative overflow-hidden">
                         <img
@@ -131,14 +132,14 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                             className={`w-full h-full object-cover transition-transform duration-700 ${isLocked ? 'filter grayscale opacity-60' : 'group-hover:scale-105'}`}
                         />
                         <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-[#241B10] dark:text-[#F8F2E6] shadow-sm flex items-center gap-1">
-                            <BookOpen className="w-3 h-3 text-primary" /> Receta
+                            <BookOpen aria-hidden="true" className="w-3 h-3 text-primary" /> Receta
                         </div>
 
                         {/* Lock Overlay */}
                         {isLocked && (
                           <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/30 backdrop-blur-sm">
                             <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl">
-                              <Lock className="w-7 h-7 text-white" />
+                              <Lock aria-hidden="true" className="w-7 h-7 text-white" />
                             </div>
                           </div>
                         )}
@@ -152,19 +153,19 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                                 {recipe.recipe_metadata.title}
                             </h3>
                         </div>
-                        <p className="text-[#8C7C63] dark:text-[#7C715E] text-sm line-clamp-2 mb-4">
+                        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm line-clamp-2 mb-4">
                             {recipe.recipe_metadata.description}
                         </p>
                         <div className="mt-auto pt-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium">
-                            <span className="text-[#8C7C63] text-xs">
+                            <span className="text-[#6B5D48] text-xs">
                                 {recipe.ingredients.length} Ingredientes
                             </span>
-                            <span className="text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
-                                Ver receta <ArrowRight className="w-4 h-4" />
+                            <span className="text-primary flex items-center gap-1 group-hover:gap-2 transition-[gap]">
+                                Ver receta <ArrowRight aria-hidden="true" className="w-4 h-4" />
                             </span>
                         </div>
                     </div>
-                </div>
+                </button>
                 ))}
             </div>
         )}

@@ -7,7 +7,7 @@ const TermsPage: React.FC = () => {
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20 pt-8">
       <Link 
         to="/"
-        className="inline-flex items-center gap-2 text-[#8C7C63] dark:text-[#7C715E] hover:text-primary mb-8 transition-colors"
+        className="inline-flex items-center gap-2 text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary mb-8 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" /> Volver al Inicio
       </Link>
@@ -15,7 +15,7 @@ const TermsPage: React.FC = () => {
       <div className="bg-white dark:bg-[#18130D] rounded-3xl p-8 md:p-12 shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 transition-colors duration-300">
         <div className="text-center mb-12">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] mb-4">Legal y Privacidad</h1>
-          <p className="text-[#8C7C63] dark:text-[#7C715E]">Última actualización: Octubre 2025</p>
+          <p className="text-[#6B5D48] dark:text-[#9A8D74]">Última actualización: Octubre 2025</p>
         </div>
 
         <div className="space-y-12">
@@ -91,7 +91,7 @@ const TermsPage: React.FC = () => {
           </section>
         </div>
         
-        <div className="mt-12 pt-8 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center text-xs text-[#8C7C63] dark:text-[#6E6350]">
+        <div className="mt-12 pt-8 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center text-xs text-[#6B5D48] dark:text-[#9A8D74]">
           Para consultas legales, contáctanos en info.nonnap@gmail.com
         </div>
       </div>

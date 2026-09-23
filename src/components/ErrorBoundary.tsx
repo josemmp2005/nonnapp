@@ -55,7 +55,7 @@ class ErrorBoundary extends Component<Props, State> {
               ¡Ups! Algo se quemó en la cocina
             </h1>
             
-            <p className="text-[#8C7C63] dark:text-[#7C715E] mb-6">
+            <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6">
               Ha ocurrido un error inesperado. No te preocupes, nuestros chefs digitales ya están limpiando el desastre.
             </p>
 
@@ -78,7 +78,7 @@ class ErrorBoundary extends Component<Props, State> {
                 this.resetError();
                 window.location.href = '/';
               }}
-              className="w-full mt-3 py-3 text-[#8C7C63] dark:text-[#7C715E] font-medium hover:text-[#241B10] dark:hover:text-white transition-colors"
+              className="w-full mt-3 py-3 text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:text-[#241B10] dark:hover:text-white transition-colors"
             >
               Volver al Inicio
             </button>

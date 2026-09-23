@@ -49,46 +49,48 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
         </div>
 
-        {status === 'loading' && (
-          <>
-            <Loader2 className="w-10 h-10 mx-auto text-primary animate-spin mb-4" />
-            <p className="text-[#3A2E1D] dark:text-[#D4D4D8]">Verificando tu email...</p>
-          </>
-        )}
+        <div aria-live="polite">
+          {status === 'loading' && (
+            <>
+              <Loader2 aria-hidden="true" className="w-10 h-10 mx-auto text-primary animate-spin mb-4" />
+              <p className="text-[#3A2E1D] dark:text-[#D4D4D8]">Verificando tu email...</p>
+            </>
+          )}
 
-        {status === 'success' && (
-          <>
-            <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-4" />
-            <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
-              Email verificado
-            </h2>
-            <p className="text-[#8C7C63] dark:text-[#7C715E] mb-6 text-sm">
-              Ya puedes generar recetas y usar todas las funciones de Sabora.
-            </p>
-            <button
-              onClick={() => navigate('/app')}
-              className="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition-all active:scale-95"
-            >
-              Ir a la app
-            </button>
-          </>
-        )}
+          {status === 'success' && (
+            <div className="animate-in fade-in zoom-in-95 duration-300">
+              <CheckCircle2 aria-hidden="true" className="w-12 h-12 mx-auto text-green-500 mb-4" />
+              <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+                Email verificado
+              </h2>
+              <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">
+                Ya puedes generar recetas y usar todas las funciones de Sabora.
+              </p>
+              <button
+                onClick={() => navigate('/app')}
+                className="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-95"
+              >
+                Ir a la app
+              </button>
+            </div>
+          )}
 
-        {status === 'error' && (
-          <>
-            <XCircle className="w-12 h-12 mx-auto text-red-500 mb-4" />
-            <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
-              No se pudo verificar
-            </h2>
-            <p className="text-[#8C7C63] dark:text-[#7C715E] mb-6 text-sm">{errorMessage}</p>
-            <button
-              onClick={() => navigate('/app')}
-              className="text-sm text-primary hover:underline font-medium"
-            >
-              ← Volver a la app
-            </button>
-          </>
-        )}
+          {status === 'error' && (
+            <div className="animate-in fade-in zoom-in-95 duration-300">
+              <XCircle aria-hidden="true" className="w-12 h-12 mx-auto text-red-500 mb-4" />
+              <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+                No se pudo verificar
+              </h2>
+              <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">{errorMessage}</p>
+              <button
+                onClick={() => navigate('/app')}
+                className="text-sm text-primary hover:underline font-medium"
+              >
+                ← Volver a la app
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

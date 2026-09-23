@@ -11,7 +11,7 @@ const FROM_RE = /^(.*)<(.+)>$/;
 
 const parseSender = (from: string) => {
   const match = FROM_RE.exec(from.trim());
-  if (!match) return { name: 'Sabora', email: from.trim() };
+  if (!match) return { name: 'Nonnapp', email: from.trim() };
   return { name: match[1].trim(), email: match[2].trim() };
 };
 

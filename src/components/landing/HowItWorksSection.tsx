@@ -34,7 +34,7 @@ const HowItWorksSection: React.FC = () => (
         <Reveal className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
           <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">01</span>
           <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Dinos qué tienes</h3>
-          <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] mb-5">Añade lo que tengas por casa, sin listas complicadas.</p>
+          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">Añade lo que tengas por casa, sin listas complicadas.</p>
 
           <div className="mt-auto rounded-xl border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 bg-[#FCF6EC] dark:bg-[#0D0A06] p-4">
             <div className="flex flex-wrap gap-2 mb-3">
@@ -47,7 +47,7 @@ const HowItWorksSection: React.FC = () => (
                 </Reveal>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-xs text-[#8C7C63] dark:text-[#6E6350]">
+            <div className="flex items-center gap-2 text-xs text-[#6B5D48] dark:text-[#9A8D74]">
               <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                 <Plus className="w-3.5 h-3.5" />
               </span>
@@ -62,7 +62,7 @@ const HowItWorksSection: React.FC = () => (
         <Reveal delayMs={120} className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
           <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">02</span>
           <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Nonnapp se pone a cocinar</h3>
-          <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] mb-5">La IA piensa la combinación con lo que le has contado.</p>
+          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">La IA piensa la combinación con lo que le has contado.</p>
 
           <div className="mt-auto rounded-xl bg-[#FCF6EC] dark:bg-[#0D0A06] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex-grow flex items-center justify-center py-2">
             <CookingLoader />
@@ -75,7 +75,7 @@ const HowItWorksSection: React.FC = () => (
         <Reveal delayMs={240} className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
           <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">03</span>
           <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Tu receta está lista</h3>
-          <p className="text-sm text-[#8C7C63] dark:text-[#7C715E] mb-5">Pasos claros, raciones ajustadas, lista para cocinar.</p>
+          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">Pasos claros, raciones ajustadas, lista para cocinar.</p>
 
           <div className="mt-auto rounded-xl overflow-hidden border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm">
             <div className="h-28 overflow-hidden">

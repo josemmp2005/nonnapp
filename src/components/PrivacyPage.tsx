@@ -20,7 +20,7 @@ const PrivacyPage: React.FC = () => {
           <h1 className="text-4xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4">
             Política de Privacidad
           </h1>
-          <p className="text-[#8C7C63] dark:text-[#7C715E] mb-8">
+          <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-8">
             Última actualización: {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
 

@@ -57,14 +57,14 @@ const ChefPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
               <button 
                 onClick={() => navigate('/app/profile')}
-                className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl font-bold text-lg transition shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
               >
                 <Crown className="w-5 h-5" />
                 Actualizar Plan
               </button>
               <button 
                 onClick={() => navigate('/app')}
-                className="px-8 py-4 bg-[#241B10]/10 dark:bg-[#221B12] hover:bg-[#241B10]/20 dark:hover:bg-[#2A2114] text-[#3A2E1D] dark:text-[#F8F2E6] rounded-xl font-bold text-lg transition-all"
+                className="px-8 py-4 bg-[#241B10]/10 dark:bg-[#221B12] hover:bg-[#241B10]/20 dark:hover:bg-[#2A2114] text-[#3A2E1D] dark:text-[#F8F2E6] rounded-xl font-bold text-lg transition"
               >
                 Volver al Dashboard
               </button>

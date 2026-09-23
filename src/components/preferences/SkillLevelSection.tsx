@@ -27,14 +27,14 @@ const SkillLevelSection: React.FC<Props> = ({ value, onChange }) => (
         <button
           key={level.key}
           onClick={() => onChange(level.key)}
-          className={`p-4 rounded-xl border-2 text-left transition-all ${
+          className={`p-4 rounded-xl border-2 text-left transition ${
             value === level.key
               ? 'border-primary bg-orange-50 dark:bg-orange-900/20 ring-1 ring-primary'
               : 'border-[#241B10]/10 dark:border-[#F5E6CD]/10 hover:border-[#241B10]/15 dark:hover:border-[#F5E6CD]/20'
           }`}
         >
           <div className="font-semibold text-[#241B10] dark:text-[#F8F2E6] capitalize">{level.label}</div>
-          <p className="text-xs text-[#8C7C63] dark:text-[#7C715E] mt-1">{level.description}</p>
+          <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">{level.description}</p>
         </button>
       ))}
     </div>

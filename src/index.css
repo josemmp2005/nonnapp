@@ -121,6 +121,22 @@ body {
 }
 
 
+/* Barra de progreso indeterminada (LoadingOverlay) */
+
+@keyframes progress-indeterminate {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(300%);
+    }
+}
+
+.animate-progress-indeterminate {
+    animation: progress-indeterminate 1.4s infinite ease-in-out;
+}
+
+
 /* Flotación suave para badges/decoraciones de la landing (usa motion-safe:) */
 
 @keyframes float {

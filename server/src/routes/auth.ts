@@ -66,8 +66,8 @@ const sendVerificationEmail = async (userId: string, email: string, username: st
   const verifyLink = `${env.appUrl}/verify-email?token=${rawToken}`;
   await sendMail(
     email,
-    'Confirma tu email en Sabora',
-    `<p>Hola <strong>${username}</strong>, confirma tu email para verificar tu cuenta de Sabora.</p>
+    'Confirma tu email en Nonnapp',
+    `<p>Hola <strong>${username}</strong>, confirma tu email para verificar tu cuenta de Nonnapp.</p>
      <p><a href="${verifyLink}">${verifyLink}</a></p>
      <p>El enlace caduca en 24 horas.</p>`,
     `Confirma tu email aquí: ${verifyLink} (caduca en 24 horas)`
@@ -120,9 +120,9 @@ router.post('/signup', createStrictAuthRateLimiter(), validateBody(signupSchema)
     }
     sendMail(
       user.email,
-      '¡Bienvenido a Sabora! 🍳',
-      `<p>Hola <strong>${user.username}</strong>, gracias por unirte a Sabora.</p>`,
-      `Hola ${user.username}, gracias por unirte a Sabora.`
+      '¡Bienvenido a Nonnapp! 🍳',
+      `<p>Hola <strong>${user.username}</strong>, gracias por unirte a Nonnapp.</p>`,
+      `Hola ${user.username}, gracias por unirte a Nonnapp.`
     ).catch((err) => console.warn('No se pudo enviar el email de bienvenida:', err));
 
     return res.status(201).json({ user: toPublicUser(user) });
@@ -256,7 +256,7 @@ router.post('/forgot-password', createStrictAuthRateLimiter(), validateBody(forg
       const resetLink = `${env.appUrl}/reset-password?token=${rawToken}`;
       await sendMail(
         user.email,
-        'Restablece tu contraseña de Sabora',
+        'Restablece tu contraseña de Nonnapp',
         `<p>Haz clic en el siguiente enlace para restablecer tu contraseña. Caduca en 30 minutos.</p>
          <p><a href="${resetLink}">${resetLink}</a></p>`,
         `Restablece tu contraseña aquí: ${resetLink}`
