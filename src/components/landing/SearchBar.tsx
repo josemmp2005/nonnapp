@@ -63,6 +63,7 @@ const SearchBar: React.FC<{
         <Search aria-hidden="true" className="w-5 h-5 text-ink/70 flex-shrink-0" />
         <input
           ref={inputRef}
+          id="landing-search"
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}

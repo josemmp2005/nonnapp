@@ -37,7 +37,7 @@ const InstallHelpModal: React.FC = () => {
           ref={closeRef}
           onClick={closeIosHelp}
           aria-label="Cerrar"
-          className="absolute top-4 right-4 p-2 rounded-full text-muted dark:text-muted-dark hover:bg-ink/5 dark:hover:bg-ink-light/10 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full text-muted dark:text-muted-dark hover:bg-ink/5 dark:hover:bg-ink-light/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <X className="w-5 h-5" />
         </button>

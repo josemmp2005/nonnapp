@@ -4,6 +4,7 @@ import { X, Clock, Flame, Users, ChefHat, ArrowRight } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { getFullRecipeById } from '../services/data';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   recipeId: number | string;
@@ -87,7 +88,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
           <>
             <div className="relative aspect-video bg-primary/10 flex-shrink-0">
               {recipe.main_image_url ? (
-                <img
+                <RecipeImage
                   src={recipe.main_image_url}
                   alt={meta?.title || 'Receta'}
                   className="w-full h-full object-cover"

@@ -4,6 +4,7 @@ import { Flame, BookOpen, ArrowRight, Heart, Flower2, Lock, Crown } from 'lucide
 import type { RecipeDB } from '../types';
 import { useToast } from '../context/ToastContext';
 import { CHEF_STYLES, FEATURED_RECIPES } from '../data/chefTableContent';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   variant?: 'dashboard' | 'full';
@@ -126,7 +127,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                     className={`w-full text-left bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl transition group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                     <div className="h-48 relative overflow-hidden">
-                        <img
+                        <RecipeImage
                             src={recipe.main_image_url}
                             alt={recipe.recipe_metadata.title}
                             className={`w-full h-full object-cover transition-transform duration-700 ${isLocked ? 'filter grayscale opacity-60' : 'group-hover:scale-105'}`}

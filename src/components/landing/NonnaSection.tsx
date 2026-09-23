@@ -12,7 +12,7 @@ const QUESTIONS = ['¿Puedo sustituir la nata?', '¿Cuánto tiempo dejo reposar 
 // cocina (Mesa de la Nonna, /app/chef), no la generación de recetas — por
 // eso el fondo cambia a un oliva muy pálido, para separarla del resto.
 const NonnaSection: React.FC = () => (
-  <section className="bg-accent-50 dark:bg-cream-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
+  <section id="nonna" className="scroll-mt-20 bg-accent-50 dark:bg-cream-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
     <div className="max-w-5xl mx-auto px-6">
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,300px)_1fr] gap-12 lg:gap-16 items-center">
         <Reveal className="mx-auto lg:mx-0">

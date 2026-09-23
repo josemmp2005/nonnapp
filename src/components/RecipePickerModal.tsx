@@ -3,6 +3,7 @@ import { X, Search, ChefHat, Loader2 } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   onSelect: (recipe: RecipeDB) => void;
@@ -90,7 +91,7 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
               >
                 <div className="w-12 h-12 rounded-lg bg-primary/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
                   {recipe.main_image_url ? (
-                    <img src={recipe.main_image_url} alt="" className="w-full h-full object-cover" />
+                    <RecipeImage src={recipe.main_image_url} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <ChefHat aria-hidden="true" className="w-5 h-5 text-primary" />
                   )}

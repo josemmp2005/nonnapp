@@ -8,6 +8,7 @@ import ShoppingListModal from './ShoppingListModal';
 import ChefChat from './ChefChat';
 import { NonnaAvatar } from './ui/NonnaAvatar';
 import { Reveal } from './ui/Reveal';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   recipe: AIRecipeResponse;
@@ -169,7 +170,7 @@ Generado por nonnapp
 
            {imageUrl && (
              <div className="md:w-5/12 lg:w-1/2 h-64 md:h-auto relative min-h-[300px] print:h-64 print:w-full">
-               <img 
+               <RecipeImage 
                  src={imageUrl} 
                  alt={recipe_metadata.title} 
                  loading="lazy"

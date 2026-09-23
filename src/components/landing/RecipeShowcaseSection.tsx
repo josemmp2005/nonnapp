@@ -39,7 +39,7 @@ const RECIPES: ShowcaseRecipe[] = [
 ];
 
 const RecipeShowcaseSection: React.FC = () => (
-  <section className="bg-cream dark:bg-cream-dark py-16 md:py-24">
+  <section id="recetas" className="scroll-mt-20 bg-cream dark:bg-cream-dark py-16 md:py-24">
     <div className="max-w-6xl mx-auto px-6">
       <SectionHeading
         eyebrow="Recetas de ejemplo"

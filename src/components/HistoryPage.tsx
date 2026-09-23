@@ -8,6 +8,7 @@ import { useToast } from '../context/ToastContext';
 import RecipePreviewModal from './RecipePreviewModal';
 import { Reveal } from './ui/Reveal';
 import type { AuthSession } from '../services/auth';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   session: AuthSession | null;
@@ -162,7 +163,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
             >
               <div className="aspect-video bg-primary/10 relative overflow-hidden">
                 {recipe.main_image_url ? (
-                  <img 
+                  <RecipeImage 
                     src={recipe.main_image_url} 
                     alt={recipe.recipe_metadata?.title || 'Receta'} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"

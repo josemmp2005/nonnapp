@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { signInWithEmail, signUpWithEmail, requestPasswordReset } from '../services/auth';
 import type { AuthSession } from '../services/auth';
 import { API_URL } from '../services/api';
@@ -22,7 +22,10 @@ interface Props {
 }
 
 const Auth: React.FC<Props> = ({ onAuthChange }) => {
-  const [isLogin, setIsLogin] = useState(true);
+  // La URL manda: los botones "Iniciar sesión"/"Crear cuenta" de la cabecera
+  // enlazan a /auth?modo=login|registro. Estado inicial desde la URL; los
+  // cambios posteriores los resincroniza el efecto de más abajo.
+  const [isLogin, setIsLogin] = useState(() => new URLSearchParams(window.location.search).get('modo') !== 'registro');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   const [email, setEmail] = useState('');
@@ -36,6 +39,21 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+
+  // Estando ya en /auth el componente no se vuelve a montar al pulsar los
+  // botones de la cabecera, así que hay que reaccionar a cada navegación:
+  // `location.key` cambia incluso si se navega a la misma URL (p. ej. "Crear
+  // cuenta" con el formulario ya en registro, o con "¿Olvidaste tu
+  // contraseña?" abierto — vuelve al formulario normal).
+  useEffect(() => {
+    setIsLogin(new URLSearchParams(location.search).get('modo') !== 'registro');
+    setIsForgotPassword(false);
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+  }, [location.key, location.search]);
 
   // Validation States
   const [isPasswordLengthValid, setIsPasswordLengthValid] = useState(false);
@@ -100,13 +118,6 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const resetForm = () => {
-    setUsername('');
-    setPassword('');
-    setConfirmPassword('');
-    setShowPassword(false);
   };
 
   return (
@@ -283,8 +294,8 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               {isLogin ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
               <button
                 onClick={() => {
-                  setIsLogin(!isLogin);
-                  resetForm();
+                  // cambia la URL; el efecto de arriba actualiza el formulario
+                  setSearchParams({ modo: isLogin ? 'registro' : 'login' }, { replace: true });
                 }}
                 className="text-primary font-bold hover:underline"
               >

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, Moon, Sun } from 'lucide-react';
+import { LogOut, Menu, Moon, Search, Sun } from 'lucide-react';
 import { signOut } from '../services/auth';
 import Sidebar from './Sidebar';
 import { Logo } from './Logo';
@@ -13,6 +13,19 @@ interface LayoutProps {
   session: AuthSession | null;
   onAuthChange: (session: AuthSession | null) => void;
 }
+
+// Enlaces de la cabecera de la landing: solo secciones que existen de verdad.
+const LANDING_LINKS = [
+  { href: '#recetas', label: 'Recetas' },
+  { href: '#que-tienes', label: 'Qué tienes en casa' },
+  { href: '#nonna', label: 'La Nonna' },
+  { href: '#planes', label: 'Planes' },
+];
+
+const focusLandingSearch = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('landing-search')?.focus({ preventScroll: true });
+};
 
 const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
   const location = useLocation();
@@ -70,12 +83,38 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-300 font-sans bg-cream dark:bg-cream-dark text-body dark:text-body-dark">
       <header className="backdrop-blur-md shadow-sm sticky top-0 z-50 border-b bg-cream/80 dark:bg-cream-dark/80 border-ink/10 dark:border-ink-light/10">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="group">
-             <Logo className="h-8 w-auto" textClassName="text-lg" />
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+          <Link to="/" className="group flex-shrink-0">
+             <Logo className="h-8 lg:h-10 w-auto" textClassName="text-lg lg:text-2xl" />
           </Link>
 
-          <div className="flex items-center gap-4">
+          {isLanding && (
+            <nav aria-label="Secciones de la página" className="hidden lg:flex items-center gap-8 text-[15px] font-semibold">
+              {LANDING_LINKS.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className="text-body dark:text-body-dark hover:text-primary dark:hover:text-primary transition-colors duration-200"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          )}
+
+          <div className="flex items-center gap-3 sm:gap-4">
+            {isLanding && (
+              <Button
+                onClick={focusLandingSearch}
+                aria-label="Buscar una receta"
+                variant="ghost"
+                iconOnly
+                className="hidden lg:inline-flex"
+              >
+                <Search className="w-5 h-5" />
+              </Button>
+            )}
+
             <Button
               onClick={toggleTheme}
               aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
@@ -88,7 +127,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
             {session && isVerified ? (
               <>
-                <Link to="/app" className="px-4 py-2 bg-accent text-white text-sm font-bold rounded-full hover:bg-accent-600 hover:shadow-xl hover:shadow-accent-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-accent-500/20">
+                <Link to="/app" className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-600 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-primary/20">
                   Ir a la Cocina
                 </Link>
                 <button
@@ -108,9 +147,17 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
                 <LogOut className="w-5 h-5" />
               </button>
             ) : (
-              <Link to="/auth" className="px-5 py-2.5 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-sm rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-95 transition duration-300 shadow-lg">
-                Iniciar Sesión
-              </Link>
+              <>
+                <Link to="/auth?modo=login" className="sm:hidden px-5 py-2.5 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-sm rounded-full hover:opacity-90 active:scale-95 transition duration-300 shadow-lg">
+                  Iniciar sesión
+                </Link>
+                <Link to="/auth?modo=login" className="hidden sm:inline-flex px-5 py-2.5 bg-surface dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 text-ink dark:text-ink-light font-bold text-sm rounded-full shadow-sm hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] transition duration-200">
+                  Iniciar sesión
+                </Link>
+                <Link to="/auth?modo=registro" className="hidden sm:inline-flex px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-full shadow-lg shadow-primary/25 hover:bg-primary-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] transition duration-200">
+                  Crear cuenta
+                </Link>
+              </>
             )}
           </div>
         </div>

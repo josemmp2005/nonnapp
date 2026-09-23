@@ -1,6 +1,7 @@
 import React from 'react';
 import type { RecipeDB } from '../types';
 import { Clock, ChevronRight, ChefHat } from 'lucide-react';
+import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   recipes: RecipeDB[];
@@ -58,7 +59,7 @@ const HistoryList: React.FC<Props> = ({ recipes, isLoading = false, onSelect }) 
           >
             <div className="aspect-video bg-primary/10 rounded-lg mb-3 overflow-hidden relative">
                {recipe.main_image_url ? (
-                 <img
+                 <RecipeImage
                    src={recipe.main_image_url}
                    alt={recipe.recipe_metadata?.title || 'Receta'}
                    loading="lazy"

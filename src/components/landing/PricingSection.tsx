@@ -6,7 +6,7 @@ const MAMMA_FEATURES = ['Recetas ilimitadas', 'Modo despensa completo', 'Alergia
 const NONNA_FEATURES = ['Chat con el chef', 'La Mesa de la Nonna', 'Planificador semanal', 'Soporte prioritario VIP'];
 
 const PricingSection: React.FC = () => (
-  <section className="landing-grain bg-cream dark:bg-cream-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
+  <section id="planes" className="scroll-mt-20 landing-grain bg-cream dark:bg-cream-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
     <div className="max-w-5xl mx-auto px-6">
       <div className="text-center mb-12 md:mb-14">
         <span className="block text-xs font-semibold text-primary mb-2.5">La Famiglia</span>
