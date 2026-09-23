@@ -67,7 +67,7 @@ const InteractiveDemoSection: React.FC = () => {
   };
 
   return (
-    <section className="bg-[#FCF6EC] dark:bg-[#130F0A] border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 py-16 md:py-24">
+    <section className="bg-paper dark:bg-paper-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
       <div className="max-w-3xl mx-auto px-6">
         <SectionHeading
           eyebrow="Pruébalo tú mismo"
@@ -77,7 +77,7 @@ const InteractiveDemoSection: React.FC = () => {
           className="mb-10"
         />
 
-        <Reveal className="bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 md:p-8 shadow-sm">
+        <Reveal className="bg-surface dark:bg-surface-dark border border-ink/10 dark:border-ink-light/10 rounded-2xl p-6 md:p-8 shadow-sm">
           {phase !== 'result' ? (
             <>
               <div className="flex flex-wrap justify-center gap-2.5 mb-8">
@@ -92,7 +92,7 @@ const InteractiveDemoSection: React.FC = () => {
                       className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 text-sm font-medium transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed ${
                         isSelected
                           ? 'border-primary bg-primary/10 text-primary shadow-md scale-105'
-                          : 'border-[#241B10]/10 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] hover:border-primary/40 hover:bg-primary/5'
+                          : 'border-ink/10 dark:border-ink-light/15 text-body dark:text-body-dark hover:border-primary/40 hover:bg-primary/5'
                       }`}
                     >
                       <IngredientIcon ingredient={ing} className="w-4 h-4" />
@@ -105,7 +105,7 @@ const InteractiveDemoSection: React.FC = () => {
 
               <div className="flex justify-center">
                 {phase === 'loading' ? (
-                  <div className="flex items-center gap-3 text-[#5C4E3A] dark:text-[#A89C86] font-medium text-sm py-3">
+                  <div className="flex items-center gap-3 text-muted dark:text-muted-dark font-medium text-sm py-3">
                     <span className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full motion-safe:animate-spin" />
                     Pensando qué cocinar...
                   </div>
@@ -113,7 +113,7 @@ const InteractiveDemoSection: React.FC = () => {
                   <button
                     onClick={handleGenerate}
                     disabled={selected.length === 0}
-                    className="inline-flex items-center gap-2 px-7 py-3 bg-primary hover:bg-orange-600 disabled:bg-[#241B10]/10 dark:disabled:bg-[#F5E6CD]/10 disabled:text-[#6B5D48] disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-orange-200 dark:shadow-none transition-all active:scale-95"
+                    className="inline-flex items-center gap-2 px-7 py-3 bg-primary hover:bg-primary-600 disabled:bg-ink/10 dark:disabled:bg-ink-light/10 disabled:text-muted disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-primary-200 dark:shadow-none transition-all active:scale-95"
                   >
                     <Sparkles className="w-4 h-4" />
                     Generar receta
@@ -132,7 +132,7 @@ const InteractiveDemoSection: React.FC = () => {
                     </span>
                   ))}
                 </div>
-                <h3 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">{result.title}</h3>
+                <h3 className="text-xl font-bold text-ink dark:text-ink-light mb-2">{result.title}</h3>
                 <RecipeMeta time={result.time} difficulty={result.difficulty} className="justify-center mb-6" />
                 <button
                   onClick={reset}

@@ -1,102 +1,113 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import tomatoSoup from '../../assets/tomato-soup.webp';
-import { NonnaAvatar } from './shared';
+import { Heart } from 'lucide-react';
+import heroBgPc from '../../assets/hero-background-pc.webp';
+import heroBgMobile from '../../assets/hero-background-mobile.webp';
+import SearchBar from './SearchBar';
 
+// Retraso de entrada (ms) que leen las clases .hero-in/.hero-pop/... de index.css.
+const delay = (ms: number) => ({ '--d': `${ms}ms` }) as React.CSSProperties;
+
+// Tres composiciones con la misma ilustración de fondo:
+// - Móvil (< md): apilado. El texto va en flujo normal, con aire (no metido en
+//   el hueco de la imagen vertical), y debajo la Nonna, recortada a la parte
+//   inferior de la imagen y difuminada por los bordes para empalmar con el
+//   fondo crema.
+// - Tablet (md-lg): imagen apaisada de fondo con altura fija y texto encima.
+// - Escritorio (lg+): el hero conserva la proporción de la imagen (sin
+//   recortarla, salvo en pantallas ultra anchas) y el texto se coloca en % de
+//   la propia ilustración, así que el hueco del texto y la Nonna nunca se
+//   pisan sea cual sea el ancho — con altura fija + object-cover cada ancho
+//   recortaba distinto y los chips acababan encima de los tomates.
+// Todo va dentro de un envoltorio centrado de 2200px como máximo (los tamaños
+// fluidos en vw tienen su tope justo a ese ancho): en pantallas 4K la
+// composición no crece sin fin, se queda centrada y sus bordes se difuminan
+// hacia el fondo crema (.hero-pc-fade) en lugar de dejar un hueco en blanco.
+// Sin versión oscura: la sección se queda con look claro fijo aunque el resto
+// de la app esté en modo oscuro (mismo criterio que la tarjeta "La Mamma" en
+// precios), para no acabar con texto claro sobre un fondo que sigue siendo crema.
 const HeroSection: React.FC = () => (
-  <section className="relative landing-hero-lines bg-[#FCF6EC] dark:bg-[#130F0A] pt-16 pb-0">
-    <div className="pointer-events-none absolute top-20 left-1/2 -translate-x-1/2 w-[640px] h-[320px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.14)_0%,rgba(249,115,22,0)_72%)] dark:bg-[radial-gradient(circle,rgba(249,115,22,0.12)_0%,rgba(249,115,22,0)_72%)]" />
-
-    <div className="max-w-[820px] mx-auto px-6 relative z-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h1 className="mb-5 text-4xl md:text-6xl font-bold tracking-tight leading-[1.05] text-[#241B10] dark:text-[#F8F2E6]">
-        Tu despensa, convertida<br />en la cena de hoy.
-      </h1>
-
-      <p className="mb-9 text-base md:text-lg leading-relaxed text-[#5C4E3A] dark:text-[#A89C86] max-w-md mx-auto">
-        Dile a Nonnapp qué tienes en la nevera. En segundos recibes una receta completa, paso a paso, pensada como lo haría tu abuela.
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 md:mb-16">
-        <Link
-          to="/app"
-          className="group flex items-center gap-2 px-7 py-3 bg-primary text-[#130F0A] text-sm font-semibold rounded-lg shadow-lg shadow-primary/25 hover:bg-orange-400 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300"
-        >
-          Entrar a la Cocina
-          <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-        </Link>
-        <a
-          href="#como-funciona"
-          className="group flex items-center gap-1.5 text-sm font-medium text-[#3A2E1D] dark:text-[#E7DCC5] hover:text-primary dark:hover:text-primary transition-colors duration-300"
-        >
-          Ver cómo funciona
-          <svg className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-y-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-        </a>
-      </div>
-    </div>
-
-    {/* Product mock */}
-    <div className="max-w-[960px] mx-auto px-6 pb-20 md:pb-24 relative z-10 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150">
-      <div className="hidden sm:block font-hand absolute -top-1 right-14 md:right-16 z-20 -rotate-[4deg] bg-[#F0E4CE] text-[#2A2114] px-4 py-2 rounded-sm text-base md:text-lg shadow-lg border border-black/5">
-        Directo de la cocina de la Nonna
+  <section className="relative overflow-hidden bg-cream">
+    <div className="relative mx-auto w-full max-w-[2200px]">
+      <div className="hero-pc-fade hidden md:block h-[520px] lg:h-auto lg:aspect-[1672/941]">
+        <img
+          src={heroBgPc}
+          alt=""
+          aria-hidden="true"
+          width={1672}
+          height={941}
+          className="hero-fade w-full h-full object-cover object-[80%_34%] lg:object-center"
+        />
       </div>
 
-      <div className="bg-[#18130D] border border-[#F5E6CD]/10 rounded-2xl overflow-hidden shadow-2xl shadow-black/40 transition-transform duration-500 hover:-translate-y-1.5">
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-[#F5E6CD]/10">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
-          <span className="w-2.5 h-2.5 rounded-full bg-[#453A28]" />
-          <span className="ml-2 text-[11px] text-[#9A8D74]">nonnapp.com/app/generate</span>
+      <div className="relative z-10 px-6 pt-10 pb-2 sm:pt-14 md:absolute md:inset-0 md:flex md:items-center md:p-0">
+        <div className="max-w-md mx-auto md:mx-0 md:ml-6 md:w-[44%] md:max-w-none lg:ml-[8%] lg:w-[42%] text-left">
+          <span
+            style={delay(0)}
+            className="hero-in block font-hand text-[22px] md:text-[clamp(1.35rem,2vw,2.75rem)] text-ink/80 mb-2"
+          >
+            Tu cocina, un poco más fácil
+          </span>
+
+          <h1 className="font-display font-bold text-[40px] sm:text-5xl md:text-[clamp(2.75rem,5.6vw,7.7rem)] leading-[1.05] md:leading-[1.02] tracking-tight text-ink mb-5 md:mb-6">
+            <span style={delay(100)} className="hero-in block">
+              Recetas que{' '}
+            </span>
+            <span style={delay(220)} className="hero-in block">
+              saben a{' '}
+              <span style={delay(560)} className="hero-pop inline-block text-primary">
+                casa.
+              </span>
+            </span>
+          </h1>
+
+          <p
+            style={delay(360)}
+            className="hero-in text-[15px] sm:text-base md:text-[clamp(1rem,1.3vw,1.8rem)] font-medium leading-7 md:leading-relaxed text-body mb-7 md:mb-8 max-w-[34rem]"
+          >
+            Encuentra recetas, aprovecha lo que tienes en la nevera y pregunta a Nonna cuando necesites ayuda.
+          </p>
+
+          <SearchBar animateIn baseDelay={480} className="max-w-[37rem]" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-[260px_1fr]">
-          <div className="p-6 border-b sm:border-b-0 sm:border-r border-[#F5E6CD]/10">
-            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#9A8D74] mb-3">Tus ingredientes</div>
-            <div className="flex flex-wrap gap-2 mb-5">
-              <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Huevos</span>
-              <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Tomate</span>
-              <span className="px-3 py-1.5 bg-[#221B12] border border-[#F5E6CD]/10 rounded-full text-xs text-[#E7DCC5]">Pan duro</span>
-            </div>
-            <div className="text-[11px] font-semibold tracking-wide uppercase text-[#9A8D74] mb-2">Modo</div>
-            <div className="text-sm text-[#E7DCC5] mb-5">Cero desperdicio</div>
-            <div className="text-center py-2.5 bg-primary text-[#130F0A] text-sm font-semibold rounded-lg">Generar receta</div>
-          </div>
-          <div className="p-6">
-            <div className="flex items-start gap-2.5 p-3 bg-primary/[0.06] border border-primary/15 rounded-lg mb-4">
-              <NonnaAvatar className="w-9 h-9 mt-0.5" />
-              <div>
-                <div className="font-voice text-sm leading-snug text-[#F0DFC4]">"¡Bambino! Con huevos, tomate y pan duro ya tenemos cena."</div>
-                <div className="font-hand text-base text-[#C3B89F] -mt-0.5">— La Nonna</div>
-              </div>
-            </div>
-            <div className="flex items-start justify-between mb-4 gap-3">
-              <div>
-                <div className="text-base font-bold text-[#F8F2E6] mb-1">Pappa al Pomodoro Toscana</div>
-                <div className="text-xs text-[#9A8D74]">Sugerida por la Nonna · basada en tu despensa</div>
-              </div>
-              <span className="px-2.5 py-1 bg-primary/15 text-orange-400 text-[11px] font-semibold rounded whitespace-nowrap">Cero desperdicio</span>
-            </div>
-            <div className="rounded-lg overflow-hidden mb-4">
-              <img src={tomatoSoup} alt="Pappa al Pomodoro" className="w-full h-[170px] object-cover [filter:saturate(1.08)_sepia(.08)_contrast(1.02)]" />
-            </div>
-            <div className="flex gap-5 pb-4 mb-4 border-b border-[#F5E6CD]/10">
-              <div className="flex items-center gap-1.5 text-xs text-[#A89C86]">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></svg>
-                20 min
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#A89C86]">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 21c0-4 4-6 8-6s8 2 8 6" /><circle cx="12" cy="7" r="4" /></svg>
-                4 raciones
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#A89C86]">
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2c1.4 2.8-1 4.3-1 6.8 0 1.6 1.2 2.9 2.9 2.9s2.9-1.3 2.9-2.9c0-.9-.4-1.6-.9-2.2C17.4 8.4 19 10.9 19 13.8a7 7 0 1 1-14 0c0-2.9 1.3-5.2 3-6.9C9.8 4.9 11 3.5 12 2z" /></svg>
-                Fácil
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2.5 text-xs text-[#B4A98F]"><span className="text-[#5C5346]">1</span> Sofríe el ajo y añade el tomate triturado.</div>
-              <div className="flex gap-2.5 text-xs text-[#5C5346]"><span className="text-[#3A3A3E]">2</span> Incorpora el pan duro troceado y deja reposar.</div>
-            </div>
-          </div>
+      </div>
+
+      <div className="hero-mobile-mask md:hidden relative mx-auto w-full max-w-[520px] aspect-[941/1084] mt-2">
+        <img
+          src={heroBgMobile}
+          alt=""
+          aria-hidden="true"
+          width={941}
+          height={1672}
+          className="hero-fade w-full h-full object-cover object-bottom"
+        />
+      </div>
+
+      <div aria-hidden="true" className="hidden lg:block pointer-events-none absolute inset-0">
+        <div
+          style={delay(950)}
+          className="hero-fade absolute top-[11%] right-[12%] w-[11%] -rotate-6 font-hand text-[clamp(1rem,1.5vw,2.05rem)] leading-tight text-ink/85"
+        >
+          Cocinar siempre sabe mejor en buena compañía{' '}
+          <Heart className="inline w-[0.9em] h-[0.9em] text-primary" />
         </div>
+        <svg
+          className="absolute top-[30%] right-[14.5%] w-[3.4%] min-w-[34px] text-primary"
+          viewBox="0 0 60 60"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path pathLength={100} style={delay(1250)} className="hero-draw" d="M52 6C46 26 32 40 10 46" />
+          <path pathLength={100} style={delay(1750)} className="hero-draw" d="M10 46l11-2M10 46l6-9" />
+        </svg>
+        <ul className="absolute top-[34%] right-[2.2%] font-hand text-[clamp(1rem,1.45vw,2rem)] leading-snug text-ink/80">
+          <li style={delay(1050)} className="hero-in">Recetas</li>
+          <li style={delay(1140)} className="hero-in pl-2">Ideas</li>
+          <li style={delay(1230)} className="hero-in">Consejos</li>
+          <li style={delay(1320)} className="hero-in pl-1">Y mucho más</li>
+        </ul>
       </div>
     </div>
   </section>

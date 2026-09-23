@@ -1,13 +1,12 @@
 import React from 'react';
 import HeroSection from './landing/HeroSection';
-import StatsStripSection from './landing/StatsStripSection';
-import MeetNonnaSection from './landing/MeetNonnaSection';
-import HowItWorksSection from './landing/HowItWorksSection';
-import DemoVideoSection from './landing/DemoVideoSection';
 import FridgeToRecipeSection from './landing/FridgeToRecipeSection';
-import InteractiveDemoSection from './landing/InteractiveDemoSection';
+import HowItWorksSection from './landing/HowItWorksSection';
+import StatsStripSection from './landing/StatsStripSection';
+import DemoVideoSection from './landing/DemoVideoSection';
 import RecipeShowcaseSection from './landing/RecipeShowcaseSection';
-import NonnaAISection from './landing/NonnaAISection';
+import NonnaSection from './landing/NonnaSection';
+import InteractiveDemoSection from './landing/InteractiveDemoSection';
 import PricingSection from './landing/PricingSection';
 import FAQSection from './landing/FAQSection';
 import FinalCtaSection from './landing/FinalCtaSection';
@@ -15,14 +14,13 @@ import FinalCtaSection from './landing/FinalCtaSection';
 const LandingPage: React.FC = () => (
   <div className="overflow-hidden">
     <HeroSection />
-    <StatsStripSection />
-    <MeetNonnaSection />
-    <HowItWorksSection />
-    <DemoVideoSection />
     <FridgeToRecipeSection />
-    <InteractiveDemoSection />
+    <HowItWorksSection />
+    <StatsStripSection />
+    <DemoVideoSection />
     <RecipeShowcaseSection />
-    <NonnaAISection />
+    <NonnaSection />
+    <InteractiveDemoSection />
     <PricingSection />
     <FAQSection />
     <FinalCtaSection />

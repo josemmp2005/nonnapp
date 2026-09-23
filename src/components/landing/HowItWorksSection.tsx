@@ -1,94 +1,69 @@
 import React from 'react';
-import { ArrowRight, ArrowDown, Plus } from 'lucide-react';
-import { SectionHeading, RecipeMeta, Reveal } from './shared';
+import { ArrowRight } from 'lucide-react';
+import { SectionHeading, Reveal, NonnaAvatar } from './shared';
 import { IngredientIcon } from './IngredientIcon';
 import { INGREDIENT_LABELS, type IngredientKey } from './ingredientData';
 import CookingLoader from './CookingLoader';
-import chickenBowl from '../../assets/tomato-soup.webp';
 
-const STEP_INGREDIENTS: IngredientKey[] = ['avocado', 'chicken', 'rice', 'tomato', 'cheese', 'egg'];
+const STEP_INGREDIENTS: IngredientKey[] = ['tomato', 'cheese', 'egg'];
 
+// Solo en desktop: en móvil los 3 pasos ya se leen como secuencia al ir
+// apilados en una columna, con los círculos numerados como única guía.
 const StepArrow: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <div className={`flex items-center justify-center text-primary/50 ${className}`}>
-    <ArrowRight className="w-6 h-6 hidden lg:block" />
-    <ArrowDown className="w-6 h-6 lg:hidden" />
+  <div className={`hidden lg:flex items-center justify-center text-accent/50 ${className}`}>
+    <ArrowRight className="w-6 h-6" />
   </div>
 );
 
 const HowItWorksSection: React.FC = () => (
-  <section id="como-funciona" className="bg-[#FFFBF3] dark:bg-[#130F0A] border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 py-16 md:py-24">
+  <section id="como-funciona" className="bg-cream dark:bg-cream-dark py-16 md:py-24 scroll-mt-24">
     <div className="max-w-6xl mx-auto px-6">
       <SectionHeading
         eyebrow="Cómo funciona"
-        title={
-          <>
-            De "¿qué cocino hoy?" a tener<br className="hidden sm:block" /> la receta lista en segundos.
-          </>
-        }
+        title="De la duda a la receta en tres pasos."
         align="center"
         className="max-w-2xl mb-14 md:mb-16"
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr_auto_1fr] gap-6 lg:gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr_auto_1fr] gap-10 lg:gap-4 items-start">
         {/* Paso 01 */}
-        <Reveal className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
-          <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">01</span>
-          <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Dinos qué tienes</h3>
-          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">Añade lo que tengas por casa, sin listas complicadas.</p>
-
-          <div className="mt-auto rounded-xl border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 bg-[#FCF6EC] dark:bg-[#0D0A06] p-4">
-            <div className="flex flex-wrap gap-2 mb-3">
-              {STEP_INGREDIENTS.map((ing, i) => (
-                <Reveal key={ing} delayMs={150 + i * 90} className="inline-block">
-                  <span className="inline-flex items-center gap-1.5 pl-2 pr-3 py-1.5 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-full text-xs font-medium text-[#3A2E1D] dark:text-[#E7DCC5] shadow-sm">
-                    <IngredientIcon ingredient={ing} className="w-3.5 h-3.5 text-primary" />
-                    {INGREDIENT_LABELS[ing]}
-                  </span>
-                </Reveal>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#6B5D48] dark:text-[#9A8D74]">
-              <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                <Plus className="w-3.5 h-3.5" />
+        <Reveal className="flex flex-col items-center text-center">
+          <span className="flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent text-lg font-display font-semibold mb-5">1</span>
+          <h3 className="text-lg font-bold text-ink dark:text-ink-light mb-1.5">Dinos qué tienes</h3>
+          <p className="text-sm text-muted dark:text-muted-dark mb-5 max-w-[220px]">Añade lo que tengas por casa, sin listas complicadas.</p>
+          <div className="flex items-center gap-2">
+            {STEP_INGREDIENTS.map((ing) => (
+              <span
+                key={ing}
+                className="flex items-center justify-center w-9 h-9 rounded-full bg-surface dark:bg-surface-dark border border-ink/10 dark:border-ink-light/10 shadow-sm text-accent"
+                title={INGREDIENT_LABELS[ing]}
+              >
+                <IngredientIcon ingredient={ing} className="w-4 h-4" />
               </span>
-              Añadir otro ingrediente...
-            </div>
+            ))}
           </div>
         </Reveal>
 
-        <StepArrow className="lg:pt-16" />
+        <StepArrow className="lg:pt-14" />
 
         {/* Paso 02 */}
-        <Reveal delayMs={120} className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
-          <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">02</span>
-          <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Nonnapp se pone a cocinar</h3>
-          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">La IA piensa la combinación con lo que le has contado.</p>
-
-          <div className="mt-auto rounded-xl bg-[#FCF6EC] dark:bg-[#0D0A06] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex-grow flex items-center justify-center py-2">
+        <Reveal delayMs={120} className="flex flex-col items-center text-center">
+          <span className="flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent text-lg font-display font-semibold mb-5">2</span>
+          <h3 className="text-lg font-bold text-ink dark:text-ink-light mb-1.5">Descubre recetas</h3>
+          <p className="text-sm text-muted dark:text-muted-dark mb-1 max-w-[220px]">La IA piensa la combinación con lo que le has contado.</p>
+          <div className="scale-90">
             <CookingLoader />
           </div>
         </Reveal>
 
-        <StepArrow className="lg:pt-16" />
+        <StepArrow className="lg:pt-14" />
 
         {/* Paso 03 */}
-        <Reveal delayMs={240} className="flex flex-col bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl p-6 shadow-sm">
-          <span className="text-xs font-bold text-primary/70 tracking-widest mb-3">03</span>
-          <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-1">Tu receta está lista</h3>
-          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mb-5">Pasos claros, raciones ajustadas, lista para cocinar.</p>
-
-          <div className="mt-auto rounded-xl overflow-hidden border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm">
-            <div className="h-28 overflow-hidden">
-              <img src={chickenBowl} alt="Pollo mediterráneo con arroz" className="w-full h-full object-cover" />
-            </div>
-            <div className="p-4 bg-white dark:bg-[#221B12]">
-              <h4 className="font-bold text-[#241B10] dark:text-[#F8F2E6] text-sm mb-1.5">Pollo mediterráneo con arroz</h4>
-              <RecipeMeta time="25 min" difficulty="Fácil" calories="540 kcal" className="mb-3" />
-              <div className="text-primary text-xs font-bold flex items-center gap-1">
-                Ver receta <ArrowRight className="w-3.5 h-3.5" />
-              </div>
-            </div>
-          </div>
+        <Reveal delayMs={240} className="flex flex-col items-center text-center">
+          <span className="flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent text-lg font-display font-semibold mb-5">3</span>
+          <h3 className="text-lg font-bold text-ink dark:text-ink-light mb-1.5">Pregunta a Nonna</h3>
+          <p className="text-sm text-muted dark:text-muted-dark mb-5 max-w-[220px]">Si algo no queda claro mientras cocinas, ella responde al momento.</p>
+          <NonnaAvatar className="w-16 h-16 shadow-sm" />
         </Reveal>
       </div>
     </div>

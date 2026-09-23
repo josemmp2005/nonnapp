@@ -5,8 +5,8 @@ import { IngredientIcon } from './IngredientIcon';
 import { Reveal } from './shared';
 
 const FinalCtaSection: React.FC = () => (
-  <section className="relative border-t border-white/10 bg-[#18130D] py-20 md:py-28 text-center overflow-hidden">
-    <div className="pointer-events-none absolute top-5 left-1/2 -translate-x-1/2 w-[560px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.14)_0%,rgba(249,115,22,0)_72%)]" />
+  <section className="relative border-t border-white/10 bg-surface-dark py-20 md:py-28 text-center overflow-hidden">
+    <div className="pointer-events-none absolute top-5 left-1/2 -translate-x-1/2 w-[560px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(242,139,60,0.14)_0%,rgba(242,139,60,0)_72%)]" />
 
     {/* Ingredientes decorativos, parcialmente cortados por los bordes */}
     <IngredientIcon ingredient="tomato" className="hidden sm:block absolute -left-6 top-10 w-24 h-24 text-white/[0.06] rotate-[-8deg]" />
@@ -16,7 +16,7 @@ const FinalCtaSection: React.FC = () => (
 
     <div className="max-w-xl mx-auto px-6 relative z-10">
       <Reveal>
-        <h2 className="mb-5 text-3xl md:text-[40px] font-bold tracking-tight leading-tight text-white">
+        <h2 className="mb-5 text-3xl md:text-[40px] font-extrabold tracking-tight leading-tight text-white">
           Tu próxima receta está a un ingrediente de distancia.
         </h2>
         <p className="mb-9 text-sm md:text-base text-white/60 max-w-md mx-auto">
@@ -24,7 +24,7 @@ const FinalCtaSection: React.FC = () => (
         </p>
         <Link
           to="/app"
-          className="group inline-flex items-center gap-2.5 px-8 py-4 bg-primary text-white text-base font-bold rounded-xl shadow-lg shadow-black/20 hover:bg-orange-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300"
+          className="group inline-flex items-center gap-2.5 px-8 py-4 bg-primary text-white text-base font-bold rounded-xl shadow-lg shadow-black/20 hover:bg-primary-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300"
         >
           <ChefHat className="w-5 h-5" />
           Comenzar a cocinar

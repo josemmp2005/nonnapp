@@ -5,7 +5,7 @@
 /* Custom font family */
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', sans-serif;
 }
 
 .font-parisienne {
@@ -145,6 +145,98 @@ body {
     }
     50% {
         transform: translateY(-8px);
+    }
+}
+
+
+/* Entrada del hero: cada pieza aparece y sube un poco, escalonada con la
+   variable --d (retraso). Ease-out fuerte (rápido al principio, se asienta
+   despacio) para que se sienta natural y no "de PowerPoint". Solo se anima
+   si el usuario no ha pedido reducir el movimiento; si lo pidió, todo se
+   queda directamente en su estado final. `backwards` (y no `both`) para que
+   al terminar la animación suelte el control del transform y los :hover de
+   los chips/botones sigan funcionando. */
+
+@keyframes hero-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hero-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes hero-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes hero-draw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Ilustración vertical del hero en móvil: se recorta a la zona de la Nonna y
+   se difumina por arriba y por los lados para empalmar con el fondo crema
+   sin que se vea el corte (en pantallas 520-767px queda centrada con
+   max-width y sin esto se notaría el borde). */
+.hero-mobile-mask {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    mask-composite: intersect;
+}
+
+/* Hero de escritorio en pantallas más anchas que su composición (2200px):
+   la imagen se queda centrada y sus bordes laterales se difuminan hacia el
+   fondo crema de la sección. Por debajo de ese ancho no se aplica nada. */
+@media (min-width: 2201px) {
+    .hero-pc-fade {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-in {
+        animation: hero-rise 650ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-pop {
+        animation: hero-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-fade {
+        animation: hero-fade 900ms ease-out backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-draw {
+        stroke-dasharray: 100;
+        animation: hero-draw 700ms ease-out backwards;
+        animation-delay: var(--d, 0ms);
     }
 }
 

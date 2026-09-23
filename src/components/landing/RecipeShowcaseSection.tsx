@@ -39,7 +39,7 @@ const RECIPES: ShowcaseRecipe[] = [
 ];
 
 const RecipeShowcaseSection: React.FC = () => (
-  <section className="bg-[#FCF6EC] dark:bg-[#130F0A] border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 py-16 md:py-24">
+  <section className="bg-cream dark:bg-cream-dark py-16 md:py-24">
     <div className="max-w-6xl mx-auto px-6">
       <SectionHeading
         eyebrow="Recetas de ejemplo"
@@ -51,17 +51,17 @@ const RecipeShowcaseSection: React.FC = () => (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {RECIPES.map((recipe, i) => (
           <Reveal key={recipe.title} delayMs={i * 90}>
-            <div className="group relative bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-              <div className="h-52 overflow-hidden">
+            <div className="group relative bg-surface dark:bg-surface-dark rounded-2xl border border-ink/10 dark:border-ink-light/10 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              <div className="h-48 overflow-hidden">
                 <img
                   src={recipe.image}
                   alt={recipe.title}
                   loading="lazy"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-5">
-                <h3 className="font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">{recipe.title}</h3>
+                <h3 className="font-bold text-ink dark:text-ink-light mb-2">{recipe.title}</h3>
                 <div className="flex items-center justify-between">
                   <RecipeMeta time={recipe.time} difficulty={recipe.difficulty} />
                   <span className="text-primary text-xs font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-300">

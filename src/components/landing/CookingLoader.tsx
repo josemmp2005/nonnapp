@@ -26,7 +26,7 @@ const CookingLoader: React.FC = () => {
           {ORBIT_INGREDIENTS.map((ing, i) => (
             <span
               key={ing}
-              className="absolute w-7 h-7 -ml-3.5 -mt-3.5 flex items-center justify-center rounded-full bg-white dark:bg-[#18130D] shadow-md text-primary"
+              className="absolute w-7 h-7 -ml-3.5 -mt-3.5 flex items-center justify-center rounded-full bg-surface dark:bg-surface-dark shadow-md text-primary"
               style={{
                 top: '50%',
                 left: '50%',
@@ -41,7 +41,7 @@ const CookingLoader: React.FC = () => {
           <ChefHat className="w-7 h-7" />
         </div>
       </div>
-      <p className="text-sm font-medium text-[#5C4E3A] dark:text-[#A89C86] h-5 transition-all duration-300" key={messageIndex}>
+      <p className="text-sm font-medium text-muted dark:text-muted-dark h-5 transition-all duration-300" key={messageIndex}>
         {MESSAGES[messageIndex]}
       </p>
     </div>

@@ -4,6 +4,7 @@ import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { signOut } from '../services/auth';
 import Sidebar from './Sidebar';
 import { Logo } from './Logo';
+import { Button } from './ui/Button';
 import { useTheme } from '../context/ThemeContext';
 import type { AuthSession } from '../services/auth';
 
@@ -39,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
   if (session && isAppPage && isVerified) {
     return (
-      <div className="min-h-screen bg-[#FCF6EC] dark:bg-[#130F0A] flex transition-colors duration-300">
+      <div className="min-h-screen bg-cream dark:bg-cream-dark flex transition-colors duration-300">
         <Sidebar
           session={session}
           isOpen={isMobileMenuOpen}
@@ -47,15 +48,16 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
           onLogout={handleLogout}
         />
 
-        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#FCF6EC]/90 dark:bg-[#130F0A]/90 backdrop-blur-md z-30 shadow-sm flex items-center px-4 justify-between border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10">
+        <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-cream/90 dark:bg-cream-dark/90 backdrop-blur-md z-30 shadow-sm flex items-center px-4 justify-between border-b border-ink/10 dark:border-ink-light/10">
            <Logo className="w-8 h-8" textClassName="text-xl" />
-           <button
+           <Button
              onClick={() => setIsMobileMenuOpen(true)}
              aria-label="Abrir menú"
-             className="p-2 text-[#5C4E3A] dark:text-[#C3B89F] hover:bg-[#241B10]/5 dark:hover:bg-white/5 rounded-lg transition duration-300 active:scale-90"
+             variant="ghost"
+             iconOnly
            >
              <Menu className="w-6 h-6" />
-           </button>
+           </Button>
         </div>
 
         <main className="flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 w-full max-w-[1600px] mx-auto relative">
@@ -66,30 +68,32 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col transition-colors duration-300 font-sans bg-[#FCF6EC] dark:bg-[#130F0A] text-[#3A2E1D] dark:text-[#D4D4D8]">
-      <header className="backdrop-blur-md shadow-sm sticky top-0 z-50 border-b bg-[#FCF6EC]/80 dark:bg-[#130F0A]/80 border-[#241B10]/10 dark:border-[#F5E6CD]/10">
+    <div className="min-h-screen flex flex-col transition-colors duration-300 font-sans bg-cream dark:bg-cream-dark text-body dark:text-body-dark">
+      <header className="backdrop-blur-md shadow-sm sticky top-0 z-50 border-b bg-cream/80 dark:bg-cream-dark/80 border-ink/10 dark:border-ink-light/10">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="group">
              <Logo className="h-8 w-auto" textClassName="text-lg" />
           </Link>
 
           <div className="flex items-center gap-4">
-            <button
+            <Button
               onClick={toggleTheme}
               aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
-              className="p-2 text-[#6B5D48] hover:bg-[#241B10]/5 dark:text-[#9A8D74] dark:hover:bg-white/5 rounded-full transition duration-300 hover:rotate-45 active:scale-90"
+              variant="ghost"
+              iconOnly
+              className="hover:rotate-45"
             >
               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-            </button>
+            </Button>
 
             {session && isVerified ? (
               <>
-                <Link to="/app" className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-orange-500/20">
+                <Link to="/app" className="px-4 py-2 bg-accent text-white text-sm font-bold rounded-full hover:bg-accent-600 hover:shadow-xl hover:shadow-accent-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-accent-500/20">
                   Ir a la Cocina
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
+                  className="p-2 text-muted dark:text-muted-dark hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
                   title="Cerrar Sesión"
                 >
                   <LogOut className="w-5 h-5" />
@@ -98,13 +102,13 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
             ) : session ? (
               <button
                 onClick={handleLogout}
-                className="p-2 text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
+                className="p-2 text-muted dark:text-muted-dark hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
                 title="Cerrar Sesión"
               >
                 <LogOut className="w-5 h-5" />
               </button>
             ) : (
-              <Link to="/auth" className="px-5 py-2.5 bg-[#241B10] dark:bg-[#F8F2E6] text-[#F8F2E6] dark:text-[#241B10] font-bold text-sm rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-95 transition duration-300 shadow-lg">
+              <Link to="/auth" className="px-5 py-2.5 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-sm rounded-full hover:opacity-90 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 active:scale-95 transition duration-300 shadow-lg">
                 Iniciar Sesión
               </Link>
             )}
@@ -116,8 +120,8 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
         {children}
       </main>
 
-      <footer className="mt-auto transition-colors duration-300 border-t bg-[#FCF6EC] dark:bg-[#130F0A] border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-sm gap-4 text-[#6B5D48] dark:text-[#9A8D74]">
+      <footer className="mt-auto transition-colors duration-300 border-t bg-cream dark:bg-cream-dark border-ink/10 dark:border-ink-light/10">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-sm gap-4 text-muted dark:text-muted-dark">
           <div className="flex items-center gap-2">
              <Logo className="w-6 h-6 grayscale opacity-50" showText={false} />
              <p>© {new Date().getFullYear()} nonnapp.</p>

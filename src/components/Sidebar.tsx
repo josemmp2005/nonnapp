@@ -15,6 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { Button } from './ui/Button';
 import { useTheme } from '../context/ThemeContext';
 import type { AuthSession } from '../services/auth';
 
@@ -53,9 +54,9 @@ const MenuItem: React.FC<MenuItemProps> = ({
     onClick={onClick}
     className={`
       group/item flex items-center w-full p-4 transition duration-200 overflow-hidden whitespace-nowrap relative
-      ${danger ? 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''}
+      ${danger ? 'text-muted dark:text-muted-dark hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20' : ''}
       ${!danger && active ? 'text-primary bg-primary/10 font-semibold' : ''}
-      ${!danger && !active ? 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary dark:hover:text-primary hover:bg-primary/5' : ''}
+      ${!danger && !active ? 'text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary hover:bg-primary/5' : ''}
       ${isUser ? 'lg:mb-6 lg:mt-4' : ''}
     `}
   >
@@ -65,7 +66,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
 
     <div className={`flex-shrink-0 flex items-center justify-center transition-transform duration-300 group-hover/item:scale-110 ${isUser ? 'w-10 h-10' : 'w-6 h-6'}`}>
       {isUser && avatarUrl ? (
-        <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover border-2 border-[#241B10]/10 dark:border-[#F5E6CD]/10" />
+        <img src={avatarUrl} alt="Avatar" className="w-full h-full rounded-full object-cover border-2 border-ink/10 dark:border-ink-light/10" />
       ) : (
         <Icon className={`${isUser ? 'w-full h-full p-2 bg-primary/10 text-primary rounded-full' : 'w-6 h-6'}`} />
       )}
@@ -74,7 +75,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
     <span className={`
       ml-4 font-medium transition duration-300
       lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0
-      ${danger ? 'text-red-500' : (active ? 'text-primary' : 'text-[#3A2E1D] dark:text-[#D4D4D8]')}
+      ${danger ? 'text-red-500' : (active ? 'text-primary' : 'text-body dark:text-body-dark')}
     `}>
       {isUser ? displayName : label}
     </span>
@@ -111,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
       <aside
         className={`
-          fixed top-0 left-0 h-full bg-white dark:bg-[#18130D] z-50 shadow-xl lg:shadow-none border-r border-[#241B10]/10 dark:border-[#F5E6CD]/10
+          fixed top-0 left-0 h-full bg-surface dark:bg-surface-dark z-50 shadow-xl lg:shadow-none border-r border-ink/10 dark:border-ink-light/10
           transition duration-300 ease-in-out group
           w-64 lg:w-20 lg:hover:w-64 flex flex-col py-4 overflow-hidden
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -119,9 +120,9 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div className="lg:hidden w-full flex justify-between items-center px-4 mb-6 flex-shrink-0">
           <Logo className="w-8 h-8" textClassName="text-lg" />
-          <button onClick={onClose} aria-label="Cerrar menú" className="p-2 text-[#6B5D48] hover:bg-[#241B10]/5 dark:text-[#9A8D74] dark:hover:bg-white/5 rounded-full transition duration-300 active:scale-90">
+          <Button onClick={onClose} aria-label="Cerrar menú" variant="ghost" iconOnly>
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         <MenuItem
@@ -134,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
 
         <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 mb-2">
-          <div className="h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10 w-full"></div>
+          <div className="h-px bg-ink/10 dark:bg-ink-light/10 w-full"></div>
         </div>
 
         <MenuItem
@@ -184,18 +185,18 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Theme Toggle Button */}
         <button
           onClick={toggleTheme}
-          className="group/item flex items-center w-full p-4 text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary dark:hover:text-primary hover:bg-primary/5 transition duration-200 overflow-hidden whitespace-nowrap mb-1"
+          className="group/item flex items-center w-full p-4 text-muted dark:text-muted-dark hover:text-primary dark:hover:text-primary hover:bg-primary/5 transition duration-200 overflow-hidden whitespace-nowrap mb-1"
         >
           <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 transition-transform duration-300 group-hover/item:rotate-45">
             {theme === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
           </div>
-          <span className="ml-4 font-medium transition duration-300 lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0 text-[#3A2E1D] dark:text-[#D4D4D8]">
+          <span className="ml-4 font-medium transition duration-300 lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-4 lg:group-hover:translate-x-0 text-body dark:text-body-dark">
             {theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
           </span>
         </button>
 
         <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 transition-opacity duration-300 my-2">
-          <div className="h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10 w-full"></div>
+          <div className="h-px bg-ink/10 dark:bg-ink-light/10 w-full"></div>
         </div>
 
         <MenuItem

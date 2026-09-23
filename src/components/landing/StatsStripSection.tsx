@@ -1,21 +1,22 @@
 import React from 'react';
+import { Reveal } from './shared';
+
+const STATS = [
+  { value: '3 pasos', label: 'de la despensa al plato' },
+  { value: '< 20 seg', label: 'para generar una receta' },
+  { value: '0%', label: 'desperdicio como objetivo' },
+];
 
 const StatsStripSection: React.FC = () => (
-  <section className="border-y border-[#241B10]/10 dark:border-[#F5E6CD]/10 bg-[#FCF6EC] dark:bg-[#130F0A]">
-    <div className="max-w-5xl mx-auto px-6 grid grid-cols-3 divide-x divide-[#241B10]/10 dark:divide-[#F5E6CD]/10">
-      <div className="py-7 text-center">
-        <div className="text-xl md:text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">3 pasos</div>
-        <div className="text-[11px] md:text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">de la despensa al plato</div>
-      </div>
-      <div className="py-7 text-center">
-        <div className="text-xl md:text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">&lt; 20 seg</div>
-        <div className="text-[11px] md:text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">para generar una receta</div>
-      </div>
-      <div className="py-7 text-center">
-        <div className="text-xl md:text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">0%</div>
-        <div className="text-[11px] md:text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">desperdicio como objetivo</div>
-      </div>
-    </div>
+  <section className="bg-paper dark:bg-paper-dark py-12 md:py-14">
+    <Reveal className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-6 text-center">
+      {STATS.map((stat) => (
+        <div key={stat.label}>
+          <div className="text-xl md:text-2xl font-display font-semibold text-accent tracking-tight">{stat.value}</div>
+          <div className="text-[11px] md:text-xs text-muted dark:text-muted-dark mt-1.5">{stat.label}</div>
+        </div>
+      ))}
+    </Reveal>
   </section>
 );
 

@@ -1,5 +1,5 @@
 import React from "react";
-import logoSrc from '../assets/logo.png';
+import logoSrc from '../assets/logo-icon.png';
 
 interface LogoProps {
   className?: string;
@@ -13,11 +13,11 @@ export const Logo: React.FC<LogoProps> = ({
   textClassName = "text-2xl",
 }) => {
   return (
-    <div className="flex items-center gap-3 select-non">
-      <img src={logoSrc} alt="Nonnapp Logo" className={`object-contain ${className}`} />
+    <div className="flex items-center gap-2 select-non">
+      <img src={logoSrc} alt="Nonnapp" className={`object-contain ${className}`} />
       {showText && (
-        <span className={`font-parisienne font-bold font tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-orange-500 to-orange-700 pl-0.5 mt-[7px] ${textClassName}`}>
-          Nonnapp
+        <span className={`font-display font-semibold tracking-tight ${textClassName}`}>
+          <span className="text-accent">nonn</span><span className="text-primary">app</span>
         </span>
       )}
     </div>

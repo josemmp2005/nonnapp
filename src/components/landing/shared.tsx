@@ -1,14 +1,22 @@
 import React from 'react';
-import nonnaPhoto from '../../assets/nonna.webp';
+import nonnaWink from '../../assets/nonna/nonna-wink.webp';
 export { Reveal } from '../ui/Reveal';
 
+// Mascota 3D (recorte con transparencia) en vez de una foto — se apoya sobre
+// un fondo circular suave en lugar de recortarla con object-cover, para no
+// perder ni recortar el dibujo.
 export const NonnaAvatar: React.FC<{ className?: string }> = ({ className = 'w-8 h-8' }) => (
-  <img
-    src={nonnaPhoto}
-    alt="La Nonna"
-    className={`${className} rounded-full object-cover flex-shrink-0 ring-1 ring-primary/30`}
-  />
+  <div className={`${className} rounded-full bg-accent/10 flex-shrink-0 flex items-center justify-center overflow-hidden`}>
+    <img src={nonnaWink} alt="La Nonna" className="w-[130%] h-[130%] object-contain object-bottom" />
+  </div>
 );
+
+// Nota de consolidación de color: varias secciones de landing tenían tonos
+// "apagados"/"texto en oscuro" ligeramente distintos entre sí (deriva propia
+// de ir copiando clases de un sitio a otro). Aquí y en el resto de este
+// archivo se centralizan en los 3 niveles de texto ya definidos en
+// tailwind.config.js: `ink` (títulos/fuerte), `body` (texto por defecto) y
+// `muted` (secundario/apagado).
 
 export const CheckIcon: React.FC<{ className?: string }> = ({ className = 'w-3.5 h-3.5' }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -28,16 +36,16 @@ export const SectionHeading: React.FC<{
   className?: string;
 }> = ({ eyebrow, title, subtitle, align = 'left', light = false, className = '' }) => (
   <div className={`${align === 'center' ? 'text-center mx-auto' : ''} ${className}`}>
-    <span className={`block text-xs font-semibold mb-2.5 ${light ? 'text-primary' : 'text-primary'}`}>{eyebrow}</span>
+    <span className="block text-xs font-semibold mb-2.5 text-primary">{eyebrow}</span>
     <h2
-      className={`text-2xl md:text-[34px] font-bold tracking-tight ${
-        light ? 'text-white' : 'text-[#241B10] dark:text-[#F8F2E6]'
+      className={`text-2xl md:text-[34px] font-extrabold tracking-tight ${
+        light ? 'text-white' : 'text-ink dark:text-ink-light'
       }`}
     >
       {title}
     </h2>
     {subtitle && (
-      <p className={`mt-4 text-sm md:text-[15.5px] leading-relaxed ${light ? 'text-white/70' : 'text-[#5C4E3A] dark:text-[#8B8B90]'}`}>
+      <p className={`mt-4 text-sm md:text-[15.5px] leading-relaxed ${light ? 'text-white/70' : 'text-muted dark:text-muted-dark'}`}>
         {subtitle}
       </p>
     )}
@@ -53,7 +61,7 @@ export const RecipeMeta: React.FC<{
   light?: boolean;
   className?: string;
 }> = ({ time, difficulty, calories, light = false, className = '' }) => {
-  const base = light ? 'text-white/80' : 'text-[#6B5D48] dark:text-[#9A8D74]';
+  const base = light ? 'text-white/80' : 'text-muted dark:text-muted-dark';
   return (
     <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium ${base} ${className}`}>
       {time && (
@@ -93,7 +101,7 @@ export const FloatingBadge: React.FC<{
   className?: string;
 }> = ({ icon, label, className = '' }) => (
   <div
-    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-lg text-xs font-semibold text-[#3A2E1D] dark:text-[#E7DCC5] ${className}`}
+    className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-surface dark:bg-surface-dark border border-ink/10 dark:border-ink-light/10 shadow-lg text-xs font-semibold text-body dark:text-body-dark ${className}`}
   >
     <span className="text-primary flex-shrink-0">{icon}</span>
     {label}
