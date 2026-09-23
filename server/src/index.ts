@@ -7,7 +7,7 @@ import dns from 'node:dns';
 // nodemailer incluido.
 dns.setDefaultResultOrder('ipv4first');
 
-import { env } from './env.js';
+import { env, isProd } from './env.js';
 import { pool } from './db.js';
 import { applySchema } from './lib/migrate.js';
 import { app } from './app.js';
@@ -16,11 +16,30 @@ import { app } from './app.js';
 // que aplicarlo en cada arranque es seguro — evita depender de un paso manual
 // de "migración" que en un PaaS gratuito (Render) es fácil olvidar en el
 // primer despliegue y se traduce en 500s por tablas inexistentes.
+// El error más típico del login con Google es `redirect_uri_mismatch`: la URL
+// que enviamos no coincide con las registradas en Google Cloud Console. Se
+// deja escrita en el log de arranque la que se está usando de verdad, para no
+// tener que adivinarla.
+const logGoogleConfig = () => {
+  if (!env.googleClientId || !env.googleClientSecret) return;
+  console.log(`🔑 Login con Google activo — redirect_uri: ${env.googleRedirectUri}`);
+  console.log(
+    '   Debe estar dada de alta EXACTAMENTE igual en Google Cloud Console → APIs y servicios → Credenciales → tu ID de cliente OAuth → "URI de redireccionamiento autorizados".'
+  );
+  if (isProd && /localhost|127\.0\.0\.1/.test(env.googleRedirectUri)) {
+    console.warn(
+      '⚠️ El redirect_uri de Google apunta a localhost en producción: Google lo rechazará (redirect_uri_mismatch). ' +
+        'Define GOOGLE_REDIRECT_URI con la URL pública del backend + /api/auth/google/callback.'
+    );
+  }
+};
+
 let server: ReturnType<typeof app.listen>;
 applySchema()
   .then(() => {
     server = app.listen(env.port, () => {
       console.log(`🚀 Sabora API escuchando en http://localhost:${env.port}`);
+      logGoogleConfig();
     });
   })
   .catch((err) => {

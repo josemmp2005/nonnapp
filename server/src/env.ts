@@ -8,6 +8,12 @@ const required = (name: string): string => {
   return value;
 };
 
+// Render inyecta RENDER_EXTERNAL_URL (la URL pública del propio servicio, p.ej.
+// https://sabora-api.onrender.com) en todos los Web Services. Se usa como base
+// por defecto del callback de Google para que en producción no caiga en
+// silencio a localhost — que Google rechaza con `redirect_uri_mismatch`.
+const publicApiUrl = process.env.RENDER_EXTERNAL_URL?.replace(/\/+$/, '');
+
 export const env = {
   port: Number(process.env.PORT) || 3001,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -24,8 +30,14 @@ export const env = {
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  // Debe coincidir CARÁCTER A CARÁCTER con una de las "URI de redireccionamiento
+  // autorizados" del cliente OAuth en Google Cloud Console. Prioridad: la
+  // variable explícita > la URL pública de Render > localhost (solo desarrollo).
   googleRedirectUri:
-    process.env.GOOGLE_REDIRECT_URI || `http://localhost:${Number(process.env.PORT) || 3001}/api/auth/google/callback`,
+    process.env.GOOGLE_REDIRECT_URI ||
+    (publicApiUrl
+      ? `${publicApiUrl}/api/auth/google/callback`
+      : `http://localhost:${Number(process.env.PORT) || 3001}/api/auth/google/callback`),
 };
 
 export const isProd = env.nodeEnv === 'production';
