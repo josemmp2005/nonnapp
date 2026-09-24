@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Heart, Leaf, Sparkle } from 'lucide-react';
 import heroBgPc from '../../assets/hero-background-pc.webp';
 import heroBgMobile from '../../assets/hero-background-mobile.webp';
@@ -76,6 +77,8 @@ const Drifters: React.FC<{ leaves: typeof LEAVES_DESKTOP; sparkle: { left: strin
 // de la app esté en modo oscuro (mismo criterio que la tarjeta "La Mamma" en
 // precios), para no acabar con texto claro sobre un fondo que sigue siendo crema.
 const HeroSection: React.FC = () => {
+  const { t } = useTranslation();
+  const list = t('landing.hero.list', { returnObjects: true }) as string[];
   const sectionRef = useRef<HTMLElement>(null);
   useHeroMotion(sectionRef);
 
@@ -103,17 +106,17 @@ const HeroSection: React.FC = () => {
               style={delay(0)}
               className="hero-in block font-hand text-[22px] md:text-[clamp(1.35rem,2vw,2.75rem)] text-ink/80 mb-2"
             >
-              Tu cocina, un poco más fácil
+              {t('landing.hero.eyebrow')}
             </span>
 
             <h1 className="font-display font-bold text-[40px] sm:text-5xl md:text-[clamp(2.75rem,5.6vw,7.7rem)] leading-[1.05] md:leading-[1.02] tracking-tight text-ink mb-5 md:mb-6">
               <span style={delay(100)} className="hero-in block">
-                Recetas que{' '}
+                {t('landing.hero.line1')}{' '}
               </span>
               <span style={delay(220)} className="hero-in block">
-                saben a{' '}
+                {t('landing.hero.line2Prefix')}{' '}
                 <span style={delay(560)} className="hero-pop inline-block text-primary">
-                  casa.
+                  {t('landing.hero.highlight')}
                 </span>
               </span>
             </h1>
@@ -122,7 +125,7 @@ const HeroSection: React.FC = () => {
               style={delay(360)}
               className="hero-in text-[15px] sm:text-base md:text-[clamp(1rem,1.3vw,1.8rem)] font-medium leading-7 md:leading-relaxed text-body mb-7 md:mb-8 max-w-[34rem]"
             >
-              Encuentra recetas, aprovecha lo que tienes en la nevera y pregunta a Nonna cuando necesites ayuda.
+              {t('landing.hero.paragraph')}
             </p>
 
             <SearchBar animateIn baseDelay={480} className="max-w-[37rem]" />
@@ -156,7 +159,7 @@ const HeroSection: React.FC = () => {
                 style={delay(950)}
                 className="hero-fade -rotate-6 font-hand text-[clamp(1rem,1.5vw,2.05rem)] leading-tight text-ink/85"
               >
-                Cocinar siempre sabe mejor en buena compañía{' '}
+                {t('landing.hero.noteCard')}{' '}
                 <Heart className="hero-heart w-[0.9em] h-[0.9em] text-primary" />
               </div>
             </div>
@@ -175,10 +178,10 @@ const HeroSection: React.FC = () => {
           </svg>
           <div className="hero-depth-3 absolute top-[34%] right-[2.2%]">
             <ul className="hero-bob font-hand text-[clamp(1rem,1.45vw,2rem)] leading-snug text-ink/80">
-              <li style={delay(1050)} className="hero-in">Recetas</li>
-              <li style={delay(1140)} className="hero-in pl-2">Ideas</li>
-              <li style={delay(1230)} className="hero-in">Consejos</li>
-              <li style={delay(1320)} className="hero-in pl-1">Y mucho más</li>
+              <li style={delay(1050)} className="hero-in">{list[0]}</li>
+              <li style={delay(1140)} className="hero-in pl-2">{list[1]}</li>
+              <li style={delay(1230)} className="hero-in">{list[2]}</li>
+              <li style={delay(1320)} className="hero-in pl-1">{list[3]}</li>
             </ul>
           </div>
         </div>

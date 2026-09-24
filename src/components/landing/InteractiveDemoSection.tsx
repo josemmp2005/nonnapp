@@ -1,50 +1,42 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Sparkles, RotateCcw } from 'lucide-react';
 import { Reveal, RecipeMeta, SectionHeading } from './shared';
 import { IngredientIcon } from './IngredientIcon';
-import { INGREDIENT_LABELS, type IngredientKey } from './ingredientData';
+import { useIngredientLabels, type IngredientKey } from './ingredientData';
 
 const OPTIONS: IngredientKey[] = ['chicken', 'rice', 'tomato', 'cheese', 'egg', 'broccoli', 'pasta', 'onion'];
 
 interface CannedResult {
   title: string;
-  time: string;
   difficulty: string;
 }
 
-// Resultados predefinidos — esta demo es puramente ilustrativa (sin llamada
-// real a la IA, así se indica de forma implícita al no pedir cuenta ni
-// mostrar un botón que lleve a generar de verdad). Coincidencia por
-// combinación exacta cuando existe; si no, un título genérico construido
-// con los ingredientes elegidos, para que nunca se sienta "vacío".
-const CANNED: { match: IngredientKey[]; result: CannedResult }[] = [
-  { match: ['chicken', 'rice', 'broccoli'], result: { title: 'Pollo teriyaki con arroz y brócoli', time: '25 min', difficulty: 'Fácil' } },
-  { match: ['tomato', 'cheese', 'pasta'], result: { title: 'Pasta con tomate y queso fundido', time: '20 min', difficulty: 'Fácil' } },
-  { match: ['egg', 'tomato', 'onion'], result: { title: 'Shakshuka mediterránea', time: '20 min', difficulty: 'Fácil' } },
-  { match: ['chicken', 'onion', 'rice'], result: { title: 'Arroz de pollo con cebolla caramelizada', time: '30 min', difficulty: 'Media' } },
-  { match: ['cheese', 'egg', 'broccoli'], result: { title: 'Tortilla de brócoli y queso', time: '15 min', difficulty: 'Fácil' } },
+// Combinaciones y tiempos fijos — el título/dificultad viene traducido de
+// landing.interactiveDemo.canned (mismo orden); el tiempo es independiente
+// del idioma. Coincidencia por combinación exacta cuando existe; si no, un
+// título genérico construido con los ingredientes elegidos (fallbackTitle),
+// para que nunca se sienta "vacío".
+const CANNED_MATCHES: { match: IngredientKey[]; time: string }[] = [
+  { match: ['chicken', 'rice', 'broccoli'], time: '25 min' },
+  { match: ['tomato', 'cheese', 'pasta'], time: '20 min' },
+  { match: ['egg', 'tomato', 'onion'], time: '20 min' },
+  { match: ['chicken', 'onion', 'rice'], time: '30 min' },
+  { match: ['cheese', 'egg', 'broccoli'], time: '15 min' },
 ];
-
-const buildFallbackResult = (selected: IngredientKey[]): CannedResult => {
-  const names = selected.map((i) => INGREDIENT_LABELS[i].toLowerCase());
-  const joined =
-    names.length <= 1 ? names[0] : `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`;
-  return {
-    title: `Sorpresa de la Nonna con ${joined}`,
-    time: '25 min',
-    difficulty: 'Fácil',
-  };
-};
-
-const getResult = (selected: IngredientKey[]): CannedResult => {
-  const set = new Set(selected);
-  const found = CANNED.find((c) => c.match.every((m) => set.has(m)) && c.match.length === selected.length);
-  return found ? found.result : buildFallbackResult(selected);
-};
 
 type Phase = 'idle' | 'loading' | 'result';
 
+interface ResolvedResult {
+  title: string;
+  difficulty: string;
+  time: string;
+}
+
 const InteractiveDemoSection: React.FC = () => {
+  const { t } = useTranslation();
+  const ingredientLabels = useIngredientLabels();
+  const canned = t('landing.interactiveDemo.canned', { returnObjects: true }) as CannedResult[];
   const [selected, setSelected] = useState<IngredientKey[]>([]);
   const [phase, setPhase] = useState<Phase>('idle');
 
@@ -53,7 +45,20 @@ const InteractiveDemoSection: React.FC = () => {
     setSelected((prev) => (prev.includes(ing) ? prev.filter((i) => i !== ing) : [...prev, ing]));
   };
 
-  const result = useMemo(() => (phase === 'result' ? getResult(selected) : null), [phase, selected]);
+  const getResult = useCallback(
+    (sel: IngredientKey[]): ResolvedResult => {
+      const set = new Set(sel);
+      const index = CANNED_MATCHES.findIndex((c) => c.match.every((m) => set.has(m)) && c.match.length === sel.length);
+      if (index !== -1) return { ...canned[index], time: CANNED_MATCHES[index].time };
+
+      const names = sel.map((i) => ingredientLabels[i].toLowerCase());
+      const joined = names.length <= 1 ? names[0] : `${names.slice(0, -1).join(', ')} ${t('landing.interactiveDemo.and')} ${names[names.length - 1]}`;
+      return { title: t('landing.interactiveDemo.fallbackTitle', { ingredients: joined }), difficulty: canned[0].difficulty, time: '25 min' };
+    },
+    [canned, ingredientLabels, t]
+  );
+
+  const result = useMemo(() => (phase === 'result' ? getResult(selected) : null), [phase, selected, getResult]);
 
   const handleGenerate = () => {
     if (selected.length === 0) return;
@@ -70,9 +75,9 @@ const InteractiveDemoSection: React.FC = () => {
     <section className="bg-paper dark:bg-paper-dark border-t border-ink/10 dark:border-ink-light/10 py-16 md:py-24">
       <div className="max-w-3xl mx-auto px-6">
         <SectionHeading
-          eyebrow="Pruébalo tú mismo"
-          title="¿Qué tienes en casa?"
-          subtitle="Elige un par de ingredientes y mira cómo Nonnapp los convierte en una receta (demo ilustrativa, sin necesidad de cuenta)."
+          eyebrow={t('landing.interactiveDemo.eyebrow')}
+          title={t('landing.interactiveDemo.title')}
+          subtitle={t('landing.interactiveDemo.subtitle')}
           align="center"
           className="mb-10"
         />
@@ -96,7 +101,7 @@ const InteractiveDemoSection: React.FC = () => {
                       }`}
                     >
                       <IngredientIcon ingredient={ing} className="w-4 h-4" />
-                      {INGREDIENT_LABELS[ing]}
+                      {ingredientLabels[ing]}
                       {isSelected && <Check className="w-3.5 h-3.5" />}
                     </button>
                   );
@@ -107,7 +112,7 @@ const InteractiveDemoSection: React.FC = () => {
                 {phase === 'loading' ? (
                   <div className="flex items-center gap-3 text-muted dark:text-muted-dark font-medium text-sm py-3">
                     <span className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full motion-safe:animate-spin" />
-                    Pensando qué cocinar...
+                    {t('landing.interactiveDemo.loading')}
                   </div>
                 ) : (
                   <button
@@ -116,7 +121,7 @@ const InteractiveDemoSection: React.FC = () => {
                     className="inline-flex items-center gap-2 px-7 py-3 bg-primary hover:bg-primary-600 disabled:bg-ink/10 dark:disabled:bg-ink-light/10 disabled:text-muted disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-primary-200 dark:shadow-none transition-all active:scale-95"
                   >
                     <Sparkles className="w-4 h-4" />
-                    Generar receta
+                    {t('landing.interactiveDemo.generate')}
                   </button>
                 )}
               </div>
@@ -128,7 +133,7 @@ const InteractiveDemoSection: React.FC = () => {
                   {selected.map((ing) => (
                     <span key={ing} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
                       <IngredientIcon ingredient={ing} className="w-3 h-3" />
-                      {INGREDIENT_LABELS[ing]}
+                      {ingredientLabels[ing]}
                     </span>
                   ))}
                 </div>
@@ -139,7 +144,7 @@ const InteractiveDemoSection: React.FC = () => {
                   className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  Probar con otros ingredientes
+                  {t('landing.interactiveDemo.reset')}
                 </button>
               </div>
             )

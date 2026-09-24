@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError } from '../services/ai';
+import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError, RecipeOffTopicError } from '../services/ai';
 import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit, incrementRecipeCount, markDailyLimitReached } = useSubscription();
   const location = useLocation();
@@ -29,14 +31,14 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const handleGenerate = async (params: GenerationParams) => {
     // Validate userProfile before proceeding
     if (!userProfile) {
-      showToast('Error: Perfil de usuario no disponible', 'error');
+      showToast(t('app.generator.toastNoProfile'), 'error');
       return;
     }
 
     // Check recipe limit for free users
     const { canGenerate, remaining: remainingBeforeGenerate } = checkRecipeLimit();
     if (!canGenerate) {
-      showToast('Has alcanzado el límite de 2 recetas diarias. Actualiza a La Mamma para recetas ilimitadas.', 'error');
+      showToast(t('app.generator.toastDailyLimit'), 'error');
       return;
     }
 
@@ -70,11 +72,11 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           // localStorage otra vez: canGenerate=true garantiza remainingBeforeGenerate >= 1.
           const remaining = remainingBeforeGenerate === Infinity ? Infinity : remainingBeforeGenerate - 1;
           if (remaining === 1) {
-            showToast('Receta guardada. Te queda 1 receta hoy.', 'success');
+            showToast(t('app.generator.toastSavedOneLeft'), 'success');
           } else if (remaining === 0) {
-            showToast('Receta guardada. Has usado tus 2 recetas diarias.', 'success');
+            showToast(t('app.generator.toastSavedNoneLeft'), 'success');
           } else {
-            showToast('Receta generada y guardada.', 'success');
+            showToast(t('app.generator.toastSavedGeneric'), 'success');
           }
         } catch (saveError) {
           // Detectar error de límite diario desde el backend
@@ -82,7 +84,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
             // El servidor manda: si dice que ya no quedan, el contador local
             // (que pudo desincronizarse) se corrige para que no siga mintiendo.
             markDailyLimitReached();
-            showToast('❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.', 'error');
+            showToast(t('app.generator.toastDailyLimitBackend'), 'error');
             // No mostrar la receta si no se pudo guardar por límite
             setCurrentRecipe(null);
             setCurrentImageUrl(null);
@@ -90,17 +92,19 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
           }
           // Otro tipo de error al guardar
           console.error('Error saving recipe:', saveError);
-          showToast('Receta generada pero no se pudo guardar. Por favor, intenta de nuevo.', 'error');
+          showToast(t('app.generator.toastSaveFailed'), 'error');
         }
       }
 
     } catch (err) {
       if (err instanceof EmailNotVerifiedError) {
-        showToast('Verifica tu email antes de generar recetas. Revisa tu bandeja de entrada.', 'error');
+        showToast(t('app.generator.toastEmailNotVerified'), 'error');
       } else if (err instanceof PlanRequiredError) {
-        showToast('El modo despensa está disponible en los planes La Mamma y La Nonna.', 'error');
+        showToast(t('app.generator.toastPlanRequired'), 'error');
+      } else if (err instanceof RecipeOffTopicError) {
+        showToast(t('app.generator.toastOffTopic'), 'error');
       } else {
-        showToast("Lo siento, hubo un error generando tu receta. Intenta de nuevo.", 'error');
+        showToast(t('app.generator.toastGenericError'), 'error');
       }
       console.error(err);
     } finally {
@@ -135,7 +139,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
         <div className="text-center flex flex-col items-center gap-3">
           <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-[#6B5D48] dark:text-[#9A8D74]">Cargando perfil de usuario...</p>
+          <p className="text-[#6B5D48] dark:text-[#9A8D74]">{t('app.generator.profileLoading')}</p>
         </div>
       </div>
     );
@@ -158,10 +162,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
                 <Sparkles aria-hidden="true" className="w-8 h-8 text-primary" />
              </div>
              <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">
-               El Laboratorio del Chef
+               {t('app.generator.title')}
              </h1>
              <p className="text-[#6B5D48] dark:text-[#9A8D74] max-w-xl mx-auto text-lg">
-               Describe tu antojo o dime qué ingredientes tienes. La IA creará la receta perfecta.
+               {t('app.generator.subtitle')}
              </p>
           </div>
 
@@ -174,21 +178,21 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200 mb-1">
-                    Plan Nipote (Gratis)
+                    {t('app.generator.freeBannerTitle')}
                   </h3>
                   <p className="text-sm text-amber-700 dark:text-amber-300">
                     {(() => {
                       const { remaining } = checkRecipeLimit();
                       if (remaining === 0) {
-                        return '❌ Has usado tus 2 recetas diarias. Vuelve mañana o actualiza tu plan.';
+                        return t('app.generator.freeBannerNoneLeft');
                       }
-                      return `🍝 Te quedan ${remaining} receta${remaining > 1 ? 's' : ''} hoy.`;
+                      return t('app.generator.freeBannerRemaining', { count: remaining });
                     })()}
                   </p>
                 </div>
                 <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg font-medium text-sm transition active:scale-95 shadow-md hover:shadow-lg">
                   <Crown aria-hidden="true" className="w-4 h-4" />
-                  Actualizar
+                  {t('app.generator.upgradeButton')}
                 </button>
               </div>
             </div>

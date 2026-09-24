@@ -1,18 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search, Plus } from 'lucide-react';
 
 // `extraClass`: los chips sobrantes se ocultan en anchos donde no caben en una
-// sola fila sin pisar la ilustración del hero.
-const SUGGESTIONS: { word: string; extraClass: string }[] = [
-  { word: 'Pasta', extraClass: '' },
-  { word: 'Pollo', extraClass: '' },
-  { word: 'Calabacín', extraClass: '' },
-  { word: 'Arroz', extraClass: '' },
-  { word: 'Huevos', extraClass: 'hidden lg:inline-flex' },
-  { word: 'Patata', extraClass: 'hidden xl:inline-flex' },
-  { word: 'Atún', extraClass: 'hidden min-[1400px]:inline-flex' },
-];
+// sola fila sin pisar la ilustración del hero. El orden importa: debe
+// coincidir con landing.searchBar.suggestions en cada idioma.
+const SUGGESTION_CLASSES = ['', '', '', '', 'hidden lg:inline-flex', 'hidden xl:inline-flex', 'hidden min-[1400px]:inline-flex'];
 
 // Buscador de la landing: es un gancho visual hacia la generación real de
 // recetas, no un buscador con índice propio (Nonnapp genera con IA, no busca
@@ -31,6 +25,11 @@ const SearchBar: React.FC<{
   animateIn?: boolean;
   baseDelay?: number;
 }> = ({ className = '', showSuggestions = true, animateIn = false, baseDelay = 0 }) => {
+  const { t } = useTranslation();
+  const suggestions = (t('landing.searchBar.suggestions', { returnObjects: true }) as string[]).map((word, i) => ({
+    word,
+    extraClass: SUGGESTION_CLASSES[i] || '',
+  }));
   const [query, setQuery] = useState('');
   // Placeholder corto en móvil: el largo se corta a mitad de palabra.
   const [isWide, setIsWide] = useState(() => window.matchMedia('(min-width: 1024px)').matches);
@@ -67,21 +66,21 @@ const SearchBar: React.FC<{
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder={isWide ? 'Busca una receta o ingrediente...' : 'Busca una receta...'}
-          aria-label="Busca una receta o ingrediente"
+          placeholder={isWide ? t('landing.searchBar.placeholderWide') : t('landing.searchBar.placeholderNarrow')}
+          aria-label={t('landing.searchBar.ariaLabel')}
           className="min-w-0 flex-grow bg-transparent outline-none text-ink placeholder:text-ink/50 text-sm md:text-[15px] py-2"
         />
         <button
           type="submit"
           className="flex-shrink-0 px-5 md:px-7 py-2.5 md:py-3 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-600 active:scale-[0.97] transition-all duration-200"
         >
-          Buscar
+          {t('landing.searchBar.submit')}
         </button>
       </form>
 
       {showSuggestions && (
         <div className="flex flex-wrap items-center gap-2 mt-5">
-          {SUGGESTIONS.map(({ word, extraClass }, i) => (
+          {suggestions.map(({ word, extraClass }, i) => (
             <button
               key={word}
               type="button"
@@ -95,8 +94,8 @@ const SearchBar: React.FC<{
           <button
             type="button"
             onClick={() => inputRef.current?.focus()}
-            aria-label="Añadir otro ingrediente"
-            style={animateIn ? delay(baseDelay + 140 + SUGGESTIONS.length * 55) : undefined}
+            aria-label={t('landing.searchBar.addIngredientAria')}
+            style={animateIn ? delay(baseDelay + 140 + suggestions.length * 55) : undefined}
             className={`${animateIn ? 'hero-pop ' : ''}w-8 h-8 flex items-center justify-center bg-white/90 border border-ink/5 rounded-full text-ink shadow-sm hover:bg-white hover:-translate-y-0.5 hover:shadow-soft active:scale-[0.97] transition-all duration-200`}
           >
             <Plus aria-hidden="true" className="w-4 h-4" />

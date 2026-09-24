@@ -29,6 +29,19 @@ export class PlanRequiredError extends Error {
 const isPlanRequiredError = (error: unknown): boolean =>
   error instanceof ApiError && error.status === 403 && error.message === 'PLAN_REQUIRED';
 
+// El generador rechaza prompts que no piden una receta de cocina (o que
+// intentan hacer ignorar sus instrucciones) — ver el guardarraíl en
+// server/src/routes/ai.ts.
+export class RecipeOffTopicError extends Error {
+  constructor() {
+    super('RECIPE_OFF_TOPIC');
+    this.name = 'RecipeOffTopicError';
+  }
+}
+
+const isRecipeOffTopicError = (error: unknown): boolean =>
+  error instanceof ApiError && error.status === 422 && error.message === 'RECIPE_OFF_TOPIC';
+
 // Foto genérica solo para el modo mock de desarrollo — en producción la
 // imagen real la elige el backend (server/src/lib/recipeImages.ts).
 const MOCK_IMAGE_URL = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=1200&q=80';
@@ -87,6 +100,9 @@ export const generateRecipeAI = async (
       }
       if (isPlanRequiredError(error)) {
         throw new PlanRequiredError();
+      }
+      if (isRecipeOffTopicError(error)) {
+        throw new RecipeOffTopicError();
       }
       throw new Error(error instanceof Error ? error.message : 'No se pudo generar la receta. Intenta de nuevo.');
     }

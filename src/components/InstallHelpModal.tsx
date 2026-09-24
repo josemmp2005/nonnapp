@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Share, SquarePlus, Check, X } from 'lucide-react';
 import { usePwaInstall } from '../hooks/usePwaInstall';
 import { useEscapeKey } from '../hooks/useEscapeKey';
@@ -8,6 +9,7 @@ import { Logo } from './Logo';
 // así que el botón "Instalar app" abre estos tres pasos. Se monta una vez en
 // App.tsx y se abre desde el almacén de pwaInstall.
 const InstallHelpModal: React.FC = () => {
+  const { t } = useTranslation();
   const { iosHelpOpen, closeIosHelp } = usePwaInstall();
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -36,7 +38,7 @@ const InstallHelpModal: React.FC = () => {
         <button
           ref={closeRef}
           onClick={closeIosHelp}
-          aria-label="Cerrar"
+          aria-label={t('common.installModal.close')}
           className="absolute top-4 right-4 p-2 rounded-full text-muted dark:text-muted-dark hover:bg-ink/5 dark:hover:bg-ink-light/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
           <X className="w-5 h-5" />
@@ -44,10 +46,10 @@ const InstallHelpModal: React.FC = () => {
 
         <Logo className="w-10 h-10" showText={false} />
         <h2 id="install-help-title" className="mt-4 font-display font-semibold text-2xl text-ink dark:text-ink-light">
-          Instala nonnapp en tu móvil
+          {t('common.installModal.title')}
         </h2>
         <p className="mt-1 text-sm text-muted dark:text-muted-dark">
-          Ábrela como una app, sin barra del navegador. Son tres toques:
+          {t('common.installModal.subtitle')}
         </p>
 
         <ol className="mt-6 space-y-4">
@@ -56,7 +58,7 @@ const InstallHelpModal: React.FC = () => {
               <Share aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              Toca el botón <strong>Compartir</strong> de la barra de Safari.
+              {t('common.installModal.step1.before')} <strong>{t('common.installModal.step1.bold')}</strong> {t('common.installModal.step1.after')}
             </span>
           </li>
           <li className="flex items-center gap-4">
@@ -64,7 +66,7 @@ const InstallHelpModal: React.FC = () => {
               <SquarePlus aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              Elige <strong>Añadir a pantalla de inicio</strong>.
+              {t('common.installModal.step2.before')} <strong>{t('common.installModal.step2.bold')}</strong>{t('common.installModal.step2.after')}
             </span>
           </li>
           <li className="flex items-center gap-4">
@@ -72,7 +74,7 @@ const InstallHelpModal: React.FC = () => {
               <Check aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              Confirma con <strong>Añadir</strong>. ¡Listo!
+              {t('common.installModal.step3.before')} <strong>{t('common.installModal.step3.bold')}</strong>{t('common.installModal.step3.after')}
             </span>
           </li>
         </ol>

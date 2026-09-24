@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Send, Loader2 } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { askChefAboutRecipe } from '../services/ai';
@@ -15,9 +16,10 @@ interface Message {
 }
 
 const ChefChat: React.FC<Props> = ({ recipe }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'model', text: '¡Hola! Soy Nonna. ¿Tienes alguna duda sobre esta receta?' }
+    { role: 'model', text: t('app.chefChat.greeting') }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,7 +53,7 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
     } catch {
       setMessages(prev => [
         ...prev,
-        { role: 'model', text: 'Tuve un problema para responder. ¿Puedes repetir la pregunta?' },
+        { role: 'model', text: t('app.chefChat.errorReply') },
       ]);
     } finally {
       setLoading(false);
@@ -63,7 +65,7 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        aria-label="Abrir chat con Nonna"
+        aria-label={t('app.chefChat.openAria')}
         className="fixed bottom-6 right-6 z-40 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-soft-lg ring-2 ring-white dark:ring-surface-dark hover:scale-105 hover:-translate-y-0.5 active:scale-[0.97] transition duration-200"
       >
         <NonnaAvatar pose="chat" alt="" className="w-full h-full" />
@@ -75,7 +77,7 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
   return (
     <div
       role="dialog"
-      aria-label="Chat con Nonna"
+      aria-label={t('app.chefChat.dialogAria')}
       className="fixed bottom-6 right-4 md:right-6 z-40 w-[90vw] md:w-96 bg-surface dark:bg-surface-dark rounded-3xl shadow-2xl border border-ink/15 dark:border-ink-light/15 flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 h-[500px] max-h-[80vh]"
     >
 
@@ -88,10 +90,10 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
             </div>
             <div>
                 <h3 className="font-bold text-base leading-tight">Nonna</h3>
-                <p className="text-xs text-white/60">Tu ayudante de cocina</p>
+                <p className="text-xs text-white/60">{t('app.chefChat.subtitle')}</p>
             </div>
         </div>
-        <button onClick={() => setIsOpen(false)} aria-label="Cerrar chat" className="text-white/60 hover:text-white transition-colors">
+        <button onClick={() => setIsOpen(false)} aria-label={t('app.chefChat.closeAria')} className="text-white/60 hover:text-white transition-colors">
           <X className="w-5 h-5" />
         </button>
       </div>
@@ -121,7 +123,7 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
                     <div className="w-1.5 h-1.5 bg-muted-dark rounded-full animate-bounce delay-75"></div>
                     <div className="w-1.5 h-1.5 bg-muted-dark rounded-full animate-bounce delay-150"></div>
                   </div>
-                  <span className="text-xs text-muted dark:text-muted-dark">Nonna está pensando...</span>
+                  <span className="text-xs text-muted dark:text-muted-dark">{t('app.chefChat.thinking')}</span>
                </div>
             </div>
         )}
@@ -134,13 +136,13 @@ const ChefChat: React.FC<Props> = ({ recipe }) => {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Pregunta a Nonna..."
+          placeholder={t('app.chefChat.placeholder')}
           className="flex-grow bg-primary/10 rounded-full px-4 py-2.5 text-sm text-ink dark:text-ink-light outline-none focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-[#2A2114] transition placeholder:text-muted"
         />
         <button
             type="submit"
             disabled={!input.trim() || loading}
-            aria-label="Enviar pregunta"
+            aria-label={t('app.chefChat.sendAria')}
             className="p-2.5 bg-primary text-white rounded-full hover:bg-primary-600 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed transition"
         >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}

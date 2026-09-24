@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) => {
+  const { t } = useTranslation();
   const { recipe_metadata, ingredients, utensils, steps } = recipe;
   const { showToast } = useToast();
   const { limits } = useSubscription();
@@ -26,7 +28,7 @@ const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) =
 
   const handleChefChatClick = () => {
     if (!limits.hasChefChat) {
-      showToast('El chat con Nonna está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!', 'info');
+      showToast(t('app.recipeDisplay.chatLockedToast'), 'info');
     }
   };
 
@@ -35,21 +37,21 @@ const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) =
 🍳 ${recipe_metadata.title}
 ${recipe_metadata.description}
 
-⏱️ Tiempo: ${recipe_metadata.cooking_time} | 👥 Porciones: ${recipe_metadata.servings} | 🔥 ${recipe_metadata.calories} kcal
+⏱️ ${t('app.recipeDisplay.copyTimeLabel')}: ${recipe_metadata.cooking_time} | 👥 ${t('app.recipeDisplay.copyServingsLabel')}: ${recipe_metadata.servings} | 🔥 ${recipe_metadata.calories} kcal
 
-🥕 INGREDIENTES:
+🥕 ${t('app.recipeDisplay.copyIngredientsHeading')}:
 ${ingredients.map(i => `- ${i.item}: ${i.quantity}`).join('\n')}
 
-🔪 PREPARACIÓN:
+🔪 ${t('app.recipeDisplay.copyStepsHeading')}:
 ${steps.map(s => `${s.step_number}. ${s.instruction}`).join('\n')}
 
-Generado por nonnapp
+${t('app.recipeDisplay.copyFooter')}
     `.trim();
 
     navigator.clipboard.writeText(text).then(() => {
-      showToast('Receta copiada al portapapeles', 'success');
+      showToast(t('app.recipeDisplay.copySuccess'), 'success');
     }).catch(() => {
-      showToast('No se pudo copiar la receta', 'error');
+      showToast(t('app.recipeDisplay.copyError'), 'error');
     });
   };
 
@@ -68,7 +70,7 @@ Generado por nonnapp
             ) : (
               <button
                 onClick={handleChefChatClick}
-                aria-label="Chat con Nonna (plan La Nonna)"
+                aria-label={t('app.recipeDisplay.chatLockedAria')}
                 className="fixed bottom-24 right-4 md:right-8 z-40 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-soft-lg ring-2 ring-white dark:ring-surface-dark hover:scale-105 hover:-translate-y-0.5 active:scale-[0.97] transition duration-200"
               >
                 <NonnaAvatar pose="chat" alt="" className="w-full h-full opacity-80 saturate-50" />
@@ -119,17 +121,17 @@ Generado por nonnapp
                  <div className="text-center px-2 border-r border-[#241B10]/10 dark:border-[#F5E6CD]/10 last:border-0">
                     <Clock aria-hidden="true" className="w-5 h-5 text-primary mx-auto mb-2 print:hidden" />
                     <span className="block font-bold text-[#241B10] dark:text-[#F8F2E6]">{recipe_metadata.cooking_time}</span>
-                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">Tiempo</span>
+                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">{t('app.recipeDisplay.timeLabel')}</span>
                  </div>
                  <div className="text-center px-2 border-r border-[#241B10]/10 dark:border-[#F5E6CD]/10 last:border-0">
                     <Users aria-hidden="true" className="w-5 h-5 text-secondary mx-auto mb-2 print:hidden" />
                     <span className="block font-bold text-[#241B10] dark:text-[#F8F2E6]">{recipe_metadata.servings}</span>
-                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">Personas</span>
+                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">{t('app.recipeDisplay.peopleLabel')}</span>
                  </div>
                  <div className="text-center px-2">
                     <Flame aria-hidden="true" className="w-5 h-5 text-red-500 mx-auto mb-2 print:hidden" />
                     <span className="block font-bold text-[#241B10] dark:text-[#F8F2E6]">{recipe_metadata.calories}</span>
-                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">Kcal</span>
+                    <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase">{t('app.recipeDisplay.kcalLabel')}</span>
                  </div>
               </div>
 
@@ -138,28 +140,28 @@ Generado por nonnapp
                     onClick={() => setIsCookModeOpen(true)}
                     className="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-orange-200 dark:shadow-none hover:bg-orange-600 active:scale-[0.98] transition flex items-center justify-center gap-2"
                  >
-                    <PlayCircle aria-hidden="true" className="w-5 h-5" /> Cocinar Ahora
+                    <PlayCircle aria-hidden="true" className="w-5 h-5" /> {t('app.recipeDisplay.cookNow')}
                  </button>
 
                  <div className="flex gap-2">
                     <button
                       onClick={() => setIsShoppingListOpen(true)}
-                      aria-label="Lista de la compra"
+                      aria-label={t('app.recipeDisplay.shoppingListAria')}
                       className="p-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] rounded-xl hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary active:scale-95 transition-colors flex items-center gap-2 font-medium"
                     >
                       <ShoppingCart aria-hidden="true" className="w-5 h-5" />
-                      <span className="hidden sm:inline">Compra</span>
+                      <span className="hidden sm:inline">{t('app.recipeDisplay.shoppingListShort')}</span>
                     </button>
                     <button
                       onClick={handlePrint}
-                      aria-label="Imprimir"
+                      aria-label={t('app.recipeDisplay.printAria')}
                       className="p-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] rounded-xl hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary active:scale-95 transition-colors"
                     >
                       <Printer aria-hidden="true" className="w-5 h-5" />
                     </button>
                     <button
                       onClick={handleCopyRecipe}
-                      aria-label="Copiar texto de la receta"
+                      aria-label={t('app.recipeDisplay.copyAria')}
                       className="p-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] rounded-xl hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary active:scale-95 transition-colors"
                     >
                       <Share2 aria-hidden="true" className="w-5 h-5" />
@@ -189,7 +191,7 @@ Generado por nonnapp
           <div className="space-y-6 md:sticky md:top-8">
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 print:shadow-none print:border print:border-gray-300 transition-colors duration-300">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 flex items-center gap-2">
-                <span aria-hidden="true" className="bg-green-100 dark:bg-green-900/30 p-1.5 rounded-md text-green-600 dark:text-green-400 print:bg-transparent print:p-0">🥕</span> Ingredientes
+                <span aria-hidden="true" className="bg-green-100 dark:bg-green-900/30 p-1.5 rounded-md text-green-600 dark:text-green-400 print:bg-transparent print:p-0">🥕</span> {t('app.recipeDisplay.ingredientsHeading')}
               </h3>
               <ul className="space-y-3">
                 {ingredients.map((ing, idx) => (
@@ -203,7 +205,7 @@ Generado por nonnapp
 
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 print:shadow-none print:border print:border-gray-300 transition-colors duration-300">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 flex items-center gap-2">
-                <span aria-hidden="true" className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-md text-blue-600 dark:text-blue-400 print:bg-transparent print:p-0"><UtensilsCrossed className="w-4 h-4" /></span> Utensilios
+                <span aria-hidden="true" className="bg-blue-100 dark:bg-blue-900/30 p-1.5 rounded-md text-blue-600 dark:text-blue-400 print:bg-transparent print:p-0"><UtensilsCrossed className="w-4 h-4" /></span> {t('app.recipeDisplay.utensilsHeading')}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {utensils.map((u, idx) => (
@@ -215,17 +217,17 @@ Generado por nonnapp
             </div>
             
             <div className="flex gap-4 text-sm text-[#6B5D48] dark:text-[#9A8D74] bg-[#FCF6EC] dark:bg-[#18130D] px-4 py-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 justify-between print:bg-white print:border print:border-gray-300 transition-colors duration-300">
-                <span>Prot: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.protein}</b></span>
-                <span>Carbs: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.carbs}</b></span>
-                <span>Grasa: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.fat}</b></span>
+                <span>{t('app.recipeDisplay.proteinLabel')}: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.protein}</b></span>
+                <span>{t('app.recipeDisplay.carbsLabel')}: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.carbs}</b></span>
+                <span>{t('app.recipeDisplay.fatLabel')}: <b className="text-[#241B10] dark:text-[#D4D4D8]">{recipe_metadata.macros.fat}</b></span>
             </div>
           </div>
         </div>
 
         <div className="md:col-span-8 space-y-6">
           <div className="flex items-center justify-between mb-2">
-             <h3 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Pasos de Preparación</h3>
-             <span className="text-xs font-semibold text-[#6B5D48] bg-primary/10 dark:text-[#D4D4D8] px-3 py-1 rounded-full print:bg-white print:border print:border-[#241B10]/15">{steps.length} Pasos</span>
+             <h3 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.recipeDisplay.stepsHeading')}</h3>
+             <span className="text-xs font-semibold text-[#6B5D48] bg-primary/10 dark:text-[#D4D4D8] px-3 py-1 rounded-full print:bg-white print:border print:border-[#241B10]/15">{t('app.recipeDisplay.stepsCount', { count: steps.length })}</span>
           </div>
           
           <div className="space-y-6">
@@ -243,7 +245,7 @@ Generado por nonnapp
                         </div>
 
                         <div className="flex-grow pt-1">
-                            <h4 className="font-bold text-[#241B10] dark:text-[#F8F2E6] text-lg mb-2">Paso {step.step_number}</h4>
+                            <h4 className="font-bold text-[#241B10] dark:text-[#F8F2E6] text-lg mb-2">{t('app.recipeDisplay.stepLabel', { number: step.step_number })}</h4>
                             <p className="text-[#3A2E1D] dark:text-[#D4D4D8] leading-relaxed text-base">
                                 {step.instruction}
                             </p>
@@ -261,7 +263,7 @@ Generado por nonnapp
                className="group flex items-center gap-2 px-8 py-4 bg-white dark:bg-[#18130D] border-2 border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-[#5C4E3A] dark:text-[#A89C86] font-bold rounded-2xl hover:border-primary hover:text-primary active:scale-[0.98] transition shadow-sm hover:shadow-md"
              >
                <RefreshCw aria-hidden="true" className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" />
-               Generar otra versión
+               {t('app.recipeDisplay.generateAnother')}
              </button>
           </div>
         </div>

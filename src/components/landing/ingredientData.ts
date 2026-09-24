@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 export type IngredientKey =
   | 'chicken'
   | 'rice'
@@ -9,14 +11,12 @@ export type IngredientKey =
   | 'onion'
   | 'avocado';
 
-export const INGREDIENT_LABELS: Record<IngredientKey, string> = {
-  chicken: 'Pollo',
-  rice: 'Arroz',
-  tomato: 'Tomate',
-  cheese: 'Queso',
-  egg: 'Huevo',
-  broccoli: 'Brócoli',
-  pasta: 'Pasta',
-  onion: 'Cebolla',
-  avocado: 'Aguacate',
+const INGREDIENT_KEYS: IngredientKey[] = ['chicken', 'rice', 'tomato', 'cheese', 'egg', 'broccoli', 'pasta', 'onion', 'avocado'];
+
+// Hook en vez de un objeto estático: los nombres de ingrediente están
+// traducidos (namespace `ingredients` en src/i18n/locales) y deben re-generarse
+// cuando cambia el idioma, igual que el resto de la landing.
+export const useIngredientLabels = (): Record<IngredientKey, string> => {
+  const { t } = useTranslation();
+  return Object.fromEntries(INGREDIENT_KEYS.map((key) => [key, t(`ingredients.${key}`)])) as Record<IngredientKey, string>;
 };

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { LogOut, Menu, Moon, Search, Sun } from 'lucide-react';
 import { signOut } from '../services/auth';
 import Sidebar from './Sidebar';
 import { Logo } from './Logo';
 import { Button } from './ui/Button';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useTheme } from '../context/ThemeContext';
 import type { AuthSession } from '../services/auth';
 
@@ -15,12 +17,13 @@ interface LayoutProps {
 }
 
 // Enlaces de la cabecera de la landing: solo secciones que existen de verdad.
+// Las labels se traducen en el propio render (common.nav.*), aquí solo el ancla.
 const LANDING_LINKS = [
-  { href: '#recetas', label: 'Recetas' },
-  { href: '#que-tienes', label: 'Qué tienes en casa' },
-  { href: '#nonna', label: 'La Nonna' },
-  { href: '#planes', label: 'Planes' },
-];
+  { href: '#recetas', key: 'recipes' },
+  { href: '#que-tienes', key: 'whatYouHave' },
+  { href: '#nonna', key: 'nonna' },
+  { href: '#planes', key: 'plans' },
+] as const;
 
 const focusLandingSearch = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -28,6 +31,7 @@ const focusLandingSearch = () => {
 };
 
 const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
@@ -98,17 +102,17 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
                   href={link.href}
                   className="text-body dark:text-body-dark hover:text-primary dark:hover:text-primary transition-colors duration-200"
                 >
-                  {link.label}
+                  {t(`common.nav.${link.key}`)}
                 </a>
               ))}
             </nav>
           )}
 
-          <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {isLanding && (
               <Button
                 onClick={focusLandingSearch}
-                aria-label="Buscar una receta"
+                aria-label={t('common.header.searchAria')}
                 variant="ghost"
                 iconOnly
                 className="hidden lg:inline-flex"
@@ -117,9 +121,11 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
               </Button>
             )}
 
+            <LanguageSwitcher />
+
             <Button
               onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Activar modo oscuro' : 'Activar modo claro'}
+              aria-label={theme === 'light' ? t('common.header.enableDark') : t('common.header.enableLight')}
               variant="ghost"
               iconOnly
               className="hover:rotate-45"
@@ -130,12 +136,12 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
             {session && isVerified ? (
               <>
                 <Link to="/app" className="px-4 py-2 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-600 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition duration-300 shadow-lg shadow-primary/20">
-                  Ir a la Cocina
+                  {t('common.header.goToKitchen')}
                 </Link>
                 <button
                   onClick={handleLogout}
                   className="p-2 text-muted dark:text-muted-dark hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
-                  title="Cerrar Sesión"
+                  title={t('common.header.logout')}
                 >
                   <LogOut className="w-5 h-5" />
                 </button>
@@ -144,7 +150,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
               <button
                 onClick={handleLogout}
                 className="p-2 text-muted dark:text-muted-dark hover:text-red-500 hover:scale-110 active:scale-90 transition duration-300"
-                title="Cerrar Sesión"
+                title={t('common.header.logout')}
               >
                 <LogOut className="w-5 h-5" />
               </button>
@@ -152,14 +158,14 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
               <>
                 {!onLoginScreen && (
                   <Link to="/auth?modo=login" className="sm:hidden px-4 py-2 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-xs rounded-full hover:opacity-90 active:scale-95 transition duration-300 shadow-lg">
-                    Iniciar sesión
+                    {t('common.header.login')}
                   </Link>
                 )}
                 <Link to="/auth?modo=login" className="hidden sm:inline-flex px-5 py-2.5 bg-surface dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 text-ink dark:text-ink-light font-bold text-sm rounded-full shadow-sm hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] transition duration-200">
-                  Iniciar sesión
+                  {t('common.header.login')}
                 </Link>
                 <Link to="/auth?modo=registro" className="hidden sm:inline-flex px-5 py-2.5 bg-primary text-white font-bold text-sm rounded-full shadow-lg shadow-primary/25 hover:bg-primary-600 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] transition duration-200">
-                  Crear cuenta
+                  {t('common.header.signup')}
                 </Link>
               </>
             )}
@@ -175,11 +181,11 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
         <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-center text-sm gap-4 text-muted dark:text-muted-dark">
           <div className="flex items-center gap-2">
              <Logo className="w-6 h-6 grayscale opacity-50" showText={false} />
-             <p>© {new Date().getFullYear()} nonnapp.</p>
+             <p>{t('common.footer.copyright', { year: new Date().getFullYear() })}</p>
           </div>
           <div className="flex gap-6">
-            <Link to="/" className="hover:text-primary transition-colors">Inicio</Link>
-            <Link to="/terms" className="hover:text-primary transition-colors">Legal y Privacidad</Link>
+            <Link to="/" className="hover:text-primary transition-colors">{t('common.footer.home')}</Link>
+            <Link to="/terms" className="hover:text-primary transition-colors">{t('common.footer.legal')}</Link>
           </div>
         </div>
       </footer>

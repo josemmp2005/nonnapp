@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChefHat } from 'lucide-react';
 import { IngredientIcon } from './IngredientIcon';
 import type { IngredientKey } from './ingredientData';
 
-const MESSAGES = ['Analizando tus ingredientes...', 'Buscando combinaciones...', 'Preparando algo delicioso...'];
 const ORBIT_INGREDIENTS: IngredientKey[] = ['tomato', 'chicken', 'cheese', 'rice'];
 
 // Loader propio en vez de un spinner genérico: un ChefHat central fijo con
@@ -11,12 +11,14 @@ const ORBIT_INGREDIENTS: IngredientKey[] = ['tomato', 'chicken', 'cheese', 'rice
 // en index.css) y el texto de estado rotando cada ~1.4s. Todo decorativo —
 // no representa una llamada real a la IA, es la demostración del paso 02.
 const CookingLoader: React.FC = () => {
+  const { t } = useTranslation();
+  const messages = t('landing.cookingLoader.messages', { returnObjects: true }) as string[];
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setMessageIndex((i) => (i + 1) % MESSAGES.length), 1400);
+    const id = setInterval(() => setMessageIndex((i) => (i + 1) % messages.length), 1400);
     return () => clearInterval(id);
-  }, []);
+  }, [messages.length]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-6 py-4">
@@ -42,7 +44,7 @@ const CookingLoader: React.FC = () => {
         </div>
       </div>
       <p className="text-sm font-medium text-muted dark:text-muted-dark h-5 transition-all duration-300" key={messageIndex}>
-        {MESSAGES[messageIndex]}
+        {messages[messageIndex]}
       </p>
     </div>
   );

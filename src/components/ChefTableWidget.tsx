@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Flame, BookOpen, ArrowRight, Heart, Flower2, Lock, Crown } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = false }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showToast } = useToast();
   const [chefTab, setChefTab] = useState<'styles' | 'featured'>('styles');
@@ -21,7 +23,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
 
   const triggerChefSpecial = (preset: typeof CHEF_STYLES[0]) => {
     if (isLocked) {
-      showToast('La Mesa de la Nonna está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!', 'info');
+      showToast(t('app.chefTable.lockedStyles'), 'info');
       return;
     }
     const prompt = `Actúa como ${preset.name} (${preset.subtitle}). Crea un plato espectacular y único (${preset.dish} o similar) siguiendo estrictamente este estilo: ${preset.style}. Sorpréndeme como si fuera tu nieto favorito.`;
@@ -37,7 +39,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
 
   const openFeaturedRecipe = (recipe: RecipeDB) => {
     if (isLocked) {
-      showToast('Las Recetas de Familia están disponibles en el plan La Nonna. ¡Actualiza para disfrutarlas!', 'info');
+      showToast(t('app.chefTable.lockedFeatured'), 'info');
       return;
     }
     navigate(`/app/recipe/featured-${recipe.id}`, {
@@ -60,13 +62,13 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                 onClick={() => setChefTab('styles')}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
-                Sus Secretos
+                {t('app.chefTable.tabStyles')}
                 </button>
                 <button
                 onClick={() => setChefTab('featured')}
                 className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
                 >
-                Recetas de Familia
+                {t('app.chefTable.tabFeatured')}
                 </button>
             </div>
         </div>
@@ -96,7 +98,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                           </div>
                           <p className="text-white font-bold text-sm flex items-center gap-1 justify-center">
                             <Crown className="w-4 h-4 text-amber-300" />
-                            Premium
+                            {t('app.chefTable.premium')}
                           </p>
                         </div>
                       </div>
@@ -111,7 +113,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                         <p className="text-[#E7DCC5] text-xs line-clamp-2 mb-2 leading-relaxed">{preset.description}</p>
                         <div className="flex items-center gap-1 text-white/80 text-xs font-medium border-t border-white/20 pt-2 mt-2">
                             <Flame className="w-3 h-3 text-orange-400" />
-                            <span>Cocinar estilo {preset.name.split(' ')[1]}</span>
+                            <span>{t('app.chefTable.cookingStyle', { name: preset.name.split(' ')[1] })}</span>
                         </div>
                     </div>
                 </button>
@@ -133,7 +135,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                             className={`w-full h-full object-cover transition-transform duration-700 ${isLocked ? 'filter grayscale opacity-60' : 'group-hover:scale-105'}`}
                         />
                         <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-[#241B10] dark:text-[#F8F2E6] shadow-sm flex items-center gap-1">
-                            <BookOpen aria-hidden="true" className="w-3 h-3 text-primary" /> Receta
+                            <BookOpen aria-hidden="true" className="w-3 h-3 text-primary" /> {t('app.chefTable.recipeBadge')}
                         </div>
 
                         {/* Lock Overlay */}
@@ -159,10 +161,10 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                         </p>
                         <div className="mt-auto pt-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium">
                             <span className="text-[#6B5D48] text-xs">
-                                {recipe.ingredients.length} Ingredientes
+                                {t('app.chefTable.ingredientsCount', { count: recipe.ingredients.length })}
                             </span>
                             <span className="text-primary flex items-center gap-1 group-hover:gap-2 transition-[gap]">
-                                Ver receta <ArrowRight aria-hidden="true" className="w-4 h-4" />
+                                {t('app.common.viewRecipe')} <ArrowRight aria-hidden="true" className="w-4 h-4" />
                             </span>
                         </div>
                     </div>

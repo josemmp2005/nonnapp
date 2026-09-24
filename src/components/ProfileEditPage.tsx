@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { User, Lock, Mail, Save, Loader2, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { User, Lock, Mail, Save, Loader2, Check, Globe } from 'lucide-react';
+import { ES, GB, FR, PT } from 'country-flag-icons/react/3x2';
 import { updateUsername, updateUserPassword } from '../services/auth';
 import { useToast } from '../context/ToastContext';
 import type { AuthSession } from '../services/auth';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n/config';
+
+const FLAGS: Record<SupportedLanguage, typeof ES> = { es: ES, en: GB, fr: FR, pt: PT };
+const LANGUAGE_NAMES: Record<SupportedLanguage, string> = { es: 'Español', en: 'English', fr: 'Français', pt: 'Português' };
 
 interface Props {
   session: AuthSession | null;
 }
 
 const ProfileEditPage: React.FC<Props> = ({ session }) => {
+  const { t, i18n } = useTranslation();
   const { showToast } = useToast();
+  const currentLanguage = (SUPPORTED_LANGUAGES as readonly string[]).includes(i18n.language)
+    ? (i18n.language as SupportedLanguage)
+    : 'es';
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
 
@@ -41,25 +51,25 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
       const { error: profileError } = await updateUsername(username);
 
       if (profileError) {
-        throw new Error(profileError.message || "Error guardando el perfil.");
+        throw new Error(profileError.message || t('app.profile.errorSavingProfile'));
       }
 
       // 2. Update Password if provided
       if (newPassword) {
-        if (!isPasswordLengthValid) throw new Error("La contraseña debe tener al menos 6 caracteres.");
-        if (!doPasswordsMatch) throw new Error("Las contraseñas no coinciden.");
+        if (!isPasswordLengthValid) throw new Error(t('app.profile.errorPasswordLength'));
+        if (!doPasswordsMatch) throw new Error(t('app.profile.errorPasswordMismatch'));
 
         const { error: passwordError } = await updateUserPassword(newPassword);
         if (passwordError) throw passwordError;
       }
 
-      showToast('Perfil actualizado correctamente.', 'success');
+      showToast(t('app.profile.toastSuccess'), 'success');
       setNewPassword('');
       setConfirmPassword('');
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Error al actualizar perfil.', 'error');
+      showToast(err instanceof Error ? err.message : t('app.profile.toastGenericError'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -68,8 +78,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Editar Perfil</h1>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">Actualiza tu información personal y seguridad.</p>
+        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.profile.title')}</h1>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">{t('app.profile.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -79,7 +89,7 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
           {/* Left Column: Avatar */}
           <div className="md:col-span-1">
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-              <h3 className="text-sm font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4">Avatar</h3>
+              <h3 className="text-sm font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4">{t('app.profile.avatarCardTitle')}</h3>
               
               <div className="flex flex-col items-center gap-4">
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center border-4 border-[#241B10]/15 dark:border-[#F5E6CD]/15 shadow-lg">
@@ -88,7 +98,7 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                   </span>
                 </div>
                 <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] text-center">
-                  Avatar generado automáticamente
+                  {t('app.profile.avatarGenerated')}
                 </p>
               </div>
             </div>
@@ -100,11 +110,11 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             {/* Personal Info Card */}
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <User aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> Información Personal
+                <User aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.personalInfoTitle')}
               </h3>
 
               <div>
-                <label htmlFor="profile-email" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Email</label>
+                <label htmlFor="profile-email" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">{t('app.profile.emailLabel')}</label>
                 <div className="relative opacity-60">
                   <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
@@ -115,11 +125,11 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                     className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl cursor-not-allowed text-[#3A2E1D] dark:text-[#D4D4D8]"
                   />
                 </div>
-                <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">El email no se puede cambiar por ahora.</p>
+                <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">{t('app.profile.emailHint')}</p>
               </div>
 
               <div>
-                <label htmlFor="profile-username" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">Nombre de Usuario</label>
+                <label htmlFor="profile-username" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">{t('app.profile.usernameLabel')}</label>
                 <div className="relative">
                   <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
@@ -128,21 +138,51 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
-                    placeholder="Tu nombre visible"
+                    placeholder={t('app.profile.usernamePlaceholder')}
                   />
                 </div>
+              </div>
+            </div>
+
+            {/* Language Card */}
+            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
+              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <Globe aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.languageTitle')}
+              </h3>
+              <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] -mt-2">{t('app.profile.languageSubtitle')}</p>
+              <div className="flex flex-wrap gap-3">
+                {SUPPORTED_LANGUAGES.map((lng) => {
+                  const Flag = FLAGS[lng];
+                  const isCurrent = lng === currentLanguage;
+                  return (
+                    <button
+                      key={lng}
+                      type="button"
+                      onClick={() => void i18n.changeLanguage(lng)}
+                      aria-pressed={isCurrent}
+                      className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl border-2 transition-all duration-200 ${
+                        isCurrent
+                          ? 'border-primary bg-primary/10'
+                          : 'border-[#241B10]/10 dark:border-[#F5E6CD]/10 hover:border-primary/40'
+                      }`}
+                    >
+                      <Flag className="w-6 h-[17px] rounded-[2px] flex-shrink-0" />
+                      <span className="text-sm font-medium text-[#241B10] dark:text-[#F8F2E6]">{LANGUAGE_NAMES[lng]}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Security Card */}
             <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
               <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <Lock aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> Seguridad
+                <Lock aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.securityTitle')}
               </h3>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="profile-new-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Nueva Contraseña</label>
+                  <label htmlFor="profile-new-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">{t('app.profile.newPasswordLabel')}</label>
                   <input
                     id="profile-new-password"
                     type="password"
@@ -151,10 +191,10 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                     className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
-                  {newPassword.length > 0 && <PasswordCheckItem ok={isPasswordLengthValid} label="Mínimo 6 caracteres" />}
+                  {newPassword.length > 0 && <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />}
                 </div>
                 <div>
-                  <label htmlFor="profile-confirm-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">Confirmar Contraseña</label>
+                  <label htmlFor="profile-confirm-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">{t('app.profile.confirmPasswordLabel')}</label>
                   <input
                     id="profile-confirm-password"
                     type="password"
@@ -163,11 +203,11 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                     className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
-                  {newPassword.length > 0 && <PasswordCheckItem ok={doPasswordsMatch} label="Las contraseñas coinciden" />}
+                  {newPassword.length > 0 && <PasswordCheckItem ok={doPasswordsMatch} label={t('app.profile.passwordsMatch')} />}
                 </div>
               </div>
               <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] italic">
-                Deja estos campos vacíos si no deseas cambiar tu contraseña.
+                {t('app.profile.passwordHint')}
               </p>
             </div>
 
@@ -181,17 +221,17 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                 {isLoading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    Guardando...
+                    {t('app.profile.saving')}
                   </>
                 ) : saved ? (
                   <>
                     <Check className="w-5 h-5" />
-                    Guardado
+                    {t('app.profile.saved')}
                   </>
                 ) : (
                   <>
                     <Save className="w-5 h-5" />
-                    Guardar Cambios
+                    {t('app.profile.saveChanges')}
                   </>
                 )}
               </button>

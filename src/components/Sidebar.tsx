@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   User,
   PlusCircle,
@@ -92,6 +93,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const pwa = usePwaInstall();
   const username = session?.user?.user_metadata?.username || session?.user?.email?.split('@')[0] || 'Chef';
@@ -123,7 +125,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div className="lg:hidden w-full flex justify-between items-center px-4 mb-6 flex-shrink-0">
           <Logo className="w-8 h-8" textClassName="text-lg" />
-          <Button onClick={onClose} aria-label="Cerrar menú" variant="ghost" iconOnly>
+          <Button onClick={onClose} aria-label={t('app.sidebar.cerrarMenu')} variant="ghost" iconOnly>
             <X className="w-5 h-5" />
           </Button>
         </div>
@@ -143,21 +145,21 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <MenuItem
           icon={LayoutDashboard}
-          label="Inicio"
+          label={t('app.sidebar.inicio')}
           active={isActive('/app')}
           onClick={() => handleNavigation('/app')}
         />
 
         <MenuItem
           icon={UtensilsCrossed}
-          label="Mesa de la Nonna"
+          label={t('app.sidebar.mesaDeLaNonna')}
           active={isActive('/app/chef')}
           onClick={() => handleNavigation('/app/chef')}
         />
 
         <MenuItem
           icon={PlusCircle}
-          label="Nueva Receta"
+          label={t('app.sidebar.nuevaReceta')}
           active={isActive('/app/generate')}
           onClick={() => handleNavigation('/app/generate')}
         />
@@ -165,21 +167,21 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="flex-grow flex flex-col w-full gap-1">
           <MenuItem
             icon={Settings}
-            label="Preferencias"
+            label={t('app.sidebar.preferencias')}
             active={isActive('/app/preferences')}
             onClick={() => handleNavigation('/app/preferences')}
           />
 
           <MenuItem
             icon={History}
-            label="Historial"
+            label={t('app.sidebar.historial')}
             active={isActive('/app/history')}
             onClick={() => handleNavigation('/app/history')}
           />
 
           <MenuItem
             icon={CalendarDays}
-            label="Planificador"
+            label={t('app.sidebar.planificador')}
             active={isActive('/app/planner')}
             onClick={() => handleNavigation('/app/planner')}
           />
@@ -194,7 +196,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {theme === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
           </div>
           <span className="ml-4 font-medium transition-[opacity,transform] duration-200 ease-out lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-3 lg:group-hover:translate-x-0 lg:group-hover:delay-[180ms] text-body dark:text-body-dark">
-            {theme === 'light' ? 'Modo Oscuro' : 'Modo Claro'}
+            {theme === 'light' ? t('app.sidebar.modoOscuro') : t('app.sidebar.modoClaro')}
           </span>
         </button>
 
@@ -202,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="lg:hidden">
             <MenuItem
               icon={Download}
-              label="Instalar app"
+              label={t('common.install.cta')}
               onClick={() => {
                 void pwa.install();
                 onClose();
@@ -217,7 +219,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <MenuItem
           icon={LogOut}
-          label="Cerrar Sesión"
+          label={t('app.sidebar.cerrarSesion')}
           danger
           onClick={onLogout}
         />

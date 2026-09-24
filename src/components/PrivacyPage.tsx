@@ -21,7 +21,7 @@ const PrivacyPage: React.FC = () => {
             Política de Privacidad
           </h1>
           <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-8">
-            Última actualización: {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+            Última actualización: 4 de diciembre de 2025
           </p>
 
           <div className="prose dark:prose-invert max-w-none space-y-6">
@@ -69,7 +69,7 @@ const PrivacyPage: React.FC = () => {
               </p>
               <ul className="list-disc pl-6 text-[#3A2E1D] dark:text-[#D4D4D8] space-y-2">
                 <li>Cifrado SSL/TLS para todas las comunicaciones</li>
-                <li>Almacenamiento seguro en Supabase con Row Level Security (RLS)</li>
+                <li>Almacenamiento en una base de datos con acceso restringido: tu navegador nunca se conecta directamente a ella, todas las peticiones pasan por nuestro servidor, que aplica los controles de acceso</li>
                 <li>Autenticación robusta con soporte OAuth</li>
                 <li>Backups regulares y recuperación ante desastres</li>
               </ul>

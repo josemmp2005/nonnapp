@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { X, Clock, Flame, Users, ChefHat, ArrowRight } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { getFullRecipeById } from '../services/data';
@@ -12,6 +13,7 @@ interface Props {
 }
 
 const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [recipe, setRecipe] = useState<RecipeDB | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={meta?.title || 'Vista previa de receta'}
+      aria-label={meta?.title || t('app.recipePreview.defaultAriaTitle')}
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in"
       onClick={onClose}
     >
@@ -74,13 +76,13 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
           </div>
         ) : error || !recipe ? (
           <div className="flex flex-col items-center justify-center gap-3 py-24 px-6 text-center">
-            <p className="text-[#241B10] dark:text-[#F8F2E6] font-bold">No se pudo cargar la receta.</p>
+            <p className="text-[#241B10] dark:text-[#F8F2E6] font-bold">{t('app.recipePreview.loadError')}</p>
             <div className="flex items-center gap-4">
               <button onClick={load} className="text-primary font-medium hover:underline">
-                Reintentar
+                {t('app.common.retry')}
               </button>
               <button onClick={onClose} className="text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:underline">
-                Cerrar
+                {t('app.common.close')}
               </button>
             </div>
           </div>
@@ -90,7 +92,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
               {recipe.main_image_url ? (
                 <RecipeImage
                   src={recipe.main_image_url}
-                  alt={meta?.title || 'Receta'}
+                  alt={meta?.title || t('app.common.untitledRecipe')}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -102,25 +104,25 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
               <button
                 onClick={onClose}
                 className="absolute top-3 right-3 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors"
-                aria-label="Cerrar vista previa"
+                aria-label={t('app.recipePreview.closeAria')}
               >
                 <X className="w-4 h-4" />
               </button>
               <h2 className="absolute bottom-3 left-4 right-4 text-white text-xl font-bold leading-tight line-clamp-2">
-                {meta?.title || 'Receta sin título'}
+                {meta?.title || t('app.common.untitledRecipe')}
               </h2>
             </div>
 
             <div className="p-5 overflow-y-auto flex-grow">
               <div className="flex flex-wrap gap-2 mb-4 text-xs font-medium">
                 <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <Clock aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.cooking_time || 'N/A'}
+                  <Clock aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.cooking_time || t('app.common.na')}
                 </span>
                 <span className="flex items-center gap-1 bg-secondary/10 text-secondary px-2.5 py-1.5 rounded-lg">
-                  <Flame aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.calories || 0} kcal
+                  <Flame aria-hidden="true" className="w-3.5 h-3.5" /> {t('app.recipePreview.kcal', { count: meta?.calories || 0 })}
                 </span>
                 <span className="flex items-center gap-1 bg-primary/10 text-primary px-2.5 py-1.5 rounded-lg">
-                  <Users aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.servings || 2} raciones
+                  <Users aria-hidden="true" className="w-3.5 h-3.5" /> {t('app.recipePreview.servings', { count: meta?.servings || 2 })}
                 </span>
                 <span className="flex items-center gap-1 bg-secondary/10 text-secondary px-2.5 py-1.5 rounded-lg">
                   <ChefHat aria-hidden="true" className="w-3.5 h-3.5" /> {meta?.difficulty || 'Media'}
@@ -128,13 +130,13 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
               </div>
 
               <p className="text-sm text-[#5C4E3A] dark:text-[#A89C86] leading-relaxed mb-5">
-                {meta?.description || 'Sin descripción disponible.'}
+                {meta?.description || t('app.recipePreview.noDescription')}
               </p>
 
               {recipe.ingredients && recipe.ingredients.length > 0 && (
                 <div className="mb-2">
                   <h3 className="text-xs font-bold uppercase tracking-wide text-[#6B5D48] dark:text-[#9A8D74] mb-2">
-                    Ingredientes ({recipe.ingredients.length})
+                    {t('app.recipePreview.ingredientsHeading', { count: recipe.ingredients.length })}
                   </h3>
                   <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-[#3A2E1D] dark:text-[#D4D4D8]">
                     {recipe.ingredients.slice(0, 8).map((ing, i) => (
@@ -149,7 +151,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                   </ul>
                   {recipe.ingredients.length > 8 && (
                     <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-2">
-                      +{recipe.ingredients.length - 8} más...
+                      {t('app.recipePreview.moreIngredients', { count: recipe.ingredients.length - 8 })}
                     </p>
                   )}
                 </div>
@@ -161,7 +163,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                 onClick={() => navigate(`/app/recipe/${recipeId}`)}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl transition-colors active:scale-[0.98]"
               >
-                Ver receta completa
+                {t('app.recipePreview.viewFullRecipe')}
                 <ArrowRight aria-hidden="true" className="w-4 h-4" />
               </button>
             </div>

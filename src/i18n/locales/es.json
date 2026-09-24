@@ -1,0 +1,449 @@
+{
+  "common": {
+    "nav": {
+      "recipes": "Recetas",
+      "whatYouHave": "Qué tienes en casa",
+      "nonna": "La Nonna",
+      "plans": "Planes"
+    },
+    "header": {
+      "searchAria": "Buscar una receta",
+      "enableDark": "Activar modo oscuro",
+      "enableLight": "Activar modo claro",
+      "goToKitchen": "Ir a la Cocina",
+      "logout": "Cerrar Sesión",
+      "login": "Iniciar sesión",
+      "signup": "Crear cuenta"
+    },
+    "footer": {
+      "home": "Inicio",
+      "legal": "Legal y Privacidad",
+      "copyright": "© {{year}} nonnapp."
+    },
+    "install": {
+      "cta": "Instalar app"
+    },
+    "installModal": {
+      "title": "Instala nonnapp en tu móvil",
+      "subtitle": "Ábrela como una app, sin barra del navegador. Son tres toques:",
+      "close": "Cerrar",
+      "step1": { "before": "Toca el botón", "bold": "Compartir", "after": "de la barra de Safari." },
+      "step2": { "before": "Elige", "bold": "Añadir a pantalla de inicio", "after": "." },
+      "step3": { "before": "Confirma con", "bold": "Añadir", "after": ". ¡Listo!" }
+    },
+    "languageSwitcher": {
+      "ariaLabel": "Cambiar idioma"
+    }
+  },
+  "landing": {
+    "hero": {
+      "eyebrow": "Tu cocina, un poco más fácil",
+      "line1": "Recetas que",
+      "line2Prefix": "saben a",
+      "highlight": "casa.",
+      "paragraph": "Encuentra recetas, aprovecha lo que tienes en la nevera y pregunta a Nonna cuando necesites ayuda.",
+      "noteCard": "Cocinar siempre sabe mejor en buena compañía",
+      "list": ["Recetas", "Ideas", "Consejos", "Y mucho más"]
+    },
+    "searchBar": {
+      "placeholderWide": "Busca una receta o ingrediente...",
+      "placeholderNarrow": "Busca una receta...",
+      "ariaLabel": "Busca una receta o ingrediente",
+      "submit": "Buscar",
+      "addIngredientAria": "Añadir otro ingrediente",
+      "suggestions": ["Pasta", "Pollo", "Calabacín", "Arroz", "Huevos", "Patata", "Atún"]
+    },
+    "stats": {
+      "items": [
+        { "value": "3 pasos", "label": "de la despensa al plato" },
+        { "value": "< 20 seg", "label": "para generar una receta" },
+        { "value": "0%", "label": "desperdicio como objetivo" }
+      ]
+    },
+    "howItWorks": {
+      "eyebrow": "Cómo funciona",
+      "title": "De la duda a la receta en tres pasos.",
+      "step1": { "title": "Dinos qué tienes", "text": "Añade lo que tengas por casa, sin listas complicadas." },
+      "step2": { "title": "Descubre recetas", "text": "La IA piensa la combinación con lo que le has contado." },
+      "step3": { "title": "Pregunta a Nonna", "text": "Si algo no queda claro mientras cocinas, ella responde al momento." }
+    },
+    "fridgeToRecipe": {
+      "eyebrow": "De la nevera al plato",
+      "title": "Abre la nevera. Nonnapp hace el resto.",
+      "demoRecipeTitle": "Shakshuka mediterránea",
+      "viewRecipe": "Ver receta",
+      "difficultyEasy": "Fácil",
+      "cta": "Buscar con mis ingredientes"
+    },
+    "recipeShowcase": {
+      "eyebrow": "Recetas de ejemplo",
+      "title": "Un chef diferente para cada día",
+      "viewRecipe": "Ver receta",
+      "recipes": [
+        { "title": "Pasta cremosa de champiñones", "difficulty": "Fácil" },
+        { "title": "Bowl mediterráneo de pollo", "difficulty": "Saludable" },
+        { "title": "Tacos de pollo picante", "difficulty": "Medio" },
+        { "title": "Risotto de verduras", "difficulty": "Medio" }
+      ]
+    },
+    "nonna": {
+      "eyebrow": "¿Te has quedado con una duda?",
+      "title": "Pregunta a Nonna.",
+      "text": "Sustituciones, cantidades, tiempos, técnicas... Nonna está ahí mientras cocinas.",
+      "questions": ["¿Puedo sustituir la nata?", "¿Cuánto tiempo dejo reposar esto?", "¿Qué hago si no tengo huevos?"],
+      "cta": "Preguntar a Nonna"
+    },
+    "interactiveDemo": {
+      "eyebrow": "Pruébalo tú mismo",
+      "title": "¿Qué tienes en casa?",
+      "subtitle": "Elige un par de ingredientes y mira cómo Nonnapp los convierte en una receta (demo ilustrativa, sin necesidad de cuenta).",
+      "loading": "Pensando qué cocinar...",
+      "generate": "Generar receta",
+      "reset": "Probar con otros ingredientes",
+      "fallbackTitle": "Sorpresa de la Nonna con {{ingredients}}",
+      "and": "y",
+      "canned": [
+        { "title": "Pollo teriyaki con arroz y brócoli", "difficulty": "Fácil" },
+        { "title": "Pasta con tomate y queso fundido", "difficulty": "Fácil" },
+        { "title": "Shakshuka mediterránea", "difficulty": "Fácil" },
+        { "title": "Arroz de pollo con cebolla caramelizada", "difficulty": "Media" },
+        { "title": "Tortilla de brócoli y queso", "difficulty": "Fácil" }
+      ]
+    },
+    "pricing": {
+      "eyebrow": "La Famiglia",
+      "title": "Elige tu lugar en la mesa",
+      "subtitle": "Desde el nieto que aprende hasta la Nonna que lo sabe todo.",
+      "nipote": {
+        "tagline": "El nieto aprendiz",
+        "price": "Gratis",
+        "feature1": "2 recetas al día",
+        "feature2": "Modo despensa básico",
+        "featureLocked": "Sin chat con el chef",
+        "cta": "Empezar a aprender"
+      },
+      "mamma": {
+        "badge": "Más popular",
+        "tagline": "La jefa de cocina",
+        "price": "9,99€",
+        "priceSuffix": "/mes",
+        "features": ["Recetas ilimitadas", "Modo despensa completo", "Alergias e ingredientes personalizados", "Historial completo"],
+        "cta": "Gestionar la cocina"
+      },
+      "nonna": {
+        "tagline": "La matriarca suprema",
+        "price": "19,99€",
+        "priceSuffix": "/mes",
+        "includesMamma": "Todo lo de La Mamma",
+        "features": ["Chat con el chef", "La Mesa de la Nonna", "Planificador semanal", "Soporte prioritario VIP"],
+        "cta": "Heredar el secreto"
+      }
+    },
+    "faq": {
+      "eyebrow": "Preguntas frecuentes",
+      "title": "Todo lo que necesitas saber",
+      "items": [
+        {
+          "question": "¿Cómo genera Nonnapp las recetas?",
+          "answer": "Una IA analiza lo que le cuentas — ingredientes, tiempo disponible, tus preferencias de cocina — y genera una receta completa con pasos claros en cuestión de segundos."
+        },
+        {
+          "question": "¿Puedo usar solo los ingredientes que tengo en casa?",
+          "answer": "Sí, el modo despensa prioriza los ingredientes que le indiques. Está disponible en los planes La Mamma y La Nonna; con el plan gratuito puedes describir lo que te apetece en modo texto libre."
+        },
+        {
+          "question": "¿Puedo guardar mis recetas favoritas?",
+          "answer": "Todas las recetas que generas se guardan automáticamente en tu historial, así que siempre puedes volver a consultarlas cuando quieras."
+        },
+        {
+          "question": "¿Nonnapp tiene en cuenta alergias o preferencias?",
+          "answer": "Sí — puedes indicar alergias, ingredientes que no te gustan y tu nivel de cocina para que cada receta se adapte a ti. El nivel de habilidad es gratis para todos los planes; la personalización de alergias e ingredientes está en los planes de pago."
+        },
+        {
+          "question": "¿Es gratis usar Nonnapp?",
+          "answer": "Sí, el plan Il Nipote es gratuito para siempre (2 recetas al día). Si quieres recetas ilimitadas y más personalización, puedes pasarte a La Mamma o La Nonna cuando quieras."
+        }
+      ]
+    },
+    "finalCta": {
+      "title": "Tu próxima receta está a un ingrediente de distancia.",
+      "subtitle": "Abre la nevera. Cuéntanos qué tienes. Nonnapp se encarga del resto.",
+      "cta": "Comenzar a cocinar",
+      "note": "Prueba gratis. Sin tarjeta de crédito."
+    },
+    "demoVideo": {
+      "eyebrow": "La app en acción",
+      "title": "Mira cómo funciona Nonnapp",
+      "subtitle": "De ingredientes sueltos a una receta completa en segundos.",
+      "badgeAi": "Generado con IA",
+      "badgeSave": "Guardar receta",
+      "fallback": {
+        "ingredientsLabel": "Tus ingredientes",
+        "preparing": "Nonnapp está preparando tu receta..."
+      }
+    },
+    "cookingLoader": {
+      "messages": ["Analizando tus ingredientes...", "Buscando combinaciones...", "Preparando algo delicioso..."]
+    }
+  },
+  "ingredients": {
+    "chicken": "Pollo",
+    "rice": "Arroz",
+    "tomato": "Tomate",
+    "cheese": "Queso",
+    "egg": "Huevo",
+    "broccoli": "Brócoli",
+    "pasta": "Pasta",
+    "onion": "Cebolla",
+    "avocado": "Aguacate"
+  },
+  "app": {
+    "common": {
+      "viewRecipe": "Ver receta",
+      "close": "Cerrar",
+      "retry": "Reintentar",
+      "untitledRecipe": "Receta sin título",
+      "na": "N/A"
+    },
+    "sidebar": {
+      "inicio": "Inicio",
+      "mesaDeLaNonna": "Mesa de la Nonna",
+      "nuevaReceta": "Nueva Receta",
+      "preferencias": "Preferencias",
+      "historial": "Historial",
+      "planificador": "Planificador",
+      "cerrarSesion": "Cerrar Sesión",
+      "modoOscuro": "Modo Oscuro",
+      "modoClaro": "Modo Claro",
+      "cerrarMenu": "Cerrar menú"
+    },
+    "dashboard": {
+      "greetingMorning": "Buenos días",
+      "greetingAfternoon": "Buenas tardes",
+      "greetingEvening": "Buenas noches",
+      "subtitle": "Tu cocina inteligente está lista.",
+      "statsToday": "Hoy",
+      "statsRecipesUnlimited": "Recetas",
+      "statsPlan": "Plan",
+      "heroTitle": "¿Qué tienes en mente hoy?",
+      "heroPlaceholder": "Ej: Pasta con champiñones, algo con pollo...",
+      "chipBreakfast": "Desayuno saludable",
+      "chipDinner": "Cena romántica",
+      "chipPantry": "Modo Despensa",
+      "quickActionsTitle": "Acciones Rápidas",
+      "surpriseTitle": "Sorpréndeme",
+      "surpriseSubtitle": "Algo nuevo hoy",
+      "breakfastTitle": "Desayuno Rápido",
+      "breakfastSubtitle": "Listo en 15 min",
+      "healthyTitle": "Modo Fit",
+      "healthySubtitle": "Bajo en calorías",
+      "advancedGenerator": "Generador Avanzado",
+      "recentTitle": "Tus Creaciones Recientes",
+      "viewAll": "Ver todo",
+      "loadHistoryError": "No se pudieron cargar tus recetas recientes"
+    },
+    "historyList": {
+      "title": "Recientes",
+      "emptyTitle": "Todavía no tienes recetas",
+      "emptySubtitle": "Genera tu primera receta y aparecerá aquí."
+    },
+    "chefTable": {
+      "tabStyles": "Sus Secretos",
+      "tabFeatured": "Recetas de Familia",
+      "lockedStyles": "La Mesa de la Nonna está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!",
+      "lockedFeatured": "Las Recetas de Familia están disponibles en el plan La Nonna. ¡Actualiza para disfrutarlas!",
+      "premium": "Premium",
+      "cookingStyle": "Cocinar estilo {{name}}",
+      "recipeBadge": "Receta",
+      "ingredientsCount": "{{count}} Ingredientes"
+    },
+    "recipePreview": {
+      "defaultAriaTitle": "Vista previa de receta",
+      "loadError": "No se pudo cargar la receta.",
+      "closeAria": "Cerrar vista previa",
+      "servings": "{{count}} raciones",
+      "kcal": "{{count}} kcal",
+      "noDescription": "Sin descripción disponible.",
+      "ingredientsHeading": "Ingredientes ({{count}})",
+      "moreIngredients": "+{{count}} más...",
+      "viewFullRecipe": "Ver receta completa"
+    },
+    "profile": {
+      "title": "Editar Perfil",
+      "subtitle": "Actualiza tu información personal y seguridad.",
+      "avatarCardTitle": "Avatar",
+      "avatarGenerated": "Avatar generado automáticamente",
+      "personalInfoTitle": "Información Personal",
+      "emailLabel": "Email",
+      "emailHint": "El email no se puede cambiar por ahora.",
+      "usernameLabel": "Nombre de Usuario",
+      "usernamePlaceholder": "Tu nombre visible",
+      "languageTitle": "Idioma",
+      "languageSubtitle": "Elige el idioma en el que quieres ver nonnapp.",
+      "securityTitle": "Seguridad",
+      "newPasswordLabel": "Nueva Contraseña",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "passwordMinLength": "Mínimo 6 caracteres",
+      "passwordsMatch": "Las contraseñas coinciden",
+      "passwordHint": "Deja estos campos vacíos si no deseas cambiar tu contraseña.",
+      "saving": "Guardando...",
+      "saved": "Guardado",
+      "saveChanges": "Guardar Cambios",
+      "toastSuccess": "Perfil actualizado correctamente.",
+      "toastGenericError": "Error al actualizar perfil.",
+      "errorSavingProfile": "Error guardando el perfil.",
+      "errorPasswordLength": "La contraseña debe tener al menos 6 caracteres.",
+      "errorPasswordMismatch": "Las contraseñas no coinciden."
+    },
+    "recipeForm": {
+      "tabCreative": "Modo Creativo",
+      "tabPantry": "Modo Despensa",
+      "pantryLockedTitle": "Disponible en plan La Mamma",
+      "labelTextMode": "¿Qué te apetece comer hoy?",
+      "labelPantryMode": "Ingredientes disponibles (separados por comas)",
+      "placeholderText": "Ej: Una cena romántica vegana...",
+      "placeholderPantry": "Ej: Huevos, tomate, arroz, pollo...",
+      "servingsLabel": "Comensales",
+      "timeLabel": "Tiempo Máximo",
+      "timeUnlimited": "Sin prisa (Automático)",
+      "time15": "15 min (Rápido)",
+      "time30": "30 min",
+      "time45": "45 min",
+      "time60": "1 hora",
+      "time120": "Lento (+1 hora)",
+      "robotLabel": "Robot de Cocina",
+      "yes": "Sí",
+      "no": "No",
+      "submit": "Generar Receta Mágica",
+      "disclaimer": "Recetas generadas con IA para la mejor experiencia."
+    },
+    "generator": {
+      "profileLoading": "Cargando perfil de usuario...",
+      "toastNoProfile": "Error: Perfil de usuario no disponible",
+      "toastDailyLimit": "Has alcanzado el límite de 2 recetas diarias. Actualiza a La Mamma para recetas ilimitadas.",
+      "toastSavedOneLeft": "Receta guardada. Te queda 1 receta hoy.",
+      "toastSavedNoneLeft": "Receta guardada. Has usado tus 2 recetas diarias.",
+      "toastSavedGeneric": "Receta generada y guardada.",
+      "toastDailyLimitBackend": "❌ Límite diario alcanzado. Has generado el máximo de 2 recetas hoy. Actualiza a La Mamma para recetas ilimitadas.",
+      "toastSaveFailed": "Receta generada pero no se pudo guardar. Por favor, intenta de nuevo.",
+      "toastEmailNotVerified": "Verifica tu email antes de generar recetas. Revisa tu bandeja de entrada.",
+      "toastPlanRequired": "El modo despensa está disponible en los planes La Mamma y La Nonna.",
+      "toastOffTopic": "Nonna solo prepara recetas de cocina. Cuéntale qué quieres cocinar o qué ingredientes tienes.",
+      "toastGenericError": "Lo siento, hubo un error generando tu receta. Intenta de nuevo.",
+      "title": "El Laboratorio del Chef",
+      "subtitle": "Describe tu antojo o dime qué ingredientes tienes. La IA creará la receta perfecta.",
+      "freeBannerTitle": "Plan Nipote (Gratis)",
+      "freeBannerNoneLeft": "❌ Has usado tus 2 recetas diarias. Vuelve mañana o actualiza tu plan.",
+      "freeBannerRemaining_one": "🍝 Te queda {{count}} receta hoy.",
+      "freeBannerRemaining_other": "🍝 Te quedan {{count}} recetas hoy.",
+      "upgradeButton": "Actualizar"
+    },
+    "recipeDisplay": {
+      "chatLockedToast": "El chat con Nonna está disponible en el plan La Nonna. ¡Actualiza para disfrutarlo!",
+      "chatLockedAria": "Chat con Nonna (plan La Nonna)",
+      "copySuccess": "Receta copiada al portapapeles",
+      "copyError": "No se pudo copiar la receta",
+      "copyTimeLabel": "Tiempo",
+      "copyServingsLabel": "Porciones",
+      "copyIngredientsHeading": "INGREDIENTES",
+      "copyStepsHeading": "PREPARACIÓN",
+      "copyFooter": "Generado por nonnapp",
+      "cookNow": "Cocinar Ahora",
+      "shoppingListAria": "Lista de la compra",
+      "shoppingListShort": "Compra",
+      "printAria": "Imprimir",
+      "copyAria": "Copiar texto de la receta",
+      "timeLabel": "Tiempo",
+      "peopleLabel": "Personas",
+      "kcalLabel": "Kcal",
+      "ingredientsHeading": "Ingredientes",
+      "utensilsHeading": "Utensilios",
+      "proteinLabel": "Prot",
+      "carbsLabel": "Carbs",
+      "fatLabel": "Grasa",
+      "stepsHeading": "Pasos de Preparación",
+      "stepsCount_one": "{{count}} Paso",
+      "stepsCount_other": "{{count}} Pasos",
+      "stepLabel": "Paso {{number}}",
+      "generateAnother": "Generar otra versión"
+    },
+    "chefChat": {
+      "greeting": "¡Hola! Soy Nonna. ¿Tienes alguna duda sobre esta receta?",
+      "errorReply": "Tuve un problema para responder. ¿Puedes repetir la pregunta?",
+      "openAria": "Abrir chat con Nonna",
+      "dialogAria": "Chat con Nonna",
+      "subtitle": "Tu ayudante de cocina",
+      "closeAria": "Cerrar chat",
+      "thinking": "Nonna está pensando...",
+      "placeholder": "Pregunta a Nonna...",
+      "sendAria": "Enviar pregunta"
+    },
+    "chefPage": {
+      "paywallDesc": "Accede a nuestra selección de Nonnas expertas y chatea con ellas sobre sus recetas tradicionales. Disponible en el plan La Nonna.",
+      "premiumFeaturesTitle": "Funciones Premium",
+      "feature1": "Acceso a múltiples Nonnas con especialidades únicas",
+      "feature2": "Conversaciones interactivas sobre técnicas y trucos culinarios",
+      "feature3": "Consejos personalizados y adaptaciones de recetas",
+      "feature4": "Recetas exclusivas y secretos de familia de cada Nonna",
+      "upgradeButton": "Actualizar Plan",
+      "backToDashboard": "Volver al Dashboard",
+      "heroEyebrow": "Legado Culinario",
+      "heroText": "No hay nada como la comida hecha con cariño. Elige a tu Nonna favorita y deja que te guíe con su sabiduría, sus secretos y sus platos más preciados."
+    },
+    "preferences": {
+      "title": "Configuración del Chef",
+      "subtitle": "Personaliza cómo la IA genera tus recetas.",
+      "toastSaved": "Preferencias guardadas correctamente",
+      "toastSaveError": "No se pudieron guardar los cambios. Intenta de nuevo.",
+      "subscriptionCard": {
+        "planDescNonna": "Tienes recetas ilimitadas, modo despensa, chat con el chef, La Mesa de la Nonna y soporte prioritario.",
+        "planDescMamma": "Tienes recetas ilimitadas, modo despensa y personalización de alergias/ingredientes. El chat del chef y La Mesa de la Nonna son de La Nonna.",
+        "planDescNipote": "Actualiza a La Mamma para desbloquear el modo despensa, o a La Nonna para tenerlo todo: chat del chef y La Mesa de la Nonna.",
+        "title": "Tu Plan Actual",
+        "subtitle": "Gestiona tu suscripción de Sabora.",
+        "freePlanName": "Il Nipote (gratis)",
+        "activeBadge": "ACTIVO",
+        "changePlanButton": "Cambiar de plan"
+      },
+      "skillLevel": {
+        "title": "Habilidad Culinaria",
+        "beginnerLabel": "Principiante",
+        "beginnerDesc": "Instrucciones detalladas y simples.",
+        "intermediateLabel": "Intermedio",
+        "intermediateDesc": "Equilibrio entre detalle y libertad.",
+        "advancedLabel": "Avanzado",
+        "advancedDesc": "Técnicas complejas y menos guía."
+      },
+      "allergies": {
+        "title": "Restricciones Alimentarias",
+        "toggleLabel": "Activar Filtro de Alergias/Intolerancias",
+        "toggleDesc": "La IA será estricta excluyendo ingredientes.",
+        "listLabel": "Lista de alergias o dietas (separadas por comas)",
+        "placeholder": "Ej: Gluten, Lactosa, Cacahuetes, Dieta Keto..."
+      },
+      "disliked": {
+        "title": "Preferencias de Ingredientes",
+        "label": "Ingredientes que NO te gustan (Opcional)",
+        "placeholder": "Ej: Cilantro, Cebolla, Pimiento...",
+        "hint": "La IA evitará activamente incluir estos ingredientes en tus recetas."
+      },
+      "utensils": {
+        "title": "Utensilios de Cocina",
+        "toggleLabel": "Limitar a mis utensilios disponibles",
+        "toggleDesc": "Solo se generarán recetas que puedas cocinar con tu equipo (Guarda solo en sesión actual).",
+        "label": "¿Qué tienes en tu cocina?",
+        "placeholder": "Ej: Batidora, Horno, Air Fryer, Sartén...",
+        "hint": "Deja esto en blanco si tienes una cocina estándar equipada."
+      },
+      "lockOverlay": "Disponible en La Mamma y La Nonna",
+      "planDisabled": {
+        "title": "Cambio de plan no disponible",
+        "closeAria": "Cerrar",
+        "messageBefore": "Ahora mismo la pasarela de pago está",
+        "messageBold": "deshabilitada temporalmente",
+        "messageAfter": ". Si quieres mejorar tu plan, contáctanos y lo gestionamos contigo directamente.",
+        "apology": "Disculpa las molestias."
+      }
+    }
+  }
+}

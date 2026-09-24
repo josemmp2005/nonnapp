@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Save, Check, Loader2 } from 'lucide-react';
 import type { UserProfile } from '../types';
 import { saveChefPreferences } from '../services/data';
@@ -26,6 +27,7 @@ interface Props {
 const PLAN_CHANGES_ENABLED = false;
 
 const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { limits, subscription, refreshSubscription } = useSubscription();
   const isChefPreferencesLocked = !limits.hasChefPreferences;
@@ -52,11 +54,11 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
       }
 
       setSaved(true);
-      showToast('Preferencias guardadas correctamente', 'success');
+      showToast(t('app.preferences.toastSaved'), 'success');
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error('Error saving preferences:', err);
-      showToast('No se pudieron guardar los cambios. Intenta de nuevo.', 'error');
+      showToast(t('app.preferences.toastSaveError'), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -73,8 +75,8 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">Configuración del Chef</h1>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">Personaliza cómo la IA genera tus recetas.</p>
+        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.preferences.title')}</h1>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">{t('app.preferences.subtitle')}</p>
       </div>
 
       <div className="space-y-6">
@@ -132,17 +134,17 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
             {isSaving ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Guardando...
+                {t('app.profile.saving')}
               </>
             ) : saved ? (
               <>
                 <Check className="w-5 h-5" />
-                Guardado
+                {t('app.profile.saved')}
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                Guardar Cambios
+                {t('app.profile.saveChanges')}
               </>
             )}
           </button>
