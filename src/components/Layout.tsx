@@ -35,6 +35,8 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
   const isAppPage = location.pathname.startsWith('/app');
   const isLanding = location.pathname === '/';
+  // /auth abre en login salvo con ?modo=registro (misma regla que Auth.tsx)
+  const onLoginScreen = location.pathname === '/auth' && new URLSearchParams(location.search).get('modo') !== 'registro';
   // Con la cuenta sin verificar no hay nada que navegar dentro de /app: no se
   // muestra el sidebar (evita dar la sensación de que hay más app detrás del
   // muro), y el header/footer normales ya traen una forma de volver a inicio.
@@ -148,9 +150,11 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
               </button>
             ) : (
               <>
-                <Link to="/auth?modo=login" className="sm:hidden px-5 py-2.5 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-sm rounded-full hover:opacity-90 active:scale-95 transition duration-300 shadow-lg">
-                  Iniciar sesión
-                </Link>
+                {!onLoginScreen && (
+                  <Link to="/auth?modo=login" className="sm:hidden px-4 py-2 bg-ink dark:bg-ink-light text-ink-light dark:text-ink font-bold text-xs rounded-full hover:opacity-90 active:scale-95 transition duration-300 shadow-lg">
+                    Iniciar sesión
+                  </Link>
+                )}
                 <Link to="/auth?modo=login" className="hidden sm:inline-flex px-5 py-2.5 bg-surface dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 text-ink dark:text-ink-light font-bold text-sm rounded-full shadow-sm hover:shadow-soft hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] transition duration-200">
                   Iniciar sesión
                 </Link>
