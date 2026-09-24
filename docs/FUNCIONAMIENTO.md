@@ -1,4 +1,4 @@
-# Cómo funciona Sabora
+# Cómo funciona Nonnapp
 
 Este documento explica la app desde el punto de vista de lo que hace, no de cómo está construida (para eso, ver el [`README.md`](../README.md) de la raíz).
 
@@ -72,7 +72,7 @@ Botón flotante disponible mientras se ve una receta (plan La Nonna). Es una con
 Notas importantes:
 - **El pago no está implementado de verdad.** En Preferencias, "Cambiar de plan" abre un selector con los 3 planes (Il Nipote / La Mamma / La Nonna) y, al elegir uno de pago, una pantalla de "pago" con campos de tarjeta — es una simulación: cualquier número vale, hay un pequeño delay para que se sienta real, y no hay pasarela de cobro ni cargo alguno. Cancelar vuelve a Il Nipote tras una confirmación (sin paso de pago).
 - **Los límites de Il Nipote y La Mamma se aplican en el servidor, no solo escondiendo botones.** Modo despensa, las secciones de alergias/ingredientes/utensilios en Configuración del Chef, el chat y La Mesa de la Nonna devuelven un error si se intenta usarlos sin el plan que corresponde, aunque se salte la interfaz (por ejemplo llamando a la API directamente) — no basta con que la app no muestre el botón. El nivel de habilidad (Principiante/Intermedio/Avanzado) es lo único que no está gated, disponible para todos los planes.
-- El planificador semanal y las "recetas secretas de temporada" de La Nonna son, por ahora, solo promesas de la landing — no hay ninguna pantalla ni funcionalidad construida para ellas todavía.
+- El planificador semanal de La Nonna está construido (pantalla + servidor) pero **desactivado a propósito** hasta terminar de pulirlo (ver [Implementaciones futuras](#implementaciones-futuras)). Las "recetas secretas de temporada" son, por ahora, solo una promesa de la landing: no hay nada construido.
 
 ## Preferencias del chef
 
@@ -82,9 +82,22 @@ En `/app/preferences` el usuario configura:
 - **Nivel de habilidad** (principiante / intermedio / avanzado) — ajusta el detalle de las instrucciones.
 - **Utensilios disponibles** (solo aplica a la sesión actual, no se guarda entre visitas todavía).
 
-## Lo que falta / no está terminado
+## Implementaciones futuras
 
-- Subida de foto de perfil (avatar) — para cuentas de email/contraseña sigue siendo solo la inicial del nombre (las de Google sí traen foto de perfil real).
-- Pago real de los planes (Stripe o similar).
-- Doble factor de autenticación (2FA): decidido dejarlo para una implementación futura; hoy la protección de la cuenta es contraseña + verificación de email + límites/bloqueo de intentos.
+Lo que está previsto y todavía no está hecho (o no está activo). Son decisiones de alcance, no descuidos.
+
+**Lista de trabajo actual**
+
+- **Planificador semanal** — ya existe la pantalla y el servidor (exclusivo de La Nonna), pero está apagado hasta terminar el pulido visual. Falta activarlo y anunciarlo.
+- **Panel para el administrador** — no existe ningún rol ni pantalla de administración: todas las cuentas son usuarios normales.
+- **Avatar de usuario** — subir una foto de perfil. Hoy las cuentas de email/contraseña muestran solo la inicial del nombre; las de Google sí traen su foto.
+- **Botón de cancelar receta** — poder cancelar la generación de una receta en curso; hoy, una vez lanzada, hay que esperar a que termine.
+- **Más imágenes** — ampliar el banco de fotos de las recetas, para que más platos tengan una foto que encaje.
+- **Doble factor de autenticación (2FA)** — decidido dejarlo para más adelante; hoy la protección de la cuenta es contraseña + verificación de email + límites y bloqueo de intentos.
+
+**Otras carencias conocidas**
+
+- Pago real de los planes (Stripe o similar): hoy es una simulación.
 - Persistencia del chat del chef y de la lista de la compra entre sesiones.
+- "Recetas secretas de temporada" de La Nonna (solo existen en la landing).
+- Mostrar en el login cuánto falta para que termine un bloqueo por intentos fallidos, y traducir los mensajes de error del servidor.

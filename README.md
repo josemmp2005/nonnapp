@@ -1,4 +1,4 @@
-# Sabora
+# Nonnapp
 
 App de recetas con IA: describe qué tienes en la despensa (o qué te apetece) y genera una receta completa con foto, pasos y un chef de IA para resolver dudas mientras cocinas.
 
@@ -270,4 +270,22 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 - **Login con Google**: OAuth 2.0 implementado a mano (sin Passport ni ninguna librería — solo `fetch` contra los endpoints de Google en `server/src/lib/google.ts`), con `state` anti-CSRF en una cookie httpOnly propia. Si el email de Google coincide con una cuenta ya creada por contraseña, se enlaza esa cuenta (`google_id`) en vez de duplicarla, y se marca `email_verified = true` directamente (Google ya lo verificó). `password_hash` es `NULL` para cuentas que solo entraron por Google — el login por contraseña lo detecta y responde con el mismo error genérico. Se degrada solo (redirige con `?error=google_not_configured`) si `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` no están puestas.
 - **Límites por plan, aplicados en el servidor**: los `limits.hasX` de `SubscriptionContext.tsx` (modo despensa, foto, chat, preferencias del chef) son solo para ocultar botones/secciones en la UI — la restricción real vive en `server/src/middleware/plan.ts` (`requirePlan(...planes)`), en un chequeo puntual dentro de `POST /api/ai/generate-recipe` para el modo despensa, y en `PUT /api/profile/preferences` para alergias/ingredientes. Llamar a esas rutas directamente sin pasar por la UI devuelve 403 `PLAN_REQUIRED` igual. El plan activo de un usuario se resuelve en un único sitio (`server/src/lib/subscription.ts`, `getActivePlan`/`getActiveSubscription`) — antes esa misma query vivía copiada en tres archivos de rutas distintos.
 - **Alergias/ingredientes no deseados nunca se leen del cliente**: `POST /api/ai/generate-recipe` los saca de `user_profiles` en BBDD usando `req.userId`, no de un `userProfile` mandado en el body (ese campo se quitó del schema). Es a propósito — el estado de React de la página de Preferencias cambia con cada tecla, se guarde o no, así que confiar en lo que mande el cliente habría dejado sin efecto el bloqueo de `PUT /preferences` para Il Nipote. Si el plan activo es `nipote`, tanto `GET /preferences` como la generación fuerzan esos campos a vacío aunque hubiera datos guardados de un plan de pago anterior.
-- **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): pasarela de pago real para los planes de pago, subida de avatar, doble factor de autenticación (2FA/TOTP — implementación futura).
+- **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): ver [Implementaciones futuras](#implementaciones-futuras).
+
+## Implementaciones futuras
+
+Lista de trabajo actual, con el punto de partida técnico de cada una. La versión para usuarios está en [`docs/FUNCIONAMIENTO.md`](docs/FUNCIONAMIENTO.md#implementaciones-futuras).
+
+| Pendiente | Estado y por dónde empezar |
+|---|---|
+| **Planificador semanal** | Construido pero apagado: backend `server/src/routes/planner.ts` (`GET /api/planner`, `PUT /api/planner/slot`, `GET /api/planner/shopping-list`; tabla `weekly_plan_items`, solo plan Nonna) y pantalla `src/components/PlannerPage.tsx`. Se activa poniendo `PLANNER_ENABLED = true` **en los dos archivos** (mientras esté a `false` el servidor responde 503 `PLANNER_NOT_AVAILABLE`). Falta el pulido visual y anunciarlo |
+| **Panel para el administrador** | No existe: `users` no tiene campo de rol ni hay rutas/pantallas de administración. Haría falta una columna de rol, un middleware `requireAdmin` junto a `requireAuth` y las pantallas en el frontend |
+| **Avatar de usuario** | `users.avatar_url` ya existe (las cuentas de Google lo rellenan) y se muestra en `Sidebar` y `ProfileEditPage`; falta la subida. Hay que decidir dónde guardar los ficheros: el disco del plan gratuito de Render no es persistente, así que haría falta almacenamiento externo |
+| **Botón de cancelar receta** | Hoy `POST /api/ai/generate-recipe` no se puede abortar desde la interfaz: ni `services/api.ts` usa `AbortController` ni `LoadingOverlay` tiene botón de cancelar. Habría que pasar una `signal` al `fetch` y añadir el botón al overlay |
+| **Más imágenes** | Las fotos de receta salen de un banco curado de Unsplash en `server/src/lib/recipeImages.ts` (elegida por palabras clave; la cabecera del fichero explica cómo ampliarlo y `tests/recipeImages.test.ts` valida el formato, no que las URLs sigan vivas) |
+| **2FA** | Sin implementar por decisión propia. Natural: TOTP sobre el flujo de `/login` (secreto cifrado por usuario, códigos de recuperación y un paso extra tras la contraseña) |
+| Otras | Pago real de los planes (hoy simulado, `POST /api/subscription/change`), persistencia del chat del chef y de la lista de la compra, mostrar en el login los segundos que faltan del bloqueo por intentos (el servidor ya manda `retryAfterSeconds`), traducir los errores del servidor |
+
+## Licencia
+
+El código está publicado para que se pueda leer y aprender de él, bajo la [PolyForm Noncommercial License 1.0.0](LICENSE): se puede usar, copiar y modificar para fines **no comerciales** (aprendizaje, investigación, proyectos personales), pero no para explotarlo comercialmente. No es una licencia open source en sentido estricto (la OSI no admite restringir el uso comercial), a propósito: deja abierta la posibilidad de monetizar Nonnapp más adelante. Las ilustraciones, la mascota y el resto de la marca Nonnapp se incluyen bajo esos mismos términos. Para otros usos, contacta con el autor.
