@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { resetPasswordWithToken } from '../services/auth';
 import { Lock, Loader2, Eye, EyeOff, XCircle } from 'lucide-react';
 import { Logo } from './Logo';
@@ -7,6 +8,7 @@ import { useToast } from '../context/ToastContext';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
 
 const ResetPasswordPage: React.FC = () => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +32,7 @@ const ResetPasswordPage: React.FC = () => {
     e.preventDefault();
 
     if (!isPasswordLengthValid || !doPasswordsMatch) {
-      showToast('Por favor, verifica que las contraseñas cumplan los requisitos', 'error');
+      showToast(t('app.resetPassword.toastValidationError'), 'error');
       return;
     }
     if (!token) return;
@@ -41,7 +43,7 @@ const ResetPasswordPage: React.FC = () => {
       const { error } = await resetPasswordWithToken(token, password);
       if (error) throw new Error(error.message);
 
-      showToast('✅ Contraseña actualizada correctamente', 'success');
+      showToast(t('app.resetPassword.toastSuccess'), 'success');
 
       // Esperar 1.5 segundos y redirigir al login
       setTimeout(() => {
@@ -49,7 +51,7 @@ const ResetPasswordPage: React.FC = () => {
       }, 1500);
     } catch (err) {
       console.error('Error al actualizar contraseña:', err);
-      showToast(err instanceof Error ? err.message : 'El enlace no es válido o ha expirado', 'error');
+      showToast(err instanceof Error ? err.message : t('app.resetPassword.toastGenericError'), 'error');
     } finally {
       setIsLoading(false);
     }
@@ -61,13 +63,13 @@ const ResetPasswordPage: React.FC = () => {
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
         <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center animate-in fade-in zoom-in-95 duration-300">
           <XCircle aria-hidden="true" className="w-12 h-12 mx-auto text-red-500 mb-4" />
-          <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">Enlace no válido</h2>
-          <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">El enlace para restablecer tu contraseña no es válido o ha expirado.</p>
+          <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">{t('app.resetPassword.invalidLinkTitle')}</h2>
+          <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">{t('app.resetPassword.invalidLinkText')}</p>
           <button
             onClick={() => navigate('/auth')}
             className="text-sm text-primary hover:underline font-medium"
           >
-            ← Volver al inicio de sesión
+            {t('app.auth.backToLogin')}
           </button>
         </div>
       </div>
@@ -80,17 +82,17 @@ const ResetPasswordPage: React.FC = () => {
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
           <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
-            Restablecer contraseña
+            {t('app.resetPassword.title')}
           </h2>
           <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
-            Ingresa tu nueva contraseña para tu cuenta
+            {t('app.resetPassword.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <label htmlFor="reset-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">
-              Nueva Contraseña
+              {t('app.profile.newPasswordLabel')}
             </label>
             <div className="relative">
               <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
@@ -106,18 +108,18 @@ const ResetPasswordPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                aria-label={showPassword ? t('app.auth.hidePassword') : t('app.auth.showPassword')}
                 className="absolute right-3 top-3.5 text-[#6B5D48] hover:text-[#5C4E3A] dark:hover:text-[#D4D4D8] transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
             </div>
-            <PasswordCheckItem ok={isPasswordLengthValid} label="Mínimo 6 caracteres" />
+            <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />
           </div>
 
           <div className="space-y-1">
             <label htmlFor="reset-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">
-              Confirmar Contraseña
+              {t('app.auth.confirmPasswordLabel')}
             </label>
             <div className="relative">
               <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
@@ -131,7 +133,7 @@ const ResetPasswordPage: React.FC = () => {
                 className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
               />
             </div>
-            <PasswordCheckItem ok={doPasswordsMatch} label="Las contraseñas coinciden" />
+            <PasswordCheckItem ok={doPasswordsMatch} label={t('app.profile.passwordsMatch')} />
           </div>
 
           <button
@@ -144,7 +146,7 @@ const ResetPasswordPage: React.FC = () => {
             ) : (
               <>
                 <Lock className="w-5 h-5" />
-                Actualizar contraseña
+                {t('app.resetPassword.submit')}
               </>
             )}
           </button>
@@ -155,7 +157,7 @@ const ResetPasswordPage: React.FC = () => {
             onClick={() => navigate('/auth')}
             className="text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary"
           >
-            ← Volver al inicio de sesión
+            {t('app.auth.backToLogin')}
           </button>
         </div>
       </div>

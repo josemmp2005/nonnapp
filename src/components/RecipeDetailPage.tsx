@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
@@ -7,6 +8,7 @@ import { getFullRecipeById } from '../services/data';
 import type{ RecipeDB } from '../types';
 
 const RecipeDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -30,12 +32,13 @@ const RecipeDetailPage: React.FC = () => {
       if (data) {
         setRecipe(data);
       } else {
-        setError("Receta no encontrada.");
+        setError(t('app.recipeDetail.notFoundError'));
       }
       setLoading(false);
     };
 
     fetchRecipe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, location.state]);
 
   if (loading) {
@@ -46,12 +49,12 @@ const RecipeDetailPage: React.FC = () => {
     return (
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-[#241B10] mb-2">Error</h2>
-        <p className="text-[#6B5D48] mb-6">{error || 'No se pudo cargar la receta.'}</p>
-        <button 
+        <p className="text-[#6B5D48] mb-6">{error || t('app.recipeDetail.genericError')}</p>
+        <button
           onClick={() => navigate('/app/history')}
           className="text-primary font-bold hover:underline"
         >
-          Volver al historial
+          {t('app.recipeDetail.backToHistory')}
         </button>
       </div>
     );
@@ -64,7 +67,7 @@ const RecipeDetailPage: React.FC = () => {
         className="flex items-center gap-2 text-[#6B5D48] hover:text-[#241B10] dark:hover:text-white mb-6 font-medium transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Volver
+        {t('app.recipeDetail.back')}
       </button>
 
       <RecipeDisplay 

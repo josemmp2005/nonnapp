@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import type { StepItem } from '../types';
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {
@@ -33,12 +35,12 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10">
         <div className="flex flex-col">
-            <span className="text-xs font-bold text-primary uppercase tracking-wider">Modo Cocina</span>
+            <span className="text-xs font-bold text-primary uppercase tracking-wider">{t('app.cookMode.badge')}</span>
             <h2 className="font-bold text-[#241B10] dark:text-[#F8F2E6] line-clamp-1 text-lg">{title}</h2>
         </div>
         <button
           onClick={onClose}
-          aria-label="Salir del modo cocina"
+          aria-label={t('app.cookMode.exitAria')}
           className="p-2 bg-primary/10 rounded-full hover:bg-[#241B10]/10 dark:hover:bg-white/5 transition-colors"
         >
           <X className="w-6 h-6 text-[#5C4E3A] dark:text-[#A89C86]" />
@@ -77,7 +79,7 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
             className="flex-1 py-6 rounded-2xl bg-white dark:bg-[#18130D] border-2 border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#5C4E3A] dark:text-[#A89C86] font-bold text-lg hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm flex items-center justify-center gap-2"
         >
             <ChevronLeft className="w-6 h-6" />
-            Anterior
+            {t('app.cookMode.prev')}
         </button>
 
         <button
@@ -87,9 +89,9 @@ const CookMode: React.FC<Props> = ({ steps, title, onClose }) => {
             `}
         >
             {currentStep === steps.length - 1 ? (
-                <>Terminar <Check className="w-6 h-6" /></>
+                <>{t('app.cookMode.finish')} <Check className="w-6 h-6" /></>
             ) : (
-                <>Siguiente <ChevronRight className="w-6 h-6" /></>
+                <>{t('app.cookMode.next')} <ChevronRight className="w-6 h-6" /></>
             )}
         </button>
       </div>

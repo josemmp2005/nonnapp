@@ -1,21 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';
-
-const MESSAGES = [
-  "Analizando tus ingredientes...",
-  "Consultando con chefs expertos...",
-  "Calculando tiempos de cocción...",
-  "Diseñando el emplatado perfecto...",
-  "Ajustando condimentos...",
-  "Generando imagen fotorrealista...",
-  "¡Casi listo para servir!"
-];
 
 interface Props {
   isVisible: boolean;
 }
 
 const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
+  const { t } = useTranslation();
+  const messages = t('app.loadingOverlay.messages', { returnObjects: true }) as string[];
   const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
@@ -30,11 +23,11 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
     }
 
     const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
+      setMessageIndex((prev) => (prev + 1) % messages.length);
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, messages.length]);
 
   if (!isVisible) return null;
 
@@ -61,15 +54,15 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
         </div>
 
         <h3 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 transition-colors">
-          Preparando tu Receta
+          {t('app.loadingOverlay.title')}
         </h3>
-        
+
         <div className="h-8 overflow-hidden relative w-full">
-          <p 
+          <p
             key={messageIndex}
             className="text-[#6B5D48] dark:text-[#9A8D74] font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
           >
-            {MESSAGES[messageIndex]}
+            {messages[messageIndex]}
           </p>
         </div>
 

@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Home, Search } from 'lucide-react';
 
 const NotFound: React.FC = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4 animate-in fade-in zoom-in duration-500">
       <div className="relative mb-8">
@@ -14,11 +16,11 @@ const NotFound: React.FC = () => {
       </div>
       
       <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-3">
-        Plato no encontrado
+        {t('app.notFound.title')}
       </h1>
-      
+
       <p className="text-[#6B5D48] dark:text-[#9A8D74] max-w-md mb-8 text-lg">
-        Parece que la receta que buscas se ha perdido o nunca existió en nuestro recetario.
+        {t('app.notFound.subtitle')}
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -27,14 +29,14 @@ const NotFound: React.FC = () => {
           className="px-8 py-3 bg-primary text-white font-bold rounded-xl shadow-lg shadow-orange-200 dark:shadow-none hover:bg-orange-600 active:scale-95 transition flex items-center justify-center gap-2"
         >
           <Search aria-hidden="true" className="w-5 h-5" />
-          Crear nueva receta
+          {t('app.notFound.createRecipe')}
         </Link>
         <Link
           to="/"
           className="px-8 py-3 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] font-bold rounded-xl hover:bg-[#FCF6EC] dark:hover:bg-white/5 active:scale-95 transition flex items-center justify-center gap-2"
         >
           <Home aria-hidden="true" className="w-5 h-5" />
-          Ir al Inicio
+          {t('app.notFound.goHome')}
         </Link>
       </div>
     </div>

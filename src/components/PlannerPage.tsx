@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Lock, Crown, CalendarDays, Plus, X, ShoppingCart, Loader2, Sparkles } from 'lucide-react';
 import { useSubscription } from '../context/SubscriptionContext';
 import { useToast } from '../context/ToastContext';
@@ -24,6 +25,7 @@ const slotKey = (day: number, slot: MealSlot) => `${day}-${slot}`;
 const PLANNER_ENABLED = false;
 
 const ComingSoonScreen: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
     <div className="max-w-3xl mx-auto pb-20 animate-in fade-in duration-500">
@@ -32,25 +34,24 @@ const ComingSoonScreen: React.FC = () => {
 
         <div className="relative z-10 max-w-xl mx-auto space-y-6">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
-            <Sparkles aria-hidden="true" className="w-3.5 h-3.5" /> Próximamente
+            <Sparkles aria-hidden="true" className="w-3.5 h-3.5" /> {t('app.planner.comingSoonBadge')}
           </span>
 
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full shadow-lg mx-auto">
             <CalendarDays aria-hidden="true" className="w-10 h-10 text-white" />
           </div>
 
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white">Planificador Semanal</h1>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white">{t('app.planner.title')}</h1>
 
           <p className="text-lg text-[#C3B89F] leading-relaxed">
-            Estamos terminando de pulirlo. Muy pronto podrás organizar el desayuno, la comida y la cena de toda la
-            semana con tus recetas guardadas, y generar la lista de la compra de un solo golpe.
+            {t('app.planner.comingSoonText')}
           </p>
 
           <button
             onClick={() => navigate('/app')}
             className="px-8 py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl transition active:scale-95 shadow-lg shadow-orange-500/20"
           >
-            Volver al Dashboard
+            {t('app.chefPage.backToDashboard')}
           </button>
         </div>
       </div>

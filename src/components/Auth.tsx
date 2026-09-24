@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { signInWithEmail, signUpWithEmail, requestPasswordReset } from '../services/auth';
 import type { AuthSession } from '../services/auth';
 import { API_URL } from '../services/api';
@@ -7,6 +8,8 @@ import { Mail, Lock, Loader2, ArrowRight, User, Eye, EyeOff } from 'lucide-react
 import { Logo } from './Logo';
 import { useToast } from '../context/ToastContext';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
+import loginBgPc from '../assets/login-background-pc.webp';
+import loginBgMobile from '../assets/login-background-mobile.webp';
 
 const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
@@ -22,6 +25,7 @@ interface Props {
 }
 
 const Auth: React.FC<Props> = ({ onAuthChange }) => {
+  const { t } = useTranslation();
   // La URL manda: los botones "Iniciar sesión"/"Crear cuenta" de la cabecera
   // enlazan a /auth?modo=login|registro. Estado inicial desde la URL; los
   // cambios posteriores los resincroniza el efecto de más abajo.
@@ -71,9 +75,9 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
     if (!error) return;
 
     if (error === 'google_not_configured') {
-      showToast('El login con Google no está disponible todavía.', 'error');
+      showToast(t('app.auth.toastGoogleNotConfigured'), 'error');
     } else if (error === 'google_failed') {
-      showToast('No se pudo iniciar sesión con Google. Intenta de nuevo.', 'error');
+      showToast(t('app.auth.toastGoogleFailed'), 'error');
     }
     setSearchParams({}, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,54 +94,63 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
     try {
       if (isForgotPassword) {
         const { error } = await requestPasswordReset(email);
-        if (error) throw new Error(error.message || 'No se pudo enviar el email de recuperación');
-        showToast('📧 Revisa tu email para restablecer tu contraseña', 'success');
+        if (error) throw new Error(error.message || t('app.auth.errorForgotGeneric'));
+        showToast(t('app.auth.toastForgotSuccess'), 'success');
         setIsForgotPassword(false);
         setEmail('');
       } else if (isLogin) {
         const { user, error } = await signInWithEmail(email, password);
-        if (error || !user) throw new Error(error?.message || 'No se pudo iniciar sesión');
+        if (error || !user) throw new Error(error?.message || t('app.auth.errorLoginGeneric'));
         onAuthChange({ user });
-        showToast('¡Bienvenido de nuevo!', 'success');
+        showToast(t('app.auth.toastLoginSuccess'), 'success');
         navigate('/app');
       } else {
         // Strict Frontend Validation
-        if (!username.trim()) throw new Error("El nombre de usuario es obligatorio");
-        if (password.length < 6) throw new Error("La contraseña es muy corta");
-        if (password !== confirmPassword) throw new Error("Las contraseñas no coinciden");
+        if (!username.trim()) throw new Error(t('app.auth.errorUsernameRequired'));
+        if (password.length < 6) throw new Error(t('app.auth.errorPasswordTooShort'));
+        if (password !== confirmPassword) throw new Error(t('app.auth.errorPasswordsMismatch'));
 
         const { user, error: signUpError } = await signUpWithEmail(email, password, { username });
-        if (signUpError || !user) throw new Error(signUpError?.message || 'No se pudo crear la cuenta');
+        if (signUpError || !user) throw new Error(signUpError?.message || t('app.auth.errorSignupGeneric'));
 
         onAuthChange({ user });
-        showToast('¡Registro exitoso! Revisa tu email para verificar tu cuenta.', 'success');
+        showToast(t('app.auth.toastSignupSuccess'), 'success');
         navigate('/app');
       }
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Ocurrió un error inesperado.', 'error');
+      showToast(err instanceof Error ? err.message : t('app.auth.errorUnexpected'), 'error');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
-      <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 transition duration-300 hover:shadow-2xl hover:shadow-primary/5">
+    <div className="relative overflow-hidden bg-cream dark:bg-cream-dark min-h-[calc(100vh-4rem)] flex items-center justify-center">
+      {/* Fondo a sangre: object-cover se adapta a lo que necesite el
+          formulario (login es corto, registro es más alto) en vez de fijar
+          el alto por el aspect-ratio de la imagen — con eso, en pantallas
+          bajas (portátiles, 1024×768) la tarjeta no se salía del hueco y
+          quedaba tapada por el footer. */}
+      <img src={loginBgPc} alt="" aria-hidden="true" className="hidden md:block absolute inset-0 w-full h-full object-cover" />
+      <img src={loginBgMobile} alt="" aria-hidden="true" className="md:hidden absolute inset-0 w-full h-full object-cover" />
+
+      <div className="relative z-10 w-full px-4 py-10">
+      <div className="bg-white/80 dark:bg-[#18130D]/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto border border-white/40 dark:border-[#F5E6CD]/10 transition duration-300 hover:bg-white/90 dark:hover:bg-[#18130D]/90 hover:shadow-2xl hover:shadow-primary/5">
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
           <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
             {isForgotPassword
-              ? 'Recuperar contraseña'
+              ? t('app.auth.titleForgot')
               : isLogin
-                ? 'Bienvenido de nuevo'
-                : 'Únete a nonnapp'}
+                ? t('app.auth.titleLogin')
+                : t('app.auth.titleSignup')}
           </h2>
           <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
             {isForgotPassword
-              ? 'Te enviaremos un email para restablecer tu contraseña.'
+              ? t('app.auth.subtitleForgot')
               : isLogin
-                ? 'Accede para guardar tus recetas y preferencias.'
-                : 'Crea tu perfil culinario y empieza a cocinar.'}
+                ? t('app.auth.subtitleLogin')
+                : t('app.auth.subtitleSignup')}
           </p>
         </div>
 
@@ -149,12 +162,12 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               className="w-full flex items-center justify-center gap-3 py-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl font-semibold text-[#3A2E1D] dark:text-[#D4D4D8] bg-white dark:bg-[#221B12] hover:bg-[#241B10]/5 dark:hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0 transition duration-300"
             >
               <GoogleIcon className="w-5 h-5" />
-              Continuar con Google
+              {t('app.auth.continueWithGoogle')}
             </button>
 
             <div className="flex items-center gap-3 my-6">
               <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
-              <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wide">o con email</span>
+              <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wide">{t('app.auth.orWithEmail')}</span>
               <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
             </div>
           </>
@@ -165,7 +178,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           {!isLogin && !isForgotPassword && (
             <div className="animate-in slide-in-from-top-2 fade-in space-y-4">
               <div className="space-y-1">
-                <label htmlFor="auth-username" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Nombre de Usuario</label>
+                <label htmlFor="auth-username" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.usernameLabel')}</label>
                 <div className="relative">
                   <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
@@ -173,7 +186,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="ChefMaster2025"
+                    placeholder={t('app.auth.usernamePlaceholder')}
                     required={!isLogin && !isForgotPassword}
                     className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                   />
@@ -183,7 +196,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           )}
 
           <div className="space-y-1">
-            <label htmlFor="auth-email" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Email</label>
+            <label htmlFor="auth-email" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.emailLabel')}</label>
             <div className="relative">
               <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
               <input
@@ -191,7 +204,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
+                placeholder={t('app.auth.emailPlaceholder')}
                 required
                 className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
               />
@@ -201,7 +214,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           {!isForgotPassword && (
             <>
               <div className="space-y-1">
-                <label htmlFor="auth-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Contraseña</label>
+                <label htmlFor="auth-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.passwordLabel')}</label>
                 <div className="relative">
                   <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                   <input
@@ -216,19 +229,19 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    aria-label={showPassword ? t('app.auth.hidePassword') : t('app.auth.showPassword')}
                     className="absolute right-3 top-3.5 text-[#6B5D48] hover:text-[#5C4E3A] dark:hover:text-[#D4D4D8] transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
 
-                {!isLogin && <PasswordCheckItem ok={isPasswordLengthValid} label="Mínimo 6 caracteres" />}
+                {!isLogin && <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />}
               </div>
 
               {!isLogin && (
                 <div className="space-y-1 animate-in fade-in">
-                  <label htmlFor="auth-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">Confirmar Contraseña</label>
+                  <label htmlFor="auth-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.confirmPasswordLabel')}</label>
                   <div className="relative">
                     <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
                     <input
@@ -241,7 +254,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                       className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
                     />
                   </div>
-                  <PasswordCheckItem ok={doPasswordsMatch} label="Las contraseñas coinciden" />
+                  <PasswordCheckItem ok={doPasswordsMatch} label={t('app.profile.passwordsMatch')} />
                 </div>
               )}
 
@@ -255,7 +268,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                     }}
                     className="text-sm text-primary hover:underline font-medium"
                   >
-                    ¿Olvidaste tu contraseña?
+                    {t('app.auth.forgotPasswordLink')}
                   </button>
                 </div>
               )}
@@ -271,7 +284,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                {isForgotPassword ? 'Enviar email' : isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+                {isForgotPassword ? t('app.auth.submitForgot') : isLogin ? t('app.auth.submitLogin') : t('app.auth.submitSignup')}
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -287,11 +300,11 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               }}
               className="text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium"
             >
-              ← Volver al inicio de sesión
+              {t('app.auth.backToLogin')}
             </button>
           ) : (
             <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74]">
-              {isLogin ? "¿No tienes cuenta? " : "¿Ya tienes cuenta? "}
+              {isLogin ? t('app.auth.noAccount') : t('app.auth.hasAccount')}
               <button
                 onClick={() => {
                   // cambia la URL; el efecto de arriba actualiza el formulario
@@ -299,11 +312,12 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                 }}
                 className="text-primary font-bold hover:underline"
               >
-                {isLogin ? 'Regístrate' : 'Inicia sesión'}
+                {isLogin ? t('app.auth.signupLink') : t('app.auth.loginLink')}
               </button>
             </p>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

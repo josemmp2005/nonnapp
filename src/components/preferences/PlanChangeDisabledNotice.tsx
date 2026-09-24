@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Mail, Info } from 'lucide-react';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 
@@ -13,6 +14,7 @@ const CONTACT_EMAIL = 'info.nonnap@gmail.com';
 // (PreferencesPage.tsx). Mismo hueco visual, mensaje claro en vez de dejar
 // que el usuario complete la simulación de pago para nada.
 const PlanChangeDisabledNotice: React.FC<Props> = ({ onClose }) => {
+  const { t } = useTranslation();
   useEscapeKey(onClose);
 
   return (
@@ -30,17 +32,16 @@ const PlanChangeDisabledNotice: React.FC<Props> = ({ onClose }) => {
         <div className="flex items-center justify-between p-4 border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10 bg-primary text-white">
           <h3 id="plan-disabled-title" className="text-lg font-bold flex items-center gap-2">
             <Info aria-hidden="true" className="w-5 h-5" />
-            Cambio de plan no disponible
+            {t('app.preferences.planDisabled.title')}
           </h3>
-          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors" aria-label="Cerrar">
+          <button onClick={onClose} className="text-white/80 hover:text-white transition-colors" aria-label={t('app.preferences.planDisabled.closeAria')}>
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-6 text-center">
           <p className="text-[#3A2E1D] dark:text-[#D4D4D8] leading-relaxed mb-4">
-            Ahora mismo la pasarela de pago está <strong>deshabilitada temporalmente</strong>.
-            Si quieres mejorar tu plan, contáctanos y lo gestionamos contigo directamente.
+            {t('app.preferences.planDisabled.messageBefore')} <strong>{t('app.preferences.planDisabled.messageBold')}</strong>{t('app.preferences.planDisabled.messageAfter')}
           </p>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
@@ -49,7 +50,7 @@ const PlanChangeDisabledNotice: React.FC<Props> = ({ onClose }) => {
             <Mail aria-hidden="true" className="w-4 h-4" />
             {CONTACT_EMAIL}
           </a>
-          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mt-4">Disculpa las molestias.</p>
+          <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] mt-4">{t('app.preferences.planDisabled.apology')}</p>
         </div>
       </div>
     </div>

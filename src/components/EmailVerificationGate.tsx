@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowLeft, MailCheck } from 'lucide-react';
 import { resendVerificationEmail } from '../services/auth';
 import { useToast } from '../context/ToastContext';
@@ -26,6 +27,7 @@ const readStoredCooldown = (email: string): number => {
 };
 
 const EmailVerificationGate: React.FC<Props> = ({ email }) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [isResending, setIsResending] = useState(false);
   const [cooldown, setCooldown] = useState(() => readStoredCooldown(email));
@@ -55,15 +57,15 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
     if (error) {
       if (retryAfterSeconds) {
         startCooldown(retryAfterSeconds);
-        showToast(`Espera ${retryAfterSeconds}s antes de volver a pedirlo.`, 'error');
+        showToast(t('app.emailVerification.toastWait', { seconds: retryAfterSeconds }), 'error');
       } else {
-        showToast(error.message || 'No se pudo reenviar el email', 'error');
+        showToast(error.message || t('app.emailVerification.toastError'), 'error');
       }
       return;
     }
 
     startCooldown(DEFAULT_COOLDOWN_SECONDS);
-    showToast('📧 Email de verificación reenviado. Revisa tu bandeja de entrada.', 'success');
+    showToast(t('app.emailVerification.toastResent'), 'success');
   };
 
   return (
@@ -73,14 +75,14 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
           <MailCheck className="w-8 h-8 text-primary" />
         </div>
         <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
-          Verifica tu email para continuar
+          {t('app.emailVerification.title')}
         </h2>
         <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-1">
-          Te hemos enviado un enlace de confirmación a
+          {t('app.emailVerification.sentTo')}
         </p>
         <p className="text-[#3A2E1D] dark:text-[#D4D4D8] font-semibold mb-6 break-all">{email}</p>
         <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-6">
-          Haz clic en el enlace del email para desbloquear la app. Si no lo encuentras, revisa spam o pide que te lo reenviemos.
+          {t('app.emailVerification.instructions')}
         </p>
         <button
           onClick={handleResend}
@@ -88,10 +90,10 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
           className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isResending
-            ? 'Enviando...'
+            ? t('app.emailVerification.sending')
             : cooldown > 0
-              ? `Reenviar en ${cooldown}s`
-              : 'Reenviar email de verificación'}
+              ? t('app.emailVerification.resendIn', { seconds: cooldown })
+              : t('app.emailVerification.resend')}
         </button>
 
         <Link
@@ -99,7 +101,7 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
           className="mt-4 inline-flex items-center gap-1.5 text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver a inicio
+          {t('app.emailVerification.backHome')}
         </Link>
       </div>
     </div>

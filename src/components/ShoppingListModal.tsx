@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Copy, CheckCircle, ShoppingCart } from 'lucide-react';
 import type { IngredientItem } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -11,6 +12,7 @@ interface Props {
 }
 
 const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => {
+  const { t } = useTranslation();
   // Init with all checked by default is usually better UX, user unchecks what they have
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set(ingredients.map((_, i) => i)));
   const { showToast } = useToast();
@@ -31,20 +33,20 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
     const selectedIngredients = ingredients.filter((_, i) => checkedItems.has(i));
 
     if (selectedIngredients.length === 0) {
-        showToast('Selecciona al menos un ingrediente', 'error');
+        showToast(t('app.shoppingList.toastSelectOne'), 'error');
         return;
     }
 
-    const text = `🛒 Lista de compra para "${title}":\n\n` +
+    const text = `${t('app.shoppingList.copyHeader', { title })}\n\n` +
                  selectedIngredients.map(i => `[ ] ${i.item} (${i.quantity})`).join('\n') +
-                 `\n\nGenerado por nonnapp`;
+                 `\n\n${t('app.recipeDisplay.copyFooter')}`;
 
     try {
       await navigator.clipboard.writeText(text);
-      showToast('Lista copiada al portapapeles', 'success');
+      showToast(t('app.shoppingList.toastCopied'), 'success');
       onClose();
     } catch {
-      showToast('No se pudo copiar la lista', 'error');
+      showToast(t('app.shoppingList.toastCopyError'), 'error');
     }
   };
 
@@ -63,15 +65,15 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
 
         <div className="flex items-center justify-between p-4 border-b bg-primary text-white">
           <h3 id="shopping-list-title" className="text-lg font-bold flex items-center gap-2">
-            <ShoppingCart aria-hidden="true" className="w-5 h-5" /> Lista de la Compra
+            <ShoppingCart aria-hidden="true" className="w-5 h-5" /> {t('app.shoppingList.title')}
           </h3>
-          <button onClick={onClose} aria-label="Cerrar" className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20">
+          <button onClick={onClose} aria-label={t('app.shoppingList.closeAria')} className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="p-4 bg-orange-50 dark:bg-orange-900/20 text-sm text-orange-800 dark:text-orange-200">
-            Marca los ingredientes que <b>te faltan</b> y cópialos.
+            {t('app.shoppingList.hintBefore')} <b>{t('app.shoppingList.hintBold')}</b> {t('app.shoppingList.hintAfter')}
         </div>
 
         <div className="flex-grow overflow-y-auto p-2">
@@ -100,14 +102,14 @@ const ShoppingListModal: React.FC<Props> = ({ ingredients, title, onClose }) => 
 
         <div className="p-4 border-t bg-[#FCF6EC] dark:bg-[#18130D] border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex justify-between items-center">
             <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] font-medium">
-                {checkedItems.size} ítems seleccionados
+                {t('app.shoppingList.itemsSelected', { count: checkedItems.size })}
             </span>
             <button
                 onClick={handleCopy}
                 className="flex items-center gap-2 px-6 py-2.5 bg-[#241B10] dark:bg-[#F8F2E6] dark:text-[#241B10] text-white rounded-xl font-bold hover:bg-black dark:hover:bg-white transition shadow-lg active:scale-95"
             >
                 <Copy aria-hidden="true" className="w-4 h-4" />
-                Copiar Lista
+                {t('app.shoppingList.copyList')}
             </button>
         </div>
 

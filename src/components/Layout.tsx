@@ -9,6 +9,10 @@ import { Button } from './ui/Button';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useTheme } from '../context/ThemeContext';
 import type { AuthSession } from '../services/auth';
+import dashboardBgPc from '../assets/dashboard-background-pc.webp';
+import dashboardBgPcDark from '../assets/dashboard-background-pc-dark.webp';
+import dashboardBgMobile from '../assets/dashboard-background-mobile.webp';
+import dashboardBgMobileDark from '../assets/dashboard-background-mobile-dark.webp';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -39,6 +43,9 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
   const isAppPage = location.pathname.startsWith('/app');
   const isLanding = location.pathname === '/';
+  // /auth pinta su propio fondo a sangre (login-background-*), necesita el
+  // mismo ancho completo que la landing en vez del contenedor max-w-4xl.
+  const isFullWidthPage = isLanding || location.pathname === '/auth';
   // /auth abre en login salvo con ?modo=registro (misma regla que Auth.tsx)
   const onLoginScreen = location.pathname === '/auth' && new URLSearchParams(location.search).get('modo') !== 'registro';
   // Con la cuenta sin verificar no hay nada que navegar dentro de /app: no se
@@ -59,7 +66,29 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
   if (session && isAppPage && isVerified) {
     return (
-      <div className="min-h-screen bg-cream dark:bg-cream-dark flex transition-colors duration-300">
+      <div className="relative min-h-screen bg-cream dark:bg-cream-dark flex transition-colors duration-300">
+        {/* Fondo fijo de toda la app autenticada: no se desplaza con el
+            scroll (position: fixed), z-0 explícito para que el resto (todo
+            en orden posterior en el DOM, o con z-index mayor como el
+            Sidebar) quede siempre por encima. Con su propia variante para
+            modo oscuro (elegida en JS a partir de useTheme, no con clases
+            dark: — así solo se pide al navegador la imagen que hace falta).
+            blur-sm muy sutil para que quede de fondo, no en primer plano —
+            scale-105 de propina para que el desenfoque no deje ver el borde
+            transparente del filtro en los límites de la pantalla. */}
+        <img
+          src={theme === 'dark' ? dashboardBgPcDark : dashboardBgPc}
+          alt=""
+          aria-hidden="true"
+          className="hidden md:block fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0"
+        />
+        <img
+          src={theme === 'dark' ? dashboardBgMobileDark : dashboardBgMobile}
+          alt=""
+          aria-hidden="true"
+          className="md:hidden fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0"
+        />
+
         <Sidebar
           session={session}
           isOpen={isMobileMenuOpen}
@@ -71,7 +100,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
            <Logo className="w-8 h-8" textClassName="text-xl" />
            <Button
              onClick={() => setIsMobileMenuOpen(true)}
-             aria-label="Abrir menú"
+             aria-label={t('app.sidebar.abrirMenu')}
              variant="ghost"
              iconOnly
            >
@@ -79,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
            </Button>
         </div>
 
-        <main className="flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 w-full max-w-[1600px] mx-auto relative">
+        <main className="relative z-10 flex-grow lg:pl-20 pt-20 lg:pt-8 px-4 md:px-6 lg:px-8 pb-10 w-full max-w-[1600px] mx-auto">
           {children}
         </main>
       </div>
@@ -173,7 +202,7 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
         </div>
       </header>
 
-      <main className={`flex-grow ${isLanding ? 'w-full' : 'container mx-auto max-w-4xl px-4 py-8'}`}>
+      <main className={`flex-grow ${isFullWidthPage ? 'w-full' : 'container mx-auto max-w-4xl px-4 py-8'}`}>
         {children}
       </main>
 

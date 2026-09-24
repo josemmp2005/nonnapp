@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { verifyEmailWithToken } from '../services/auth';
 import { Logo } from './Logo';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [searchParams] = useSearchParams();
@@ -25,21 +27,22 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
     const verify = async () => {
       if (!token) {
         setStatus('error');
-        setErrorMessage('Enlace no válido: falta el token de verificación.');
+        setErrorMessage(t('app.verifyEmail.errorNoToken'));
         return;
       }
 
       const { error } = await verifyEmailWithToken(token);
       if (error) {
         setStatus('error');
-        setErrorMessage(error.message || 'El enlace no es válido o ha expirado.');
+        setErrorMessage(error.message || t('app.verifyEmail.errorGeneric'));
         return;
       }
       setStatus('success');
       onEmailVerified?.();
-      showToast('✅ Email verificado correctamente', 'success');
+      showToast(t('app.verifyEmail.toastSuccess'), 'success');
     };
     verify();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, onEmailVerified, showToast]);
 
   return (
@@ -53,7 +56,7 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
           {status === 'loading' && (
             <>
               <Loader2 aria-hidden="true" className="w-10 h-10 mx-auto text-primary animate-spin mb-4" />
-              <p className="text-[#3A2E1D] dark:text-[#D4D4D8]">Verificando tu email...</p>
+              <p className="text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.verifyEmail.verifying')}</p>
             </>
           )}
 
@@ -61,16 +64,16 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
             <div className="animate-in fade-in zoom-in-95 duration-300">
               <CheckCircle2 aria-hidden="true" className="w-12 h-12 mx-auto text-green-500 mb-4" />
               <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
-                Email verificado
+                {t('app.verifyEmail.successTitle')}
               </h2>
               <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">
-                Ya puedes generar recetas y usar todas las funciones de Sabora.
+                {t('app.verifyEmail.successText')}
               </p>
               <button
                 onClick={() => navigate('/app')}
                 className="px-6 py-2.5 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-95"
               >
-                Ir a la app
+                {t('app.verifyEmail.goToApp')}
               </button>
             </div>
           )}
@@ -79,14 +82,14 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
             <div className="animate-in fade-in zoom-in-95 duration-300">
               <XCircle aria-hidden="true" className="w-12 h-12 mx-auto text-red-500 mb-4" />
               <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
-                No se pudo verificar
+                {t('app.verifyEmail.errorTitle')}
               </h2>
               <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">{errorMessage}</p>
               <button
                 onClick={() => navigate('/app')}
                 className="text-sm text-primary hover:underline font-medium"
               >
-                ← Volver a la app
+                {t('app.verifyEmail.backToApp')}
               </button>
             </div>
           )}

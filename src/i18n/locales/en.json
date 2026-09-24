@@ -215,7 +215,8 @@
       "cerrarSesion": "Log Out",
       "modoOscuro": "Dark Mode",
       "modoClaro": "Light Mode",
-      "cerrarMenu": "Close menu"
+      "cerrarMenu": "Close menu",
+      "abrirMenu": "Open menu"
     },
     "dashboard": {
       "greetingMorning": "Good morning",
@@ -444,6 +445,151 @@
         "messageAfter": ". If you want to upgrade your plan, contact us and we'll sort it out with you directly.",
         "apology": "Sorry for the inconvenience."
       }
+    },
+    "historyPage": {
+      "title": "Recipe History",
+      "subtitle": "Browse all the recipes you've created",
+      "searchAria": "Search by name or ingredients",
+      "searchPlaceholder": "Search by name or ingredients...",
+      "difficultyFilterAria": "Filter by difficulty",
+      "difficultyAll": "All difficulties",
+      "difficultyEasy": "Easy",
+      "difficultyMedium": "Medium",
+      "difficultyHard": "Hard",
+      "sortAria": "Sort recipes",
+      "sortNewest": "Newest",
+      "sortOldest": "Oldest",
+      "loadError": "Couldn't load your history",
+      "emptyTitle": "No recipes found",
+      "emptySubtitle": "Try adjusting the filters or create a new recipe.",
+      "createNew": "Create New Recipe",
+      "previewLabel": "Preview",
+      "upgradeTitle": "Unlock Your Full History",
+      "upgradeDesc_one": "You have {{count}} more recipe waiting. Upgrade to La Mamma or La Nonna to access your full recipe history.",
+      "upgradeDesc_other": "You have {{count}} more recipes waiting. Upgrade to La Mamma or La Nonna to access your full recipe history.",
+      "viewPlans": "View Premium Plans"
+    },
+    "planner": {
+      "comingSoonBadge": "Coming soon",
+      "title": "Weekly Planner",
+      "comingSoonText": "We're putting the finishing touches on it. Very soon you'll be able to plan breakfast, lunch and dinner for the whole week with your saved recipes, and generate the shopping list in one go."
+    },
+    "recipeDetail": {
+      "notFoundError": "Recipe not found.",
+      "genericError": "The recipe couldn't be loaded.",
+      "backToHistory": "Back to history",
+      "back": "Back"
+    },
+    "notFound": {
+      "title": "Dish not found",
+      "subtitle": "Looks like the recipe you're after got lost, or never existed in our cookbook.",
+      "createRecipe": "Create new recipe",
+      "goHome": "Go Home"
+    },
+    "emailVerification": {
+      "title": "Verify your email to continue",
+      "sentTo": "We've sent a confirmation link to",
+      "instructions": "Click the link in the email to unlock the app. If you can't find it, check spam or ask us to resend it.",
+      "sending": "Sending...",
+      "resendIn": "Resend in {{seconds}}s",
+      "resend": "Resend verification email",
+      "backHome": "Back to home",
+      "toastWait": "Wait {{seconds}}s before asking again.",
+      "toastError": "Couldn't resend the email",
+      "toastResent": "📧 Verification email resent. Check your inbox."
+    },
+    "auth": {
+      "titleForgot": "Reset password",
+      "titleLogin": "Welcome back",
+      "titleSignup": "Join nonnapp",
+      "subtitleForgot": "We'll send you an email to reset your password.",
+      "subtitleLogin": "Log in to save your recipes and preferences.",
+      "subtitleSignup": "Create your cooking profile and start cooking.",
+      "continueWithGoogle": "Continue with Google",
+      "orWithEmail": "or with email",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "ChefMaster2025",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "confirmPasswordLabel": "Confirm Password",
+      "forgotPasswordLink": "Forgot your password?",
+      "submitForgot": "Send email",
+      "submitLogin": "Log In",
+      "submitSignup": "Create Account",
+      "backToLogin": "← Back to log in",
+      "noAccount": "Don't have an account? ",
+      "hasAccount": "Already have an account? ",
+      "signupLink": "Sign up",
+      "loginLink": "Log in",
+      "toastGoogleNotConfigured": "Google login isn't available yet.",
+      "toastGoogleFailed": "Couldn't log in with Google. Please try again.",
+      "errorForgotGeneric": "Couldn't send the recovery email",
+      "toastForgotSuccess": "📧 Check your email to reset your password",
+      "errorLoginGeneric": "Couldn't log in",
+      "toastLoginSuccess": "Welcome back!",
+      "errorUsernameRequired": "Username is required",
+      "errorPasswordTooShort": "Password is too short",
+      "errorPasswordsMismatch": "Passwords don't match",
+      "errorSignupGeneric": "Couldn't create the account",
+      "toastSignupSuccess": "Sign-up successful! Check your email to verify your account.",
+      "errorUnexpected": "An unexpected error occurred."
+    },
+    "cookMode": {
+      "badge": "Cook Mode",
+      "exitAria": "Exit cook mode",
+      "prev": "Previous",
+      "next": "Next",
+      "finish": "Finish"
+    },
+    "shoppingList": {
+      "title": "Shopping List",
+      "closeAria": "Close",
+      "hintBefore": "Check off the ingredients",
+      "hintBold": "you're missing",
+      "hintAfter": "and copy them.",
+      "itemsSelected_one": "{{count}} item selected",
+      "itemsSelected_other": "{{count}} items selected",
+      "copyList": "Copy List",
+      "toastSelectOne": "Select at least one ingredient",
+      "copyHeader": "🛒 Shopping list for \"{{title}}\":",
+      "toastCopied": "List copied to clipboard",
+      "toastCopyError": "Couldn't copy the list"
+    },
+    "resetPassword": {
+      "invalidLinkTitle": "Invalid link",
+      "invalidLinkText": "The link to reset your password is invalid or has expired.",
+      "title": "Reset password",
+      "subtitle": "Enter a new password for your account",
+      "submit": "Update password",
+      "toastValidationError": "Please check that the passwords meet the requirements",
+      "toastSuccess": "✅ Password updated successfully",
+      "toastGenericError": "The link is invalid or has expired"
+    },
+    "verifyEmail": {
+      "verifying": "Verifying your email...",
+      "successTitle": "Email verified",
+      "successText": "You can now generate recipes and use all of Sabora's features.",
+      "goToApp": "Go to the app",
+      "errorTitle": "Couldn't verify",
+      "backToApp": "← Back to the app",
+      "errorNoToken": "Invalid link: verification token is missing.",
+      "errorGeneric": "The link is invalid or has expired.",
+      "toastSuccess": "✅ Email verified successfully"
+    },
+    "loadingOverlay": {
+      "title": "Preparing Your Recipe",
+      "messages": [
+        "Analyzing your ingredients...",
+        "Consulting with expert chefs...",
+        "Calculating cooking times...",
+        "Designing the perfect plating...",
+        "Adjusting seasoning...",
+        "Generating a photorealistic image...",
+        "Almost ready to serve!"
+      ]
     }
   }
 }

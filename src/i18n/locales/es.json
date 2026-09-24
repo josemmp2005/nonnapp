@@ -215,7 +215,8 @@
       "cerrarSesion": "Cerrar Sesión",
       "modoOscuro": "Modo Oscuro",
       "modoClaro": "Modo Claro",
-      "cerrarMenu": "Cerrar menú"
+      "cerrarMenu": "Cerrar menú",
+      "abrirMenu": "Abrir menú"
     },
     "dashboard": {
       "greetingMorning": "Buenos días",
@@ -444,6 +445,151 @@
         "messageAfter": ". Si quieres mejorar tu plan, contáctanos y lo gestionamos contigo directamente.",
         "apology": "Disculpa las molestias."
       }
+    },
+    "historyPage": {
+      "title": "Historial de Recetas",
+      "subtitle": "Explora todas las recetas que has creado",
+      "searchAria": "Buscar por nombre o ingredientes",
+      "searchPlaceholder": "Buscar por nombre o ingredientes...",
+      "difficultyFilterAria": "Filtrar por dificultad",
+      "difficultyAll": "Todas las dificultades",
+      "difficultyEasy": "Fácil",
+      "difficultyMedium": "Media",
+      "difficultyHard": "Difícil",
+      "sortAria": "Ordenar recetas",
+      "sortNewest": "Más Recientes",
+      "sortOldest": "Más Antiguas",
+      "loadError": "No se pudo cargar tu historial",
+      "emptyTitle": "No se encontraron recetas",
+      "emptySubtitle": "Intenta ajustar los filtros o crea una nueva receta.",
+      "createNew": "Crear Nueva Receta",
+      "previewLabel": "Vista Previa",
+      "upgradeTitle": "Desbloquea tu Historial Completo",
+      "upgradeDesc_one": "Tienes {{count}} receta más esperándote. Actualiza a La Mamma o La Nonna para acceder a todo tu historial de recetas.",
+      "upgradeDesc_other": "Tienes {{count}} recetas más esperándote. Actualiza a La Mamma o La Nonna para acceder a todo tu historial de recetas.",
+      "viewPlans": "Ver Planes Premium"
+    },
+    "planner": {
+      "comingSoonBadge": "Próximamente",
+      "title": "Planificador Semanal",
+      "comingSoonText": "Estamos terminando de pulirlo. Muy pronto podrás organizar el desayuno, la comida y la cena de toda la semana con tus recetas guardadas, y generar la lista de la compra de un solo golpe."
+    },
+    "recipeDetail": {
+      "notFoundError": "Receta no encontrada.",
+      "genericError": "No se pudo cargar la receta.",
+      "backToHistory": "Volver al historial",
+      "back": "Volver"
+    },
+    "notFound": {
+      "title": "Plato no encontrado",
+      "subtitle": "Parece que la receta que buscas se ha perdido o nunca existió en nuestro recetario.",
+      "createRecipe": "Crear nueva receta",
+      "goHome": "Ir al Inicio"
+    },
+    "emailVerification": {
+      "title": "Verifica tu email para continuar",
+      "sentTo": "Te hemos enviado un enlace de confirmación a",
+      "instructions": "Haz clic en el enlace del email para desbloquear la app. Si no lo encuentras, revisa spam o pide que te lo reenviemos.",
+      "sending": "Enviando...",
+      "resendIn": "Reenviar en {{seconds}}s",
+      "resend": "Reenviar email de verificación",
+      "backHome": "Volver a inicio",
+      "toastWait": "Espera {{seconds}}s antes de volver a pedirlo.",
+      "toastError": "No se pudo reenviar el email",
+      "toastResent": "📧 Email de verificación reenviado. Revisa tu bandeja de entrada."
+    },
+    "auth": {
+      "titleForgot": "Recuperar contraseña",
+      "titleLogin": "Bienvenido de nuevo",
+      "titleSignup": "Únete a nonnapp",
+      "subtitleForgot": "Te enviaremos un email para restablecer tu contraseña.",
+      "subtitleLogin": "Accede para guardar tus recetas y preferencias.",
+      "subtitleSignup": "Crea tu perfil culinario y empieza a cocinar.",
+      "continueWithGoogle": "Continuar con Google",
+      "orWithEmail": "o con email",
+      "usernameLabel": "Nombre de Usuario",
+      "usernamePlaceholder": "ChefMaster2025",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Contraseña",
+      "showPassword": "Mostrar contraseña",
+      "hidePassword": "Ocultar contraseña",
+      "confirmPasswordLabel": "Confirmar Contraseña",
+      "forgotPasswordLink": "¿Olvidaste tu contraseña?",
+      "submitForgot": "Enviar email",
+      "submitLogin": "Iniciar Sesión",
+      "submitSignup": "Crear Cuenta",
+      "backToLogin": "← Volver al inicio de sesión",
+      "noAccount": "¿No tienes cuenta? ",
+      "hasAccount": "¿Ya tienes cuenta? ",
+      "signupLink": "Regístrate",
+      "loginLink": "Inicia sesión",
+      "toastGoogleNotConfigured": "El login con Google no está disponible todavía.",
+      "toastGoogleFailed": "No se pudo iniciar sesión con Google. Intenta de nuevo.",
+      "errorForgotGeneric": "No se pudo enviar el email de recuperación",
+      "toastForgotSuccess": "📧 Revisa tu email para restablecer tu contraseña",
+      "errorLoginGeneric": "No se pudo iniciar sesión",
+      "toastLoginSuccess": "¡Bienvenido de nuevo!",
+      "errorUsernameRequired": "El nombre de usuario es obligatorio",
+      "errorPasswordTooShort": "La contraseña es muy corta",
+      "errorPasswordsMismatch": "Las contraseñas no coinciden",
+      "errorSignupGeneric": "No se pudo crear la cuenta",
+      "toastSignupSuccess": "¡Registro exitoso! Revisa tu email para verificar tu cuenta.",
+      "errorUnexpected": "Ocurrió un error inesperado."
+    },
+    "cookMode": {
+      "badge": "Modo Cocina",
+      "exitAria": "Salir del modo cocina",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "finish": "Terminar"
+    },
+    "shoppingList": {
+      "title": "Lista de la Compra",
+      "closeAria": "Cerrar",
+      "hintBefore": "Marca los ingredientes que",
+      "hintBold": "te faltan",
+      "hintAfter": "y cópialos.",
+      "itemsSelected_one": "{{count}} ítem seleccionado",
+      "itemsSelected_other": "{{count}} ítems seleccionados",
+      "copyList": "Copiar Lista",
+      "toastSelectOne": "Selecciona al menos un ingrediente",
+      "copyHeader": "🛒 Lista de compra para \"{{title}}\":",
+      "toastCopied": "Lista copiada al portapapeles",
+      "toastCopyError": "No se pudo copiar la lista"
+    },
+    "resetPassword": {
+      "invalidLinkTitle": "Enlace no válido",
+      "invalidLinkText": "El enlace para restablecer tu contraseña no es válido o ha expirado.",
+      "title": "Restablecer contraseña",
+      "subtitle": "Ingresa tu nueva contraseña para tu cuenta",
+      "submit": "Actualizar contraseña",
+      "toastValidationError": "Por favor, verifica que las contraseñas cumplan los requisitos",
+      "toastSuccess": "✅ Contraseña actualizada correctamente",
+      "toastGenericError": "El enlace no es válido o ha expirado"
+    },
+    "verifyEmail": {
+      "verifying": "Verificando tu email...",
+      "successTitle": "Email verificado",
+      "successText": "Ya puedes generar recetas y usar todas las funciones de Sabora.",
+      "goToApp": "Ir a la app",
+      "errorTitle": "No se pudo verificar",
+      "backToApp": "← Volver a la app",
+      "errorNoToken": "Enlace no válido: falta el token de verificación.",
+      "errorGeneric": "El enlace no es válido o ha expirado.",
+      "toastSuccess": "✅ Email verificado correctamente"
+    },
+    "loadingOverlay": {
+      "title": "Preparando tu Receta",
+      "messages": [
+        "Analizando tus ingredientes...",
+        "Consultando con chefs expertos...",
+        "Calculando tiempos de cocción...",
+        "Diseñando el emplatado perfecto...",
+        "Ajustando condimentos...",
+        "Generando imagen fotorrealista...",
+        "¡Casi listo para servir!"
+      ]
     }
   }
 }
