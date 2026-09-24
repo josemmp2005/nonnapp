@@ -5,6 +5,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import { env, isProd } from './env.js';
 import { createApiRateLimiter } from './middleware/rateLimit.js';
+import { requireSameOrigin } from './middleware/sameOrigin.js';
 import authRoutes from './routes/auth.js';
 import recipesRoutes from './routes/recipes.js';
 import profileRoutes from './routes/profile.js';
@@ -36,6 +37,7 @@ app.use(cookieParser());
 // Backstop general contra abuso/DoS básico. Las rutas sensibles (login,
 // signup, IA) ya tienen sus propios límites más estrictos por debajo de este.
 app.use('/api', createApiRateLimiter());
+app.use('/api', requireSameOrigin);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
