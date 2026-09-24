@@ -10,6 +10,12 @@ import { getGoogleAuthUrl, exchangeGoogleCode, getGoogleUserInfo } from '../lib/
 import { createStrictAuthRateLimiter, createTokenRateLimiter } from '../middleware/rateLimit.js';
 import { validateBody } from '../lib/validate.js';
 import {
+  getLockRemainingSeconds,
+  recordFailedLogin,
+  clearFailedLogins,
+  clearFailedLoginsForUser,
+} from '../lib/loginThrottle.js';
+import {
   signupSchema,
   loginSchema,
   updateUsernameSchema,
@@ -24,6 +30,7 @@ const router = Router();
 const RESET_TOKEN_TTL_MS = 30 * 60 * 1000; // 30 min
 const VERIFY_TOKEN_TTL_MS = 24 * 60 * 60 * 1000; // 24h
 const RESEND_VERIFICATION_COOLDOWN_MS = 60 * 1000; // 1 min entre reenvíos por usuario
+const MAX_RESET_EMAILS_PER_HOUR = 3; // por cuenta, sea cual sea la IP
 
 const cookieOptions = {
   httpOnly: true,
@@ -39,6 +46,10 @@ const cookieOptions = {
 };
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
+// Mismo coste (12) que los hashes reales, para que comparar contra él tarde lo
+// mismo. Se calcula una vez al arrancar, sin bloquear el event loop.
+const dummyPasswordHash = bcrypt.hash('nonnapp-dummy-password-for-timing', 12);
 
 const toPublicUser = (row: {
   id: string;
@@ -131,26 +142,35 @@ router.post('/login', createStrictAuthRateLimiter(), validateBody(loginSchema), 
   const normalizedEmail = normalizeEmail(email);
 
   try {
+    // Antes de tocar users ni bcrypt: una cuenta bloqueada no gasta CPU y,
+    // como el bloqueo va por email (exista o no), la respuesta es idéntica
+    // para cuentas reales e inventadas.
+    const lockedForSeconds = await getLockRemainingSeconds(normalizedEmail);
+    if (lockedForSeconds > 0) {
+      res.set('Retry-After', String(lockedForSeconds));
+      return res.status(429).json({
+        error: 'Demasiados intentos fallidos. Inténtalo de nuevo en unos minutos.',
+        retryAfterSeconds: lockedForSeconds,
+      });
+    }
+
     const { rows } = await pool.query(
       'SELECT id, email, username, avatar_url, email_verified, password_hash FROM users WHERE email = $1',
       [normalizedEmail]
     );
 
-    if (rows.length === 0) {
-      return res.status(401).json(GENERIC_ERROR);
-    }
-
     const user = rows[0];
-    // Cuentas creadas solo con Google no tienen password_hash — bcrypt.compare
-    // lanzaría con un hash nulo, así que se corta aquí con el mismo error genérico.
-    if (!user.password_hash) {
-      return res.status(401).json(GENERIC_ERROR);
-    }
-    const passwordMatches = await bcrypt.compare(password, user.password_hash);
-    if (!passwordMatches) {
+    // bcrypt.compare se ejecuta SIEMPRE, también si el email no existe o es una
+    // cuenta solo-Google (sin password_hash): si se cortara antes, esas
+    // respuestas tardarían ~250 ms menos y el tiempo delataría qué emails
+    // están registrados. Contra el hash de relleno el resultado se descarta.
+    const passwordMatches = await bcrypt.compare(password, user?.password_hash ?? (await dummyPasswordHash));
+    if (!user || !user.password_hash || !passwordMatches) {
+      await recordFailedLogin(normalizedEmail);
       return res.status(401).json(GENERIC_ERROR);
     }
 
+    await clearFailedLogins(normalizedEmail);
     const { token } = await createSession(user.id);
     res.cookie(SESSION_COOKIE, token, cookieOptions);
     return res.json({ user: toPublicUser(user) });
@@ -236,19 +256,32 @@ router.post('/forgot-password', createStrictAuthRateLimiter(), validateBody(forg
 
     if (rows.length > 0) {
       const user = rows[0];
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-      const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
 
-      await pool.query(
-        `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
-         VALUES ($1, $2, $3)`,
-        [user.id, tokenHash, expiresAt]
+      // Tope por cuenta (el límite por IP no frena a quien pide desde muchas
+      // IPs): sin él, cualquiera puede llenarle la bandeja a una víctima con
+      // correos de reseteo. Al superarlo se calla igual que si nada — la
+      // respuesta sigue siendo la genérica, así no se delata nada.
+      const { rows: recentRows } = await pool.query(
+        `SELECT COUNT(*)::int AS n FROM password_reset_tokens
+         WHERE user_id = $1 AND created_at > NOW() - INTERVAL '1 hour'`,
+        [user.id]
       );
 
-      const resetLink = `${env.appUrl}/reset-password?token=${rawToken}`;
-      const resetEmail = resetPasswordEmailTemplate(resetLink);
-      await sendMail(user.email, resetEmail.subject, resetEmail.html, resetEmail.text);
+      if (recentRows[0].n < MAX_RESET_EMAILS_PER_HOUR) {
+        const rawToken = crypto.randomBytes(32).toString('hex');
+        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+
+        await pool.query(
+          `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
+           VALUES ($1, $2, $3)`,
+          [user.id, tokenHash, expiresAt]
+        );
+
+        const resetLink = `${env.appUrl}/reset-password?token=${rawToken}`;
+        const resetEmail = resetPasswordEmailTemplate(resetLink);
+        await sendMail(user.email, resetEmail.subject, resetEmail.html, resetEmail.text);
+      }
     }
 
     return res.json(GENERIC_FORGOT_RESPONSE);
@@ -291,6 +324,7 @@ router.post('/reset-password', createTokenRateLimiter(), validateBody(resetPassw
     // se cierran todas, por si el token lo generó alguien con acceso a la
     // cuenta de correo pero no a las sesiones ya abiertas del dueño real.
     await revokeAllUserSessions(userId);
+    await clearFailedLoginsForUser(userId);
 
     return res.status(204).send();
   } catch (err: any) {

@@ -35,6 +35,18 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 
 CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id);
 
+-- Bloqueo temporal de login por cuenta (ver lib/loginThrottle.ts). Va por email
+-- normalizado y NO por user_id a propósito: así un email que no existe se
+-- bloquea igual que uno que sí, y la respuesta no delata qué cuentas existen.
+CREATE TABLE IF NOT EXISTS login_throttle (
+  email TEXT PRIMARY KEY,
+  failed_attempts INTEGER NOT NULL DEFAULT 0,
+  locked_until TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_login_throttle_updated_at ON login_throttle(updated_at);
+
 CREATE TABLE IF NOT EXISTS email_verification_tokens (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
