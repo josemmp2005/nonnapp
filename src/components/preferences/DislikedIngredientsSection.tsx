@@ -1,3 +1,8 @@
+/**
+ * Sección de Preferencias: ingredientes que no gustan. Se bloquea si el plan
+ * no lo incluye.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ban } from 'lucide-react';

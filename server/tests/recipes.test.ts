@@ -1,3 +1,8 @@
+/**
+ * Tests de integración de `/api/recipes`: guardado con límite diario y
+ * aislamiento entre usuarios (una receta ajena da 404).
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';

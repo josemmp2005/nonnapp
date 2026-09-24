@@ -1,3 +1,8 @@
+/**
+ * Barra lateral de la app con sesión: navegación, instalación de la PWA,
+ * cambio de tema y cierre de sesión. Fija en escritorio, desplegable en móvil.
+ */
+
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

@@ -1,3 +1,8 @@
+/**
+ * Modal con la lista de la compra de una receta: ingredientes marcables, todos
+ * marcados al abrir para desmarcar los que ya se tienen.
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Copy, CheckCircle, ShoppingCart } from 'lucide-react';

@@ -1,3 +1,8 @@
+/**
+ * Tests unitarios de `rateLimiter.ts`: el limitador de llamadas a la IA
+ * (`aiRateLimiter`) y la caché con caducidad (`recipeCache`).
+ */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { aiRateLimiter, recipeCache } from './rateLimiter';
 

@@ -1,3 +1,8 @@
+/**
+ * Página `/app/preferences`: alergias, ingredientes excluidos, nivel de
+ * habilidad, utensilios y gestión del plan de suscripción.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Save, Check, Loader2 } from 'lucide-react';

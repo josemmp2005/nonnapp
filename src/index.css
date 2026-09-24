@@ -1,3 +1,9 @@
+/*
+ * Estilos globales: directivas de Tailwind, tipografías, textura de papel de
+ * la landing y animaciones propias (hero, título del login, vapor, barra de
+ * progreso).
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

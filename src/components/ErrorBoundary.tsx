@@ -1,3 +1,8 @@
+/**
+ * Error boundary global: si algo falla al renderizar, muestra una pantalla de
+ * error de reserva (respetando el tema) en vez de dejar la página en blanco.
+ */
+
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';

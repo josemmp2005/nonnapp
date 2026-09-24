@@ -1,3 +1,8 @@
+/**
+ * Página `/verify-email?token=...`: confirma el email con el token del enlace
+ * del correo de verificación.
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

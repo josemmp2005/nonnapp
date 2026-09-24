@@ -1,3 +1,9 @@
+/**
+ * Tests del bloqueo de login por cuenta (5 fallos, caducidad, emails
+ * inexistentes, desbloqueo al restablecer) y del tope de emails de
+ * recuperación.
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import crypto from 'node:crypto';

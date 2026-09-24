@@ -1,3 +1,8 @@
+/**
+ * Receta de prueba para desarrollar sin gastar cuota de la IA (se activa con
+ * `VITE_USE_MOCK_RECIPE=true`, solo en dev).
+ */
+
 import type { AIRecipeResponse } from '../types';
 
 /**

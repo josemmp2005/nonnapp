@@ -93,6 +93,10 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `npm test` | Tests de integración (Vitest + Supertest) contra una BBDD de test real |
 | `npm run typecheck:test` | `tsc --noEmit` incluyendo `tests/` (el `build` normal no los cubre) |
 
+### Documentación del código
+
+Convención obligatoria: **todo archivo de código o configuración empieza con un comentario que explica qué hace** (1-3 líneas, en español), antes de los imports. Para leer el proyecto de un vistazo basta con abrir cada archivo y leer su cabecera. Formato por tipo: `/** */` en `.ts`/`.tsx`/`.js`, `/* */` en `.css`, `<!-- -->` en `.html` y `#` en `Dockerfile`, `.yml` y `nginx.conf`. Los formatos sin comentarios (`.json`, lockfiles) quedan fuera. Está recogido también en [`.claude/CLAUDE.md`](.claude/CLAUDE.md), que es lo que sigue el asistente al crear archivos nuevos.
+
 ### Tests
 
 - **Backend** (`server/tests/`): tests de integración con Supertest contra la app de Express real (`server/src/app.ts`, sin necesidad de levantar el puerto) y una base de datos Postgres real — no se mockea `pg`, así que cubren de verdad el bloqueo por plan (`requirePlan`), el límite diario de Il Nipote, el aislamiento de recetas entre usuarios (IDOR), y los flujos de auth. Groq y Brevo sí se mockean (`vi.mock`) — nunca llaman a una API externa real.
@@ -247,7 +251,7 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 | GET | `/api/profile/preferences` | ✔ + verificado | Preferencias del chef + si el plan es "pro" |
 | PUT | `/api/profile/preferences` | ✔ + verificado (+ Mamma/Nonna si `allergies`/`disliked_ingredients` no van vacíos) | Guarda preferencias |
 | GET | `/api/subscription` | ✔ + verificado | Plan activo |
-| POST | `/api/subscription/change` | ✔ + verificado | **Demo**, sin pago real: cambia el plan activo a `nipote`\|`mamma`\|`nonna` |
+| POST | `/api/subscription/change` | ✔ + verificado | **Desactivado (503 `SUBSCRIPTION_CHANGES_DISABLED`)** mientras `PLAN_CHANGES_ENABLED = false`. Cuando se active, es un endpoint de demo sin pago real: cambia el plan activo a `nipote`\|`mamma`\|`nonna` |
 | POST | `/api/ai/generate-recipe` | ✔ + verificado (+ Mamma/Nonna si `mode: 'pantry'`) | Genera una receta (Groq) |
 | POST | `/api/ai/chat` | ✔ + verificado + Nonna | Chat del chef sobre una receta (Groq) |
 
@@ -277,13 +281,14 @@ Lista de trabajo actual, con el punto de partida técnico de cada una. La versi�
 
 | Pendiente | Estado y por dónde empezar |
 |---|---|
+| **Pasarela de pago** | Necesaria para poder cambiar de plan. Hoy el cambio está apagado con `PLAN_CHANGES_ENABLED = false` **en dos sitios** (`server/src/routes/subscription.ts`, que responde 503, y `src/components/PreferencesPage.tsx`, que muestra `PlanChangeDisabledNotice` en vez de `PlanCheckoutModal`). El modal de pago actual es una simulación y `POST /api/subscription/change` no valida ningún cobro. Lo correcto: integrar un proveedor (p. ej. Stripe Checkout), y que el plan solo cambie desde el webhook que confirma el pago, no desde una llamada del cliente. Mientras tanto, las cuentas nuevas quedan en `nipote` y no pueden acceder a los planes de pago |
 | **Planificador semanal** | Construido pero apagado: backend `server/src/routes/planner.ts` (`GET /api/planner`, `PUT /api/planner/slot`, `GET /api/planner/shopping-list`; tabla `weekly_plan_items`, solo plan Nonna) y pantalla `src/components/PlannerPage.tsx`. Se activa poniendo `PLANNER_ENABLED = true` **en los dos archivos** (mientras esté a `false` el servidor responde 503 `PLANNER_NOT_AVAILABLE`). Falta el pulido visual y anunciarlo |
 | **Panel para el administrador** | No existe: `users` no tiene campo de rol ni hay rutas/pantallas de administración. Haría falta una columna de rol, un middleware `requireAdmin` junto a `requireAuth` y las pantallas en el frontend |
 | **Avatar de usuario** | `users.avatar_url` ya existe (las cuentas de Google lo rellenan) y se muestra en `Sidebar` y `ProfileEditPage`; falta la subida. Hay que decidir dónde guardar los ficheros: el disco del plan gratuito de Render no es persistente, así que haría falta almacenamiento externo |
 | **Botón de cancelar receta** | Hoy `POST /api/ai/generate-recipe` no se puede abortar desde la interfaz: ni `services/api.ts` usa `AbortController` ni `LoadingOverlay` tiene botón de cancelar. Habría que pasar una `signal` al `fetch` y añadir el botón al overlay |
 | **Más imágenes** | Las fotos de receta salen de un banco curado de Unsplash en `server/src/lib/recipeImages.ts` (elegida por palabras clave; la cabecera del fichero explica cómo ampliarlo y `tests/recipeImages.test.ts` valida el formato, no que las URLs sigan vivas) |
 | **2FA** | Sin implementar por decisión propia. Natural: TOTP sobre el flujo de `/login` (secreto cifrado por usuario, códigos de recuperación y un paso extra tras la contraseña) |
-| Otras | Pago real de los planes (hoy simulado, `POST /api/subscription/change`), persistencia del chat del chef y de la lista de la compra, mostrar en el login los segundos que faltan del bloqueo por intentos (el servidor ya manda `retryAfterSeconds`), traducir los errores del servidor |
+| Otras | Persistencia del chat del chef y de la lista de la compra, mostrar en el login los segundos que faltan del bloqueo por intentos (el servidor ya manda `retryAfterSeconds`), traducir los errores del servidor |
 
 ## Licencia
 

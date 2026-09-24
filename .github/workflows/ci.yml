@@ -1,3 +1,6 @@
+# CI de GitHub Actions: en cada push y PR pasa typecheck, lint, build y tests
+# del frontend, y typecheck, build y tests del backend (con Postgres real).
+
 name: CI
 
 on:

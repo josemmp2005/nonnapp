@@ -1,3 +1,8 @@
+/**
+ * Setup de Vitest por archivo: vacía las tablas antes de cada test para
+ * aislarlos y cierra el pool al terminar.
+ */
+
 import { beforeEach, afterAll } from 'vitest';
 import { pool } from '../../src/db.js';
 

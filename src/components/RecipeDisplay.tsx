@@ -1,3 +1,8 @@
+/**
+ * Muestra una receta completa (foto, macros, ingredientes, utensilios y pasos)
+ * con acceso al modo cocina, la lista de la compra y el chat con el chef.
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock } from 'lucide-react';

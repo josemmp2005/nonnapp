@@ -1,3 +1,8 @@
+/**
+ * Demo interactiva de la landing: se eligen ingredientes y aparece una receta
+ * simulada (temporizador, sin llamar a la IA).
+ */
+
 import React, { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Sparkles, RotateCcw } from 'lucide-react';

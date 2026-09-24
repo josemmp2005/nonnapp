@@ -1,3 +1,7 @@
+/**
+ * Página `/app/chef` (La Mesa de la Nonna): muestra la mesa completa de
+ * estilos de cocina predefinidos para generar una receta con un toque.
+ */
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

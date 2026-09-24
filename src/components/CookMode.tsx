@@ -1,3 +1,8 @@
+/**
+ * Modo cocina: pantalla completa que muestra los pasos de la receta uno a uno
+ * para seguirlos mientras se cocina.
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react';

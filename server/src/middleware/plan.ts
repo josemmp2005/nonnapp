@@ -1,3 +1,8 @@
+/**
+ * Middleware `requirePlan(...planes)`: responde 403 `PLAN_REQUIRED` si el plan
+ * activo del usuario no está entre los permitidos.
+ */
+
 import type { NextFunction, Request, Response } from 'express';
 import { pool } from '../db.js';
 import { getActivePlan } from '../lib/subscription.js';

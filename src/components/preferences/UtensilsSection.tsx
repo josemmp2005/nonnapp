@@ -1,3 +1,8 @@
+/**
+ * Sección de Preferencias: utensilios disponibles. Se bloquea si el plan no lo
+ * incluye.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { UtensilsCrossed } from 'lucide-react';

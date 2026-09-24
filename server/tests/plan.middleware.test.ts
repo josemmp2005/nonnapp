@@ -1,3 +1,8 @@
+/**
+ * Tests unitarios de `requirePlan`: deja pasar los planes permitidos y
+ * responde 403 `PLAN_REQUIRED` al resto.
+ */
+
 import { describe, it, expect, vi } from 'vitest';
 import type { Request, Response } from 'express';
 

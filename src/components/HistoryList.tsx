@@ -1,3 +1,8 @@
+/**
+ * Lista de tarjetas de recetas (con estado de carga), reutilizada en el
+ * Dashboard y en el historial.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { RecipeDB } from '../types';

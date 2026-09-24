@@ -1,3 +1,9 @@
+/**
+ * Hook `usePwaInstall`: expone el estado de instalación de la PWA (si se puede
+ * instalar, si es iOS, si ya está instalada) a partir del almacén de
+ * `utils/pwaInstall`.
+ */
+
 import { useSyncExternalStore } from 'react';
 import {
   closeIosHelp,

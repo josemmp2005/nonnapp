@@ -1,3 +1,8 @@
+/**
+ * Hook `useInView`: indica si un elemento ha entrado en pantalla
+ * (IntersectionObserver), para animarlo al hacer scroll.
+ */
+
 import { useEffect, useRef, useState } from 'react';
 
 interface Options {

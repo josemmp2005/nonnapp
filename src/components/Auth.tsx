@@ -1,3 +1,9 @@
+/**
+ * Pantalla `/auth`: inicio de sesión, registro y recuperación de contraseña en
+ * una sola tarjeta (con acceso por Google), sobre un fondo a sangre que cambia
+ * con el tema.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

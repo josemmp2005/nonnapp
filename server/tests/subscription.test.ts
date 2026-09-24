@@ -1,3 +1,8 @@
+/**
+ * Tests de integración de `/api/subscription`: consulta del plan activo y
+ * cambio de plan.
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';

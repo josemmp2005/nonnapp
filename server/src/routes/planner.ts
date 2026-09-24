@@ -1,3 +1,8 @@
+/**
+ * Rutas `/api/planner` (plan La Nonna): plan semanal, asignar una receta a un
+ * hueco y lista de la compra de la semana. Apagadas con `PLANNER_ENABLED`.
+ */
+
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';

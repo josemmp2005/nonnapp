@@ -1,3 +1,8 @@
+/**
+ * Avatar de la Nonna: recorta una de sus poses (ilustraciones de
+ * `assets/nonna/`) para mostrarla en círculo.
+ */
+
 import React from 'react';
 import nonnaChat from '../../assets/nonna/nonna-chat.webp';
 import nonnaThinking from '../../assets/nonna/nonna-thinking.webp';

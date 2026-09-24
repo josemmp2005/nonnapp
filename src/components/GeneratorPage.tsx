@@ -1,3 +1,8 @@
+/**
+ * Página `/app/generate`: formulario para pedir una receta a la IA, pantalla
+ * de carga, resultado y guardado en el historial, respetando el límite diario
+ * del plan.
+ */
 
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';

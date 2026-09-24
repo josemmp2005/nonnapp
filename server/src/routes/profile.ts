@@ -1,3 +1,8 @@
+/**
+ * Rutas `/api/profile`: leer y guardar las preferencias del chef (alergias,
+ * ingredientes excluidos, nivel de habilidad, utensilios).
+ */
+
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';

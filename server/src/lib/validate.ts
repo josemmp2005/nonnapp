@@ -1,3 +1,8 @@
+/**
+ * Middleware `validateBody(schema)`: valida `req.body` con zod y responde 400
+ * si no cumple.
+ */
+
 import type { NextFunction, Request, Response } from 'express';
 import type { ZodSchema } from 'zod';
 

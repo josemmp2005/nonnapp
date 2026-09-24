@@ -1,3 +1,8 @@
+/**
+ * Sección de la landing con el vídeo demo de la app en formato móvil
+ * (`/videos/nonnapp-demo-mobile.mp4`).
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Clock, Bookmark, ChefHat } from 'lucide-react';

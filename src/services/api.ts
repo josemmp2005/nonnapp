@@ -1,3 +1,9 @@
+/**
+ * Wrapper de `fetch` de bajo nivel para la API: envía siempre la cookie de
+ * sesión (`credentials: 'include'`), serializa JSON y convierte los errores
+ * HTTP en `ApiError`.
+ */
+
 // En local, sin VITE_API_URL definida, se asume el backend de `npm run dev:all`
 // (localhost:3001). En un build de producción (Netlify/Vercel) esta variable
 // es OBLIGATORIA — Vite la incrusta en tiempo de compilación, así que si falta

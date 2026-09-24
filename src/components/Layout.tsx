@@ -1,3 +1,9 @@
+/**
+ * Estructura común de la app: en `/app` con sesión, barra lateral sobre un
+ * fondo de foto; en el resto, cabecera pública (enlaces de la landing, idioma,
+ * tema, acceso) y pie.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

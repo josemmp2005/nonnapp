@@ -1,3 +1,8 @@
+/**
+ * Botón Instalar app de la PWA. No se pinta si ya está instalada o si el
+ * navegador no lo soporta.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Download } from 'lucide-react';

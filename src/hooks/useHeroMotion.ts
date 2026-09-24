@@ -1,3 +1,9 @@
+/**
+ * Hook del movimiento del hero de la landing: escribe la posición del ratón y
+ * el scroll en variables CSS (`--mx`, `--my`, `--sy`) y pausa las animaciones
+ * cuando el hero no se ve.
+ */
+
 import { useEffect } from 'react';
 import type { RefObject } from 'react';
 

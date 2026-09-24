@@ -1,3 +1,9 @@
+/**
+ * Widget de La Mesa de la Nonna: tarjetas con los estilos de cocina
+ * predefinidos. Se usa en el Dashboard y en `/app/chef`, y se bloquea si el
+ * plan no lo incluye.
+ */
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

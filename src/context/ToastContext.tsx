@@ -1,3 +1,8 @@
+/**
+ * Contexto de notificaciones: `useToast().showToast(mensaje, tipo)` muestra
+ * avisos de éxito, error o información que se cierran solos.
+ */
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 

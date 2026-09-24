@@ -1,3 +1,8 @@
+/**
+ * Sección de planes de la landing: Il Nipote, La Mamma y La Nonna con sus
+ * ventajas.
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

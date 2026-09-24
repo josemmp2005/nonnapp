@@ -1,3 +1,8 @@
+/**
+ * Bloqueo temporal del login por cuenta (tabla `login_throttle`): cuenta los
+ * fallos por email y bloquea 15 minutos tras 5 seguidos.
+ */
+
 import { pool } from '../db.js';
 
 // El límite por IP (middleware/rateLimit.ts) no frena a quien reparte los

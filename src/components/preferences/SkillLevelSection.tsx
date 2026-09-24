@@ -1,3 +1,8 @@
+/**
+ * Sección de Preferencias: nivel de habilidad en la cocina (principiante,
+ * intermedio, avanzado).
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Settings } from 'lucide-react';

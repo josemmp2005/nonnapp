@@ -1,3 +1,8 @@
+/**
+ * Setup de Vitest: carga `server/.env.test` antes de que ningún test importe
+ * la app.
+ */
+
 import { config } from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

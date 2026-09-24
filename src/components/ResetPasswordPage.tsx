@@ -1,3 +1,8 @@
+/**
+ * Página `/reset-password?token=...`: fija una contraseña nueva con el token
+ * del email de recuperación.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

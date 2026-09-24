@@ -1,3 +1,8 @@
+/**
+ * Animación decorativa de la landing: ingredientes que orbitan con mensajes
+ * rotativos. Se usa en la sección Cómo funciona.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChefHat } from 'lucide-react';

@@ -1,3 +1,7 @@
+/**
+ * Franja de cifras de la landing.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Reveal } from './shared';

@@ -1,3 +1,7 @@
+/**
+ * Logo de Nonnapp (icono y texto) con tamaños configurables.
+ */
+
 import React from "react";
 import logoSrc from '../assets/logo-icon.png';
 

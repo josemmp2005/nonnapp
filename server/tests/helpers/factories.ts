@@ -1,3 +1,8 @@
+/**
+ * Helpers de tests: crear usuarios directamente en BBDD (`createUser`) y
+ * obtener una cookie de sesión con un login real (`loginCookie`).
+ */
+
 import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { pool } from '../../src/db.js';

@@ -1,3 +1,8 @@
+/**
+ * Sección Cómo funciona de la landing: los pasos para pasar de ingredientes a
+ * receta.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';

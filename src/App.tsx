@@ -1,3 +1,8 @@
+/**
+ * Raíz de la aplicación: restaura la sesión, monta los providers (tema,
+ * toasts, suscripción), define las rutas (públicas y protegidas, con carga
+ * diferida) y la pantalla de arranque.
+ */
 
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';

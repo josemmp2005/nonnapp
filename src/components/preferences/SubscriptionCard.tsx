@@ -1,3 +1,7 @@
+/**
+ * Tarjeta de Preferencias con el plan activo y el botón para cambiarlo.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Crown, ArrowRightLeft } from 'lucide-react';

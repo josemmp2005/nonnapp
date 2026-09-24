@@ -1,3 +1,10 @@
+/**
+ * Cliente de IA: genera recetas (`/api/ai/generate-recipe`) y consulta al chef
+ * (`/api/ai/chat`), con límite de frecuencia y caché en cliente, receta de
+ * prueba en desarrollo y errores tipados (email sin verificar, plan requerido,
+ * receta fuera de tema).
+ */
+
 import type { AIRecipeResponse } from '../types';
 import { aiRateLimiter, recipeCache } from '../utils/rateLimiter';
 import { getMockRecipe } from './mock-recipe';

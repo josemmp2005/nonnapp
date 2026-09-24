@@ -1,3 +1,8 @@
+/**
+ * Constantes compartidas del frontend: perfil de preferencias por defecto (sin
+ * alergias ni utensilios, nivel intermedio, sin plan pro).
+ */
+
 import type { UserProfile } from './types';
 
 export const DEFAULT_USER_PROFILE: UserProfile = {

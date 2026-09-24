@@ -1,3 +1,8 @@
+/**
+ * Punto de entrada del frontend: registra la escucha de instalación de la PWA,
+ * carga estilos e i18n y monta `<App />` en `#root`.
+ */
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'

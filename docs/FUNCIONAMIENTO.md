@@ -70,7 +70,7 @@ Botón flotante disponible mientras se ve una receta (plan La Nonna). Es una con
 | Soporte prioritario | ✗ | ✗ | ✔ |
 
 Notas importantes:
-- **El pago no está implementado de verdad.** En Preferencias, "Cambiar de plan" abre un selector con los 3 planes (Il Nipote / La Mamma / La Nonna) y, al elegir uno de pago, una pantalla de "pago" con campos de tarjeta — es una simulación: cualquier número vale, hay un pequeño delay para que se sienta real, y no hay pasarela de cobro ni cargo alguno. Cancelar vuelve a Il Nipote tras una confirmación (sin paso de pago).
+- **Cambiar de plan está desactivado hasta tener una pasarela de pago.** En Preferencias, el botón de cambio de plan ahora solo muestra un aviso para contactar por email, y el servidor rechaza el cambio (503). Todo lo demás está construido: el selector con los 3 planes (Il Nipote / La Mamma / La Nonna) y una pantalla de "pago" con campos de tarjeta, pero esa pantalla es una simulación (cualquier número vale, sin cobro), por eso está apagada a propósito. Hasta que exista un pago real, todas las cuentas nuevas empiezan en Il Nipote y no pueden pasar a otro plan desde la app.
 - **Los límites de Il Nipote y La Mamma se aplican en el servidor, no solo escondiendo botones.** Modo despensa, las secciones de alergias/ingredientes/utensilios en Configuración del Chef, el chat y La Mesa de la Nonna devuelven un error si se intenta usarlos sin el plan que corresponde, aunque se salte la interfaz (por ejemplo llamando a la API directamente) — no basta con que la app no muestre el botón. El nivel de habilidad (Principiante/Intermedio/Avanzado) es lo único que no está gated, disponible para todos los planes.
 - El planificador semanal de La Nonna está construido (pantalla + servidor) pero **desactivado a propósito** hasta terminar de pulirlo (ver [Implementaciones futuras](#implementaciones-futuras)). Las "recetas secretas de temporada" son, por ahora, solo una promesa de la landing: no hay nada construido.
 
@@ -88,6 +88,7 @@ Lo que está previsto y todavía no está hecho (o no está activo). Son decisio
 
 **Lista de trabajo actual**
 
+- **Pasarela de pago** — hace falta para poder cambiar de plan (Il Nipote / La Mamma / La Nonna). Mientras no exista, el cambio de plan está desactivado y la pantalla de pago es solo una simulación sin cobro; además, las cuentas nuevas no pueden acceder a lo que llevan los planes de pago (modo despensa, chat del chef, planificador...).
 - **Planificador semanal** — ya existe la pantalla y el servidor (exclusivo de La Nonna), pero está apagado hasta terminar el pulido visual. Falta activarlo y anunciarlo.
 - **Panel para el administrador** — no existe ningún rol ni pantalla de administración: todas las cuentas son usuarios normales.
 - **Avatar de usuario** — subir una foto de perfil. Hoy las cuentas de email/contraseña muestran solo la inicial del nombre; las de Google sí traen su foto.
@@ -97,7 +98,6 @@ Lo que está previsto y todavía no está hecho (o no está activo). Son decisio
 
 **Otras carencias conocidas**
 
-- Pago real de los planes (Stripe o similar): hoy es una simulación.
 - Persistencia del chat del chef y de la lista de la compra entre sesiones.
 - "Recetas secretas de temporada" de La Nonna (solo existen en la landing).
 - Mostrar en el login cuánto falta para que termine un bloqueo por intentos fallidos, y traducir los mensajes de error del servidor.

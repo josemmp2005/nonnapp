@@ -1,3 +1,8 @@
+/**
+ * Resuelve el plan activo de un usuario (`nipote`, `mamma` o `nonna`) en un
+ * único sitio, para rutas y middlewares.
+ */
+
 import type { Pool, PoolClient } from 'pg';
 
 export type PlanType = 'nipote' | 'mamma' | 'nonna';

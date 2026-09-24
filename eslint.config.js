@@ -1,3 +1,8 @@
+/**
+ * Configuración de ESLint del frontend: reglas de TypeScript, React Hooks y
+ * React Refresh para `src/`. El backend (`server/`) queda fuera.
+ */
+
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

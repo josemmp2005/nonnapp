@@ -1,3 +1,8 @@
+/**
+ * Página `/app/recipe/:id`: detalle de una receta guardada, solo visible para
+ * quien la creó.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

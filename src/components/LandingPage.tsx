@@ -1,3 +1,8 @@
+/**
+ * Página `/`: compone las secciones de la landing pública (hero, cómo
+ * funciona, demo, planes, preguntas frecuentes...).
+ */
+
 import React from 'react';
 import HeroSection from './landing/HeroSection';
 import FridgeToRecipeSection from './landing/FridgeToRecipeSection';

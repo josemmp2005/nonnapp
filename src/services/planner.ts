@@ -1,3 +1,8 @@
+/**
+ * Servicio del planificador semanal: consulta y modifica los huecos (día y
+ * comida) y pide la lista de la compra de la semana, contra `/api/planner`.
+ */
+
 import { apiFetch } from './api';
 import type { IngredientItem } from '../types';
 

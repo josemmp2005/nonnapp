@@ -1,3 +1,8 @@
+/**
+ * Tests del banco de imágenes de recetas: formato de las entradas y elección
+ * de foto por palabras clave.
+ */
+
 import { describe, it, expect } from 'vitest';
 import { DEFAULT_IMAGES, IMAGE_BANK, pickRecipeImage } from '../src/lib/recipeImages.js';
 

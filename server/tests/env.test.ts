@@ -1,3 +1,8 @@
+/**
+ * Tests de `env.ts`: cómo se derivan `googleRedirectUri` y `appUrl` según las
+ * variables de entorno.
+ */
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // env.ts lee process.env al importarse, así que cada caso vuelve a importarlo.

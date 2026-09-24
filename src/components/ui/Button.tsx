@@ -1,3 +1,8 @@
+/**
+ * Botón base reutilizable con variantes (primary, accent, secondary, outline,
+ * ghost), tres tamaños y modo solo icono.
+ */
+
 import React from 'react';
 
 type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'outline' | 'ghost';

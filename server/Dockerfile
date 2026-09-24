@@ -1,3 +1,6 @@
+# Imagen del backend: compila TypeScript a `dist/` y ejecuta solo con las
+# dependencias de producción.
+
 # --- build: compila TypeScript a dist/ ---
 FROM node:22-slim AS build
 WORKDIR /app

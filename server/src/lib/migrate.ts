@@ -1,3 +1,8 @@
+/**
+ * Aplica `schema.sql` a la BBDD. Es idempotente, así que se ejecuta en cada
+ * arranque del servidor.
+ */
+
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';

@@ -1,3 +1,9 @@
+/**
+ * App de Express: middlewares de seguridad, límites de frecuencia, defensa
+ * CSRF y rutas. No hace `listen()`: `index.ts` la arranca y los tests la
+ * importan con Supertest.
+ */
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';

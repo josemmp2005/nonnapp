@@ -1,3 +1,9 @@
+/**
+ * Configuración de Tailwind: modo oscuro por clase, paleta de marca (primary,
+ * accent y neutros cálidos crema/tinta), tipografías Nunito y Fredoka, sombras
+ * suaves y plugins.
+ */
+
 import defaultTheme from 'tailwindcss/defaultTheme.js';
 
 /** @type {import('tailwindcss').Config} */

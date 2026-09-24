@@ -1,3 +1,7 @@
+/**
+ * Campo de texto base reutilizable con icono opcional y estado de error.
+ */
+
 import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 

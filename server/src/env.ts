@@ -1,3 +1,8 @@
+/**
+ * Lee y valida las variables de entorno del servidor (`server/.env`) y las
+ * expone ya normalizadas, con avisos de configuración para el log de arranque.
+ */
+
 import 'dotenv/config';
 
 const required = (name: string): string => {

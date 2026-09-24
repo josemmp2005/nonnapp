@@ -1,3 +1,9 @@
+/**
+ * Sesiones y autenticación: crea y revoca sesiones (JWT en cookie httpOnly más
+ * una fila en `sessions`) y define `requireAuth`, `requireVerifiedEmail` y
+ * `optionalAuth`.
+ */
+
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { env } from '../env.js';

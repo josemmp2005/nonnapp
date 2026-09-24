@@ -1,3 +1,8 @@
+/**
+ * Setup global de Vitest (una vez, antes de toda la suite): crea la BBDD de
+ * test si no existe y le aplica `schema.sql`.
+ */
+
 import { config } from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

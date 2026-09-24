@@ -1,3 +1,9 @@
+/**
+ * Rutas `/api/ai`: generar receta (`POST /generate-recipe`) y chat con el chef
+ * (`POST /chat`, plan La Nonna). Exigen sesión, email verificado y límite por
+ * usuario.
+ */
+
 import { Router } from 'express';
 import type { z } from 'zod';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';

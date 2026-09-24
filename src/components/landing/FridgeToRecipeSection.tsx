@@ -1,3 +1,8 @@
+/**
+ * Sección de la landing sobre la idea de la nevera a la receta: ingredientes
+ * sueltos que se convierten en un plato.
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

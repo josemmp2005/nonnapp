@@ -1,3 +1,8 @@
+/**
+ * Modal con la vista previa de una receta del historial, sin salir de la
+ * lista.
+ */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

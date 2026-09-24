@@ -1,3 +1,9 @@
+/**
+ * Cabecera de la landing: titular, buscador y foto de fondo (claro/oscuro, con
+ * difuminado en pantallas anchas), con movimiento por capas, hojas cayendo y
+ * notas de la Nonna.
+ */
+
 import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart, Leaf, Sparkle } from 'lucide-react';

@@ -1,3 +1,8 @@
+/**
+ * Rutas `/api/auth`: registro, login, logout, sesión (`/me`), cambio de nombre
+ * y contraseña, recuperación, verificación de email y acceso con Google.
+ */
+
 import { Router } from 'express';
 import bcrypt from 'bcrypt';
 import crypto from 'node:crypto';

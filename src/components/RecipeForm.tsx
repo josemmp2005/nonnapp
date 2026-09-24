@@ -1,3 +1,8 @@
+/**
+ * Formulario de generación de recetas: modo texto o despensa, raciones,
+ * tiempo, robot de cocina y utensilios.
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Wand2, Search, Refrigerator, Clock, Lock, CookingPot } from 'lucide-react';

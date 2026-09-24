@@ -1,3 +1,9 @@
+/**
+ * Servicio de autenticación del frontend: login, registro, logout, sesión
+ * actual, cambio de nombre y contraseña, y recuperación y verificación de
+ * email, contra `/api/auth/*`.
+ */
+
 import { apiFetch, ApiError } from './api';
 
 export interface AuthUser {

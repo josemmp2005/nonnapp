@@ -1,3 +1,8 @@
+/**
+ * Pantalla de bloqueo para cuentas sin verificar: pide confirmar el email y
+ * permite reenviar el correo (con cuenta atrás entre reenvíos).
+ */
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

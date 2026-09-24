@@ -1,3 +1,8 @@
+/**
+ * Tests de integración de `/api/profile/preferences`, incluido el bloqueo de
+ * campos por plan.
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';

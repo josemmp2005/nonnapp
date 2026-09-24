@@ -32,3 +32,14 @@ In particular, external skills must not independently replace:
 - established component tokens
 
 Use Taste and Emil Kowalski to make Nonnapp better, not to turn Nonnapp into their default visual style.
+
+## Cabecera obligatoria en cada archivo
+
+Todo archivo de código o configuración empieza, **lo primero de todo y antes de los imports**, con un comentario que explica qué hace (1-3 líneas, en español, sin repetir el nombre del archivo). Aplica a cada archivo nuevo y también hay que actualizarlo si el propósito del archivo cambia.
+
+- `.ts`, `.tsx`, `.js`: bloque `/** ... */`.
+- `.css`: bloque `/* ... */`.
+- `.html`: `<!-- ... -->` justo después del `<!DOCTYPE html>`.
+- `Dockerfile`, `.yml`, `nginx.conf`: líneas `# ...`.
+- Quedan fuera los formatos que no admiten comentarios (`.json`, lockfiles) y los archivos generados o binarios.
+- No escribir la secuencia `*/` dentro del texto de un bloque `/** */` (por ejemplo al citar un glob como `src/**/*.ts`): cierra el comentario antes de tiempo, y ni `tsc` ni ESLint lo detectan en los archivos de configuración.

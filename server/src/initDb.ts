@@ -1,3 +1,8 @@
+/**
+ * Script (`npm run db:init`) que aplica `schema.sql` a la base de datos y
+ * termina.
+ */
+
 import { pool } from './db.js';
 import { applySchema } from './lib/migrate.js';
 

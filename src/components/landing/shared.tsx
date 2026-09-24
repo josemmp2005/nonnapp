@@ -1,3 +1,9 @@
+/**
+ * Piezas compartidas por las secciones de la landing (`SectionHeading`,
+ * `CheckIcon`, `RecipeMeta`, `FloatingBadge`) y reexportación de `Reveal` y
+ * `NonnaAvatar`.
+ */
+
 import React from 'react';
 export { Reveal } from '../ui/Reveal';
 export { NonnaAvatar } from '../ui/NonnaAvatar';

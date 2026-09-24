@@ -1,3 +1,8 @@
+/**
+ * Claves de los ingredientes de las demos de la landing (`IngredientKey`) y el
+ * hook `useIngredientLabels`, que devuelve sus nombres traducidos.
+ */
+
 import { useTranslation } from 'react-i18next';
 
 export type IngredientKey =

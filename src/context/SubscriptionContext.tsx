@@ -1,3 +1,9 @@
+/**
+ * Contexto de suscripción: carga el plan activo, expone los límites de cada
+ * plan (solo para mostrar u ocultar UI; el servidor los aplica de verdad) y
+ * cuenta las recetas generadas hoy.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { fetchSubscription } from '../services/data';

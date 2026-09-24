@@ -1,3 +1,8 @@
+/**
+ * Hook `useEscapeKey`: ejecuta una función al pulsar Escape. Lo comparten
+ * todos los modales.
+ */
+
 import { useEffect } from 'react';
 
 // Cierra con Escape — compartido por todos los modales de la app en vez de

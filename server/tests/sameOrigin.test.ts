@@ -1,3 +1,8 @@
+/**
+ * Tests de la defensa CSRF (`requireSameOrigin`): orígenes ajenos, `Origin:
+ * null`, origen del frontend y peticiones sin `Origin`.
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';

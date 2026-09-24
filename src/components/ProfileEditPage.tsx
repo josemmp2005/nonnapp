@@ -1,3 +1,8 @@
+/**
+ * Página `/app/profile`: editar el nombre de usuario, cambiar la contraseña y
+ * elegir el idioma.
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { User, Lock, Mail, Save, Loader2, Check, Globe } from 'lucide-react';

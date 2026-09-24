@@ -1,3 +1,8 @@
+/**
+ * Aviso (banner con mensaje) de límite de peticiones a la IA. Ahora mismo no
+ * lo usa ninguna pantalla.
+ */
+
 import { Clock } from 'lucide-react';
 
 interface RateLimitWarningProps {

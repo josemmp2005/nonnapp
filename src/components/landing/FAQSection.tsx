@@ -1,3 +1,7 @@
+/**
+ * Sección de preguntas frecuentes de la landing (acordeón).
+ */
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';

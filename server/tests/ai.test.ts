@@ -1,3 +1,8 @@
+/**
+ * Tests de integración de `/api/ai/*` (Groq mockeado): bloqueo por plan y por
+ * email sin verificar, generación y chat con el chef.
+ */
+
 import { describe, it, expect, vi } from 'vitest';
 import request from 'supertest';
 

@@ -1,3 +1,8 @@
+/**
+ * Contexto del tema claro/oscuro: lo guarda en `localStorage` (`sabora_theme`)
+ * y añade o quita la clase `dark` en `<html>`.
+ */
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';

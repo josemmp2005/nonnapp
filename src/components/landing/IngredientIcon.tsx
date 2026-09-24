@@ -1,3 +1,8 @@
+/**
+ * Iconos de ingredientes (arroz, tomate, queso...) dibujados a mano al estilo
+ * de lucide, para los que lucide-react no tiene.
+ */
+
 import React from 'react';
 import { Drumstick, Egg } from 'lucide-react';
 import type { IngredientKey } from './ingredientData';

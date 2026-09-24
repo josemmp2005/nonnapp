@@ -1,3 +1,8 @@
+/**
+ * Tarjeta base reutilizable: fondo de superficie, borde ligero, radio grande y
+ * sombra suave.
+ */
+
 import React from 'react';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {

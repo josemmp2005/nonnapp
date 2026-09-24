@@ -1,3 +1,8 @@
+/**
+ * Cliente mínimo de OAuth 2.0 de Google, sin librerías: URL de consentimiento,
+ * canje del código por token y lectura del perfil.
+ */
+
 import { env } from '../env.js';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';

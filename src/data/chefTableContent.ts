@@ -1,3 +1,8 @@
+/**
+ * Contenido estático de La Mesa de la Nonna: los estilos de cocina
+ * predefinidos (`CHEF_STYLES`) y las recetas destacadas (`FEATURED_RECIPES`).
+ */
+
 import type { RecipeDB } from '../types';
 
 // Estilos de "Nonnas" Predefinidos

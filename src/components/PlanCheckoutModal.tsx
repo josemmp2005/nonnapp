@@ -1,3 +1,9 @@
+/**
+ * Modal para cambiar de plan: selector de Il Nipote, La Mamma y La Nonna y
+ * pantalla de pago simulada (sin cobro real). Apagado mientras no exista
+ * pasarela de pago (`PLAN_CHANGES_ENABLED`).
+ */
+
 import React, { useState } from 'react';
 import { X, Check, CreditCard, Loader2, Crown, ShieldCheck, ArrowLeft, AlertTriangle } from 'lucide-react';
 import type { SubscriptionPlan } from '../types';

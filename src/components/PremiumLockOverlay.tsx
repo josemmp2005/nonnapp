@@ -1,3 +1,8 @@
+/**
+ * Capa con candado que tapa las secciones de Preferencias exclusivas de La
+ * Mamma y La Nonna.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Lock, Crown } from 'lucide-react';

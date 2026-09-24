@@ -1,3 +1,8 @@
+/**
+ * Fila de validación en vivo de la contraseña, compartida por Auth,
+ * ResetPasswordPage y ProfileEditPage.
+ */
+
 import React from 'react';
 import { Check } from 'lucide-react';
 

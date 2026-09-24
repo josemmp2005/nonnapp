@@ -1,3 +1,8 @@
+/**
+ * Envoltorio que hace aparecer su contenido al entrar en pantalla (fundido y
+ * subida corta), con retraso opcional.
+ */
+
 import React from 'react';
 import { useInView } from '../../hooks/useInView';
 

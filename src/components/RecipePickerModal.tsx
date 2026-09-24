@@ -1,3 +1,8 @@
+/**
+ * Modal para elegir una receta del historial y asignarla a un hueco del
+ * planificador semanal.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { X, Search, ChefHat, Loader2 } from 'lucide-react';
 import type { RecipeDB } from '../types';

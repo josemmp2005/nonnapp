@@ -1,3 +1,8 @@
+/**
+ * Selector de idioma con banderas (es, en, fr, pt): desplegable propio, porque
+ * un `<select>` nativo no puede mostrar SVG.
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';

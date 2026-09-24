@@ -1,3 +1,8 @@
+/**
+ * Modal con los pasos para instalar la PWA en iPhone/iPad (Safari no permite
+ * lanzar la instalación desde código).
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Share, SquarePlus, Check, X } from 'lucide-react';

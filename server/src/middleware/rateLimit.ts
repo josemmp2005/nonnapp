@@ -1,3 +1,8 @@
+/**
+ * Limitadores de frecuencia (`express-rate-limit`): login y registro, tokens
+ * de email, tráfico general de `/api` y generación con IA por usuario.
+ */
+
 import rateLimit from 'express-rate-limit';
 
 // Los tests de integración disparan muchos más intentos de login/signup en

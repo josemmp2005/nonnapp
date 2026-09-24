@@ -1,3 +1,8 @@
+/**
+ * Cliente HTTP de la API de Groq (chat de texto, con modo JSON) para generar
+ * recetas y responder al chef.
+ */
+
 import { env } from '../env.js';
 
 interface GroqMessage {

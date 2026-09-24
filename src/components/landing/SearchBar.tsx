@@ -1,3 +1,8 @@
+/**
+ * Buscador de la landing: ingredientes en chips con sugerencias. Al buscar
+ * lleva a `/app`, que manda a `/auth` si no hay sesión.
+ */
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

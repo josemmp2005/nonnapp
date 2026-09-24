@@ -1,3 +1,8 @@
+/**
+ * `<img>` para fotos de receta con respaldo: si el enlace de Unsplash ya no
+ * carga, pinta un recuadro con un gorro de chef.
+ */
+
 import React, { useState } from 'react';
 import { ChefHat } from 'lucide-react';
 

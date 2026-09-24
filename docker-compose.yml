@@ -1,3 +1,6 @@
+# Entorno local con Docker: Postgres y Adminer para desarrollo, más `server` y
+# `web` para probar el stack completo.
+
 services:
   postgres:
     image: postgres:16-alpine

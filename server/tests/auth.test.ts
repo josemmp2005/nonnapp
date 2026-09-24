@@ -1,3 +1,8 @@
+/**
+ * Tests de integración de `/api/auth`: registro, login (error genérico),
+ * sesión con `/me` y revocación al cerrar sesión.
+ */
+
 import { describe, it, expect } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app.js';

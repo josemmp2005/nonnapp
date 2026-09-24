@@ -1,3 +1,8 @@
+/**
+ * Rutas `/api/subscription`: consultar el plan activo y cambiarlo (desactivado
+ * mientras no haya pasarela de pago).
+ */
+
 import { Router } from 'express';
 import { pool, withTransaction } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';

@@ -1,3 +1,8 @@
+/**
+ * Sección de la landing dedicada a la Nonna, el chef de IA con el que se
+ * chatea mientras se cocina.
+ */
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

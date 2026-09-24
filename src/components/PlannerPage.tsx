@@ -1,3 +1,9 @@
+/**
+ * Página `/app/planner`: planificador semanal (desayuno, comida y cena por
+ * día) y lista de la compra de la semana, plan La Nonna. Apagado con
+ * `PLANNER_ENABLED` mientras se pule: muestra una pantalla de próximamente.
+ */
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';

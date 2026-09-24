@@ -1,3 +1,9 @@
+/**
+ * Configuración de Vitest del backend: tests de integración contra un Postgres
+ * real, ejecutados en secuencia, con un `globalSetup` que prepara la BBDD de
+ * test.
+ */
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({

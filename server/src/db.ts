@@ -1,3 +1,8 @@
+/**
+ * Pool de conexiones de Postgres (`pg`) y `withTransaction`, para agrupar
+ * varias consultas en una transacción.
+ */
+
 import { Pool } from 'pg';
 import 'dotenv/config';
 

@@ -1,3 +1,8 @@
+/**
+ * Chat flotante con el chef de IA sobre la receta que se está viendo (plan La
+ * Nonna). El historial no se guarda.
+ */
+
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Send, Loader2 } from 'lucide-react';

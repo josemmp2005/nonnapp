@@ -1,3 +1,7 @@
+/**
+ * Página `/terms`: términos y condiciones de uso.
+ */
+
 import React from 'react';
 import { Shield, Lock, FileText, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';

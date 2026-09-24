@@ -1,3 +1,8 @@
+/**
+ * Configuración de Vitest del frontend: tests unitarios de lógica pura (los
+ * archivos `.test.ts` de `src/`), sin DOM.
+ */
+
 import { defineConfig } from 'vitest/config';
 
 // Tests unitarios de lógica pura del frontend (utils, helpers) — sin DOM/React

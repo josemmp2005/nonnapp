@@ -1,3 +1,8 @@
+/**
+ * Pantalla completa de carga mientras la IA genera una receta (animación de
+ * cocina y mensajes rotativos).
+ */
+
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Logo } from './Logo';

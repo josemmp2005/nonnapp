@@ -1,3 +1,8 @@
+/**
+ * Defensa CSRF: rechaza con 403 las peticiones que modifican estado y no
+ * vienen del origen del frontend.
+ */
+
 import type { RequestHandler } from 'express';
 import { env } from '../env.js';
 

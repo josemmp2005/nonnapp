@@ -1,3 +1,8 @@
+/**
+ * Envío de emails transaccionales con la API HTTP de Brevo. Sin
+ * `BREVO_API_KEY` solo los muestra por consola.
+ */
+
 import { env } from '../env.js';
 
 // Brevo (antes Sendinblue) en vez de SMTP/Gmail: el plan gratuito de Render

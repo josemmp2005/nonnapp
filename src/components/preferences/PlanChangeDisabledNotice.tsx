@@ -1,3 +1,8 @@
+/**
+ * Aviso que sustituye al modal de pago mientras el cambio de plan está
+ * desactivado: indica que hay que escribir por email para mejorar el plan.
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Mail, Info } from 'lucide-react';

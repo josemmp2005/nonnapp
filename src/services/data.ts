@@ -1,3 +1,9 @@
+/**
+ * Servicio de datos: recetas (recientes, historial, detalle, guardar),
+ * preferencias del chef y suscripción, contra `/api/recipes`, `/api/profile` y
+ * `/api/subscription`.
+ */
+
 import { apiFetch, ApiError } from './api';
 import type { AIRecipeResponse, RecipeDB, SubscriptionData, UserProfile } from '../types';
 import { DEFAULT_USER_PROFILE } from '../constants';

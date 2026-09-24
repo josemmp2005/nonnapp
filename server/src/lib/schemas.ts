@@ -1,3 +1,8 @@
+/**
+ * Esquemas zod de validación de los cuerpos de petición (auth, recetas,
+ * perfil, suscripción, planificador e IA).
+ */
+
 import { z } from 'zod';
 
 const PASSWORD_MIN = 6;

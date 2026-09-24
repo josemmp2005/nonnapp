@@ -1,3 +1,7 @@
+/**
+ * Interruptor accesible con etiqueta y descripción opcional.
+ */
+
 import React from 'react';
 
 interface Props {

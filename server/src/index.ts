@@ -1,3 +1,8 @@
+/**
+ * Punto de entrada del servidor: aplica el esquema de la BBDD, arranca la API
+ * y hace un apagado limpio con SIGTERM/SIGINT.
+ */
+
 import dns from 'node:dns';
 
 // Algunos PaaS (Render free tier incluido) no tienen salida IPv6 completa.

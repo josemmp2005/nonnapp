@@ -1,3 +1,6 @@
+# Imagen del frontend: compila la SPA con Vite y la sirve con nginx
+# (`nginx.conf`).
+
 # --- build: compila el SPA con Vite ---
 FROM node:22-slim AS build
 WORKDIR /app

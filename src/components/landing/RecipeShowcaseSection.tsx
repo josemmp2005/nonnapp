@@ -1,3 +1,8 @@
+/**
+ * Sección de la landing con un escaparate de recetas de ejemplo (fotos reales
+ * de Unsplash).
+ */
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight } from 'lucide-react';
