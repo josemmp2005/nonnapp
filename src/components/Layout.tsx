@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LogOut, Menu, Moon, Search, Sun } from 'lucide-react';
+import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { signOut } from '../services/auth';
 import Sidebar from './Sidebar';
 import { Logo } from './Logo';
@@ -29,17 +29,21 @@ const LANDING_LINKS = [
   { href: '#planes', key: 'plans' },
 ] as const;
 
-const focusLandingSearch = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  document.getElementById('landing-search')?.focus({ preventScroll: true });
-};
-
 const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Mismo criterio que en Auth.tsx: crema liso de base mientras carga la
+  // foto, fundido en cuanto está lista. Se resetea al cambiar de tema porque
+  // ahí SÍ cambia el src (claro/oscuro) y hay que volver a esperar su carga.
+  const [isPcBgLoaded, setIsPcBgLoaded] = useState(false);
+  const [isMobileBgLoaded, setIsMobileBgLoaded] = useState(false);
+  useEffect(() => {
+    setIsPcBgLoaded(false);
+    setIsMobileBgLoaded(false);
+  }, [theme]);
 
   const isAppPage = location.pathname.startsWith('/app');
   const isLanding = location.pathname === '/';
@@ -66,7 +70,12 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
 
   if (session && isAppPage && isVerified) {
     return (
-      <div className="relative min-h-screen bg-cream dark:bg-cream-dark flex transition-colors duration-300">
+      <div className="relative min-h-screen bg-cream dark:bg-cream-dark flex transition-colors animate-in fade-in slide-in-from-bottom-2 duration-300">
+        {/* Entrada sutil al aterrizar en /app viniendo de fuera (login o
+            landing): esta rama solo se monta de nuevo cuando se cruza de la
+            landing/Auth (session null o isAppPage false) a la app — navegar
+            entre páginas ya dentro de /app no vuelve a montar este div, así
+            que la animación no se repite en cada cambio de página interno. */}
         {/* Fondo fijo de toda la app autenticada: no se desplaza con el
             scroll (position: fixed), z-0 explícito para que el resto (todo
             en orden posterior en el DOM, o con z-index mayor como el
@@ -80,13 +89,15 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
           src={theme === 'dark' ? dashboardBgPcDark : dashboardBgPc}
           alt=""
           aria-hidden="true"
-          className="hidden md:block fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0"
+          onLoad={() => setIsPcBgLoaded(true)}
+          className={`hidden md:block fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0 transition-opacity duration-700 ${isPcBgLoaded ? 'opacity-100' : 'opacity-0'}`}
         />
         <img
           src={theme === 'dark' ? dashboardBgMobileDark : dashboardBgMobile}
           alt=""
           aria-hidden="true"
-          className="md:hidden fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0"
+          onLoad={() => setIsMobileBgLoaded(true)}
+          className={`md:hidden fixed inset-0 w-full h-full object-cover scale-105 blur-sm z-0 transition-opacity duration-700 ${isMobileBgLoaded ? 'opacity-100' : 'opacity-0'}`}
         />
 
         <Sidebar
@@ -138,17 +149,6 @@ const Layout: React.FC<LayoutProps> = ({ children, session, onAuthChange }) => {
           )}
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {isLanding && (
-              <Button
-                onClick={focusLandingSearch}
-                aria-label={t('common.header.searchAria')}
-                variant="ghost"
-                iconOnly
-                className="hidden lg:inline-flex"
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-            )}
 
             <LanguageSwitcher />
 

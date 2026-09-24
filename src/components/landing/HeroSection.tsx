@@ -2,8 +2,11 @@ import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Heart, Leaf, Sparkle } from 'lucide-react';
 import heroBgPc from '../../assets/hero-background-pc.webp';
+import heroBgPcDark from '../../assets/hero-background-pc-dark.webp';
 import heroBgMobile from '../../assets/hero-background-mobile.webp';
+import heroBgMobileDark from '../../assets/hero-background-mobile-dark.webp';
 import { useHeroMotion } from '../../hooks/useHeroMotion';
+import { useTheme } from '../../context/ThemeContext';
 import InstallAppButton from '../InstallAppButton';
 import SearchBar from './SearchBar';
 
@@ -73,23 +76,27 @@ const Drifters: React.FC<{ leaves: typeof LEAVES_DESKTOP; sparkle: { left: strin
 // useHeroMotion) y hay hojas cayendo, un destello junto al guiño y un
 // corazón que late. Todo se apaga con prefers-reduced-motion y se pausa fuera
 // de pantalla.
-// Sin versión oscura: la sección se queda con look claro fijo aunque el resto
-// de la app esté en modo oscuro (mismo criterio que la tarjeta "La Mamma" en
-// precios), para no acabar con texto claro sobre un fondo que sigue siendo crema.
+// Con variante oscura desde que llegaron las fotos hero-background-*-dark:
+// bg-cream-dark en la sección (para que el difuminado de los bordes,
+// .hero-pc-fade/.hero-mobile-mask, empalme con el color correcto) y dark: en
+// cada texto — antes se quedaba fijo en claro justamente para no tener texto
+// claro sobre una foto que seguía siendo crema; ahora que la foto sí cambia,
+// hace falta lo contrario.
 const HeroSection: React.FC = () => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   const list = t('landing.hero.list', { returnObjects: true }) as string[];
   const sectionRef = useRef<HTMLElement>(null);
   useHeroMotion(sectionRef);
 
   return (
-    <section ref={sectionRef} className="relative overflow-hidden bg-cream">
+    <section ref={sectionRef} className="relative overflow-hidden bg-cream dark:bg-cream-dark">
       <div className="relative mx-auto w-full max-w-[2200px]">
         <div className="hero-pc-fade hidden md:block h-[520px] lg:h-auto lg:aspect-[1672/941] overflow-hidden">
           <div className="hero-depth-1 w-full h-full">
             <div className="hero-breathe w-full h-full">
               <img
-                src={heroBgPc}
+                src={theme === 'dark' ? heroBgPcDark : heroBgPc}
                 alt=""
                 aria-hidden="true"
                 width={1672}
@@ -104,12 +111,12 @@ const HeroSection: React.FC = () => {
           <div className="max-w-md mx-auto md:mx-0 md:ml-6 md:w-[44%] md:max-w-none lg:ml-[8%] lg:w-[42%] text-left">
             <span
               style={delay(0)}
-              className="hero-in block font-hand text-[22px] md:text-[clamp(1.35rem,2vw,2.75rem)] text-ink/80 mb-2"
+              className="hero-in block font-hand text-[22px] md:text-[clamp(1.35rem,2vw,2.75rem)] text-ink/80 dark:text-ink-light/80 mb-2"
             >
               {t('landing.hero.eyebrow')}
             </span>
 
-            <h1 className="font-display font-bold text-[40px] sm:text-5xl md:text-[clamp(2.75rem,5.6vw,7.7rem)] leading-[1.05] md:leading-[1.02] tracking-tight text-ink mb-5 md:mb-6">
+            <h1 className="font-display font-bold text-[40px] sm:text-5xl md:text-[clamp(2.75rem,5.6vw,7.7rem)] leading-[1.05] md:leading-[1.02] tracking-tight text-ink dark:text-ink-light mb-5 md:mb-6">
               <span style={delay(100)} className="hero-in block">
                 {t('landing.hero.line1')}{' '}
               </span>
@@ -123,7 +130,7 @@ const HeroSection: React.FC = () => {
 
             <p
               style={delay(360)}
-              className="hero-in text-[15px] sm:text-base md:text-[clamp(1rem,1.3vw,1.8rem)] font-medium leading-7 md:leading-relaxed text-body mb-7 md:mb-8 max-w-[34rem]"
+              className="hero-in text-[15px] sm:text-base md:text-[clamp(1rem,1.3vw,1.8rem)] font-medium leading-7 md:leading-relaxed text-body dark:text-body-dark mb-7 md:mb-8 max-w-[34rem]"
             >
               {t('landing.hero.paragraph')}
             </p>
@@ -137,7 +144,7 @@ const HeroSection: React.FC = () => {
         <div className="hero-mobile-mask md:hidden relative mx-auto w-full max-w-[520px] aspect-[941/1084] mt-2 overflow-hidden">
           <div className="hero-breathe w-full h-full">
             <img
-              src={heroBgMobile}
+              src={theme === 'dark' ? heroBgMobileDark : heroBgMobile}
               alt=""
               aria-hidden="true"
               width={941}
@@ -157,7 +164,7 @@ const HeroSection: React.FC = () => {
             <div className="hero-bob">
               <div
                 style={delay(950)}
-                className="hero-fade -rotate-6 font-hand text-[clamp(1rem,1.5vw,2.05rem)] leading-tight text-ink/85"
+                className="hero-fade -rotate-6 font-hand text-[clamp(1rem,1.5vw,2.05rem)] leading-tight text-ink/85 dark:text-ink-light/85"
               >
                 {t('landing.hero.noteCard')}{' '}
                 <Heart className="hero-heart w-[0.9em] h-[0.9em] text-primary" />
@@ -177,7 +184,7 @@ const HeroSection: React.FC = () => {
             <path pathLength={100} style={delay(1750)} className="hero-draw" d="M10 46l11-2M10 46l6-9" />
           </svg>
           <div className="hero-depth-3 absolute top-[34%] right-[2.2%]">
-            <ul className="hero-bob font-hand text-[clamp(1rem,1.45vw,2rem)] leading-snug text-ink/80">
+            <ul className="hero-bob font-hand text-[clamp(1rem,1.45vw,2rem)] leading-snug text-ink/80 dark:text-ink-light/80">
               <li style={delay(1050)} className="hero-in">{list[0]}</li>
               <li style={delay(1140)} className="hero-in pl-2">{list[1]}</li>
               <li style={delay(1230)} className="hero-in">{list[2]}</li>

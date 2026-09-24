@@ -8,8 +8,27 @@ import { Mail, Lock, Loader2, ArrowRight, User, Eye, EyeOff } from 'lucide-react
 import { Logo } from './Logo';
 import { useToast } from '../context/ToastContext';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
+import { useTheme } from '../context/ThemeContext';
 import loginBgPc from '../assets/login-background-pc.webp';
+import loginBgPcDark from '../assets/login-background-pc-dark.webp';
 import loginBgMobile from '../assets/login-background-mobile.webp';
+import loginBgMobileDark from '../assets/login-background-mobile-dark.webp';
+
+const LETTER_STAGGER_MS = 18;
+const letterDelay = (i: number) => ({ '--d': `${i * LETTER_STAGGER_MS}ms` }) as React.CSSProperties;
+
+// Título letra a letra (.letter-in, src/index.css) — nbsp en vez de espacio
+// normal para que no lo colapse el whitespace-collapsing al quedar solo
+// dentro de su propio inline-block.
+const AnimatedTitle: React.FC<{ text: string }> = ({ text }) => (
+  <>
+    {text.split('').map((char, i) => (
+      <span key={i} className="letter-in" style={letterDelay(i)}>
+        {char === ' ' ? ' ' : char}
+      </span>
+    ))}
+  </>
+);
 
 const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 48 48" aria-hidden="true">
@@ -26,11 +45,23 @@ interface Props {
 
 const Auth: React.FC<Props> = ({ onAuthChange }) => {
   const { t } = useTranslation();
+  const { theme } = useTheme();
   // La URL manda: los botones "Iniciar sesión"/"Crear cuenta" de la cabecera
   // enlazan a /auth?modo=login|registro. Estado inicial desde la URL; los
   // cambios posteriores los resincroniza el efecto de más abajo.
   const [isLogin, setIsLogin] = useState(() => new URLSearchParams(window.location.search).get('modo') !== 'registro');
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  // Mientras carga la foto de fondo se ve el crema liso de abajo (ya es del
+  // color de marca, no un hueco roto) y la foto entra con un fundido en
+  // cuanto está lista, en vez de aparecer de golpe. Se resetea al cambiar de
+  // tema porque ahí sí cambia el src (claro/oscuro) — mismo criterio que el
+  // fondo de toda la app en Layout.tsx.
+  const [isPcBgLoaded, setIsPcBgLoaded] = useState(false);
+  const [isMobileBgLoaded, setIsMobileBgLoaded] = useState(false);
+  useEffect(() => {
+    setIsPcBgLoaded(false);
+    setIsMobileBgLoaded(false);
+  }, [theme]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -131,31 +162,53 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           el alto por el aspect-ratio de la imagen — con eso, en pantallas
           bajas (portátiles, 1024×768) la tarjeta no se salía del hueco y
           quedaba tapada por el footer. */}
-      <img src={loginBgPc} alt="" aria-hidden="true" className="hidden md:block absolute inset-0 w-full h-full object-cover" />
-      <img src={loginBgMobile} alt="" aria-hidden="true" className="md:hidden absolute inset-0 w-full h-full object-cover" />
+      <img
+        src={theme === 'dark' ? loginBgPcDark : loginBgPc}
+        alt=""
+        aria-hidden="true"
+        onLoad={() => setIsPcBgLoaded(true)}
+        className={`hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isPcBgLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
+      <img
+        src={theme === 'dark' ? loginBgMobileDark : loginBgMobile}
+        alt=""
+        aria-hidden="true"
+        onLoad={() => setIsMobileBgLoaded(true)}
+        className={`md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isMobileBgLoaded ? 'opacity-100' : 'opacity-0'}`}
+      />
 
       <div className="relative z-10 w-full px-4 py-10">
-      <div className="bg-white/80 dark:bg-[#18130D]/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto border border-white/40 dark:border-[#F5E6CD]/10 transition duration-300 hover:bg-white/90 dark:hover:bg-[#18130D]/90 hover:shadow-2xl hover:shadow-primary/5">
+      <div className="animate-in fade-in zoom-in-95 duration-300 bg-white/80 dark:bg-[#18130D]/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto border border-white/40 dark:border-[#F5E6CD]/10 transition duration-300 hover:bg-white/90 dark:hover:bg-[#18130D]/90 hover:shadow-2xl hover:shadow-primary/5">
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
-          <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
-            {isForgotPassword
-              ? t('app.auth.titleForgot')
-              : isLogin
-                ? t('app.auth.titleLogin')
-                : t('app.auth.titleSignup')}
-          </h2>
-          <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
-            {isForgotPassword
-              ? t('app.auth.subtitleForgot')
-              : isLogin
-                ? t('app.auth.subtitleLogin')
-                : t('app.auth.subtitleSignup')}
-          </p>
+          {/* key={mode}: fuerza un remount (y por tanto un nuevo letter-in /
+              animate-in) cada vez que cambia de login/registro/recuperar,
+              para que el cambio de título se lea como un estado nuevo y no
+              un salto. */}
+          <div key={isForgotPassword ? 'forgot' : isLogin ? 'login' : 'signup'} className="flex flex-col items-center">
+            <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
+              <AnimatedTitle
+                text={
+                  isForgotPassword
+                    ? t('app.auth.titleForgot')
+                    : isLogin
+                      ? t('app.auth.titleLogin')
+                      : t('app.auth.titleSignup')
+                }
+              />
+            </h2>
+            <p className="animate-in fade-in duration-300 delay-300 fill-mode-both text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
+              {isForgotPassword
+                ? t('app.auth.subtitleForgot')
+                : isLogin
+                  ? t('app.auth.subtitleLogin')
+                  : t('app.auth.subtitleSignup')}
+            </p>
+          </div>
         </div>
 
         {!isForgotPassword && (
-          <>
+          <div className="animate-in fade-in slide-in-from-top-2 duration-200">
             <button
               type="button"
               onClick={handleGoogleLogin}
@@ -170,7 +223,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wide">{t('app.auth.orWithEmail')}</span>
               <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
             </div>
-          </>
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -240,7 +293,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               </div>
 
               {!isLogin && (
-                <div className="space-y-1 animate-in fade-in">
+                <div className="space-y-1 animate-in fade-in slide-in-from-top-2">
                   <label htmlFor="auth-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.confirmPasswordLabel')}</label>
                   <div className="relative">
                     <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
@@ -259,7 +312,7 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
               )}
 
               {isLogin && (
-                <div className="flex justify-end">
+                <div className="flex justify-end animate-in fade-in duration-200">
                   <button
                     type="button"
                     onClick={() => {
@@ -281,12 +334,12 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
             className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-[0.98] flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 key="loading" className="w-5 h-5 animate-spin animate-in fade-in duration-150" />
             ) : (
-              <>
+              <span key="idle" className="animate-in fade-in duration-150 flex items-center gap-2">
                 {isForgotPassword ? t('app.auth.submitForgot') : isLogin ? t('app.auth.submitLogin') : t('app.auth.submitSignup')}
                 <ArrowRight className="w-4 h-4" />
-              </>
+              </span>
             )}
           </button>
         </form>
