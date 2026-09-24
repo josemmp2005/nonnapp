@@ -1,15 +1,56 @@
+/*
+ * Estilos globales: directivas de Tailwind, tipografías, textura de papel de
+ * la landing y animaciones propias (hero, título del login, vapor, barra de
+ * progreso).
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Scroll suave hacia las secciones de la landing (enlaces de la cabecera) */
+@media (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
 /* Custom font family */
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', sans-serif;
 }
 
 .font-parisienne {
     font-family: 'Parisienne', cursive;
+}
+
+.font-voice {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+}
+
+.font-hand {
+    font-family: 'Caveat', cursive;
+}
+
+/* Landing page paper grain texture */
+
+.landing-grain {
+    background-image: radial-gradient(rgba(36, 27, 16, 0.035) 1px, transparent 1.4px);
+    background-size: 3px 3px;
+}
+
+.dark .landing-grain {
+    background-image: radial-gradient(rgba(245, 230, 205, 0.07) 1px, transparent 1.4px);
+}
+
+.landing-hero-lines {
+    background-image: repeating-linear-gradient(90deg, rgba(36, 27, 16, 0.05) 0 1px, transparent 1px 160px);
+}
+
+.dark .landing-hero-lines {
+    background-image: repeating-linear-gradient(90deg, rgba(245, 230, 205, 0.06) 0 1px, transparent 1px 160px);
 }
 
 
@@ -90,6 +131,221 @@ body {
     background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0) 70%);
     border-radius: 50%;
     animation: steam 2s infinite ease-out;
+}
+
+
+/* Barra de progreso indeterminada (LoadingOverlay) */
+
+@keyframes progress-indeterminate {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(300%);
+    }
+}
+
+.animate-progress-indeterminate {
+    animation: progress-indeterminate 1.4s infinite ease-in-out;
+}
+
+
+/* Flotación suave para badges/decoraciones de la landing (usa motion-safe:) */
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+
+/* Entrada del hero: cada pieza aparece y sube un poco, escalonada con la
+   variable --d (retraso). Ease-out fuerte (rápido al principio, se asienta
+   despacio) para que se sienta natural y no "de PowerPoint". Solo se anima
+   si el usuario no ha pedido reducir el movimiento; si lo pidió, todo se
+   queda directamente en su estado final. `backwards` (y no `both`) para que
+   al terminar la animación suelte el control del transform y los :hover de
+   los chips/botones sigan funcionando. */
+
+@keyframes hero-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes hero-pop {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes hero-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes hero-draw {
+    from {
+        stroke-dashoffset: 100;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* Ilustración vertical del hero en móvil: se recorta a la zona de la Nonna y
+   se difumina por arriba y por los lados para empalmar con el fondo crema
+   sin que se vea el corte (en pantallas 520-767px queda centrada con
+   max-width y sin esto se notaría el borde). */
+.hero-mobile-mask {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to bottom, transparent 0, #000 16%),
+        linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%);
+    mask-composite: intersect;
+}
+
+/* Hero de escritorio en pantallas más anchas que su composición (2200px):
+   la imagen se queda centrada y sus bordes laterales se difuminan hacia el
+   fondo crema de la sección. Por debajo de ese ancho no se aplica nada. */
+@media (min-width: 2201px) {
+    .hero-pc-fade {
+        -webkit-mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+    }
+}
+
+/* Movimiento continuo del hero (solo sin prefers-reduced-motion). Se usa la
+   propiedad `translate` (independiente de `transform`) para el parallax, así
+   no pisa las rotaciones/escalas/animaciones que ya llevan esos elementos.
+   Las variables --mx/--my (ratón, -1..1) y --sy (scroll, 0..1) las escribe
+   useHeroMotion. */
+@keyframes hero-breathe {
+    from { transform: scale(1.02); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes hero-bob {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -7px; }
+}
+
+@keyframes hero-drift {
+    0% { transform: translate(0, -6px) rotate(0deg); opacity: 0; }
+    12% { opacity: 0.85; }
+    50% { transform: translate(18px, 34px) rotate(38deg); }
+    88% { opacity: 0.85; }
+    100% { transform: translate(-8px, 78px) rotate(84deg); opacity: 0; }
+}
+
+@keyframes hero-twinkle {
+    0%, 100% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+    30% { transform: scale(1) rotate(30deg); opacity: 1; }
+    60% { transform: scale(0.9) rotate(60deg); opacity: 1; }
+    75% { transform: scale(0.2) rotate(90deg); opacity: 0; }
+}
+
+@keyframes hero-heart {
+    0%, 100% { transform: scale(1); }
+    12% { transform: scale(1.22); }
+    24% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-breathe {
+        animation: hero-breathe 12s ease-in-out infinite alternate;
+        transform-origin: 75% 55%;
+    }
+    .hero-bob {
+        animation: hero-bob 7s ease-in-out infinite;
+    }
+    .hero-drift {
+        animation: hero-drift var(--dur, 12s) ease-in-out infinite;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-twinkle {
+        animation: hero-twinkle var(--dur, 3.8s) ease-in-out infinite;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-heart {
+        display: inline-block;
+        animation: hero-heart 2.8s ease-in-out infinite;
+    }
+    /* capas de parallax: cuanto mayor el número, más se mueve */
+    .hero-depth-1 {
+        translate: calc(var(--mx, 0) * -5px) calc(var(--my, 0) * -3px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hero-depth-2 {
+        translate: calc(var(--mx, 0) * -14px) calc(var(--my, 0) * -9px + var(--sy, 0) * 14px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .hero-depth-3 {
+        translate: calc(var(--mx, 0) * 12px) calc(var(--my, 0) * 8px + var(--sy, 0) * -18px);
+        transition: translate 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    /* fuera de pantalla no gastamos batería animando */
+    .hero-paused * {
+        animation-play-state: paused !important;
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .hero-in {
+        animation: hero-rise 650ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-pop {
+        animation: hero-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-fade {
+        animation: hero-fade 900ms ease-out backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    .hero-draw {
+        stroke-dasharray: 100;
+        animation: hero-draw 700ms ease-out backwards;
+        animation-delay: var(--d, 0ms);
+    }
+    /* Igual que .hero-in (misma curva, mismo mecanismo de --d por letra) pero
+       con menos recorrido y más corta: 18px/650ms se ve bien en una línea de
+       titular, pero es lento y mareante letra a letra. Usada en el título de
+       Auth.tsx. */
+    .letter-in {
+        display: inline-block;
+        animation: letter-rise 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+        animation-delay: var(--d, 0ms);
+    }
+}
+
+@keyframes letter-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 

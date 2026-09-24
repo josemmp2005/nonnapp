@@ -1,3 +1,8 @@
+/**
+ * Contexto de notificaciones: `useToast().showToast(mensaje, tipo)` muestra
+ * avisos de éxito, error o información que se cierran solos.
+ */
+
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
@@ -52,8 +57,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             
             <p className="text-sm font-medium flex-grow">{toast.message}</p>
             
-            <button 
+            <button
               onClick={() => removeToast(toast.id)}
+              aria-label="Cerrar aviso"
               className="p-1 hover:bg-gray-100 rounded-full transition-colors opacity-60 hover:opacity-100"
             >
               <X className="w-4 h-4" />
@@ -65,6 +71,11 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+// El hook vive en el mismo archivo que el Provider a propósito (patrón
+// Context+Provider+hook habitual) — solo afecta al Fast Refresh de Vite en
+// desarrollo (una recarga completa en vez de HMR si se edita este archivo),
+// nunca a producción ni a la lógica.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (context === undefined) {

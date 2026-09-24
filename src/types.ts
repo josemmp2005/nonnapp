@@ -1,3 +1,8 @@
+/**
+ * Tipos compartidos del dominio: recetas (respuesta de la IA y filas de BBDD),
+ * ingredientes, pasos, suscripciones con sus límites y preferencias del
+ * usuario.
+ */
 
 // Mapeo de la respuesta JSON de la IA según el PDF (Página 8-10)
 export interface RecipeMetadata {
@@ -23,7 +28,6 @@ export interface StepItem {
   step_number: number;
   instruction: string;
   visual_tag: string;
-  visual_prompt: string;
 }
 
 export interface AIRecipeResponse {
@@ -46,11 +50,13 @@ export interface SubscriptionData {
 export interface SubscriptionLimits {
   maxRecipesPerDay: number;
   hasAdvancedPantry: boolean;
-  hasImageGeneration: boolean;
   hasChefChat: boolean;
   hasWeeklyPlanner: boolean;
   hasFullHistory: boolean;
   hasPrioritySupport: boolean;
+  // Alergias, ingredientes que no gustan y utensilios disponibles — Il Nipote
+  // se queda con lo mínimo (solo nivel de habilidad, que no cuesta nada).
+  hasChefPreferences: boolean;
 }
 
 // Estructura para la UI y Base de Datos (simplificado para frontend)
@@ -78,4 +84,5 @@ export interface GenerationParams {
   servings: number;
   timeLimit?: string;
   utensils?: string;
+  hasKitchenRobot?: boolean;
 }

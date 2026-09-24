@@ -1,6 +1,13 @@
+/**
+ * Contexto de suscripción: carga el plan activo, expone los límites de cada
+ * plan (solo para mostrar u ocultar UI; el servidor los aplica de verdad) y
+ * cuenta las recetas generadas hoy.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import { supabaseClient } from '../services/supabase';
+import { fetchSubscription } from '../services/data';
+import type { AuthSession } from '../services/auth';
 import type { SubscriptionPlan, SubscriptionData, SubscriptionLimits } from '../types';
 
 interface SubscriptionContextType {
@@ -10,6 +17,7 @@ interface SubscriptionContextType {
   refreshSubscription: () => Promise<void>;
   checkRecipeLimit: () => { canGenerate: boolean; remaining: number };
   incrementRecipeCount: () => void;
+  markDailyLimitReached: () => void;
   hasFeature: (feature: keyof SubscriptionLimits) => boolean;
 }
 
@@ -20,29 +28,32 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
   Nipote: {
     maxRecipesPerDay: 2,
     hasAdvancedPantry: false,
-    hasImageGeneration: false,
     hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: false,
     hasPrioritySupport: false,
+    hasChefPreferences: false,
   },
   Mamma: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
-    hasChefChat: true,
+    // El chat del chef y La Mesa de la Nonna pasaron a ser exclusivos de La
+    // Nonna — antes los tenía también La Mamma. La generación de fotos se
+    // eliminó de la app por completo (ya no se usa Gemini para nada).
+    hasChefChat: false,
     hasWeeklyPlanner: false,
     hasFullHistory: true,
     hasPrioritySupport: false,
+    hasChefPreferences: true,
   },
   Nonna: {
     maxRecipesPerDay: Infinity,
     hasAdvancedPantry: true,
-    hasImageGeneration: true,
     hasChefChat: true,
     hasWeeklyPlanner: true,
     hasFullHistory: true,
     hasPrioritySupport: true,
+    hasChefPreferences: true,
   },
 };
 
@@ -53,54 +64,38 @@ const DEFAULT_SUBSCRIPTION: SubscriptionData = {
   end_date: null,
 };
 
-export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const SubscriptionProvider: React.FC<{ children: ReactNode; session: AuthSession | null }> = ({
+  children,
+  session,
+}) => {
   const [subscription, setSubscription] = useState<SubscriptionData>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(true);
 
   // Obtener límites del plan actual
   const limits = PLAN_LIMITS[subscription.plan_type];
 
-  // Cargar suscripción desde DB
+  // Cargar suscripción desde la API
   const refreshSubscription = async () => {
+    if (!session?.user) {
+      setSubscription(DEFAULT_SUBSCRIPTION);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      
-      if (!session?.user) {
+      const data = await fetchSubscription();
+
+      if (data.end_date && new Date(data.end_date) < new Date()) {
         setSubscription(DEFAULT_SUBSCRIPTION);
-        setIsLoading(false);
         return;
       }
 
-      const { data, error } = await supabaseClient
-        .from('subscriptions')
-        .select('plan_type, is_active, start_date, end_date')
-        .eq('user_id', session.user.id)
-        .eq('is_active', true)
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        console.warn('Error fetching subscription:', error);
-        setSubscription(DEFAULT_SUBSCRIPTION);
-      } else if (data) {
-        // Verificar si la suscripción ha expirado
-        if (data.end_date) {
-          const endDate = new Date(data.end_date);
-          if (endDate < new Date()) {
-            setSubscription(DEFAULT_SUBSCRIPTION);
-            return;
-          }
-        }
-
-        setSubscription({
-          plan_type: data.plan_type as SubscriptionPlan,
-          is_active: data.is_active,
-          start_date: data.start_date,
-          end_date: data.end_date,
-        });
-      } else {
-        setSubscription(DEFAULT_SUBSCRIPTION);
-      }
+      setSubscription({
+        plan_type: data.plan_type as SubscriptionPlan,
+        is_active: data.is_active,
+        start_date: data.start_date,
+        end_date: data.end_date,
+      });
     } catch (err) {
       console.error('Failed to load subscription:', err);
       setSubscription(DEFAULT_SUBSCRIPTION);
@@ -109,18 +104,11 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   };
 
-  // Cargar al montar y cuando cambie la sesión
+  // Cargar cada vez que cambia la sesión (login/logout)
   useEffect(() => {
     refreshSubscription();
-
-    const { data: authListener } = supabaseClient.auth.onAuthStateChange(() => {
-      refreshSubscription();
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]);
 
   // Sistema de tracking de recetas generadas (localStorage)
   const getRecipeCountToday = (): number => {
@@ -162,6 +150,17 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     setRecipeCountToday(currentCount + 1);
   };
 
+  // El contador local es solo para pintar "te quedan N" sin esperar al
+  // servidor — puede desincronizarse (otro dispositivo, localStorage borrado).
+  // El backend es quien de verdad bloquea; cuando avisa de límite alcanzado,
+  // esto corrige el contador local para que dejar de mostrar un número que ya
+  // sabemos que es falso.
+  const markDailyLimitReached = () => {
+    if (limits.maxRecipesPerDay !== Infinity) {
+      setRecipeCountToday(limits.maxRecipesPerDay);
+    }
+  };
+
   const hasFeature = (feature: keyof SubscriptionLimits): boolean => {
     return !!limits[feature];
   };
@@ -175,6 +174,7 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
         refreshSubscription,
         checkRecipeLimit,
         incrementRecipeCount,
+        markDailyLimitReached,
         hasFeature,
       }}
     >
@@ -183,6 +183,11 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
   );
 };
 
+// El hook vive en el mismo archivo que el Provider a propósito (patrón
+// Context+Provider+hook habitual) — solo afecta al Fast Refresh de Vite en
+// desarrollo (una recarga completa en vez de HMR si se edita este archivo),
+// nunca a producción ni a la lógica.
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSubscription = () => {
   const context = useContext(SubscriptionContext);
   if (!context) {

@@ -1,297 +1,155 @@
+/**
+ * Página `/app/preferences`: alergias, ingredientes excluidos, nivel de
+ * habilidad, utensilios y gestión del plan de suscripción.
+ */
+
 import React from 'react';
-import { Settings, AlertCircle, UtensilsCrossed, Save, Check, Loader2, Ban, Crown, CreditCard } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Save, Check, Loader2 } from 'lucide-react';
 import type { UserProfile } from '../types';
-import { saveChefPreferences, toggleSubscription } from '../services/supabase';
+import { saveChefPreferences } from '../services/data';
 import { useToast } from '../context/ToastContext';
+import { useSubscription } from '../context/SubscriptionContext';
+import PlanCheckoutModal from './PlanCheckoutModal';
+import PlanChangeDisabledNotice from './preferences/PlanChangeDisabledNotice';
+import SubscriptionCard from './preferences/SubscriptionCard';
+import SkillLevelSection from './preferences/SkillLevelSection';
+import AllergiesSection from './preferences/AllergiesSection';
+import DislikedIngredientsSection from './preferences/DislikedIngredientsSection';
+import UtensilsSection from './preferences/UtensilsSection';
+import type { AuthSession } from '../services/auth';
 
 interface Props {
   profile: UserProfile;
   setProfile: (p: UserProfile) => void;
-  session: any;
+  session: AuthSession | null;
 }
 
+// Pasarela de pago real aún no implementada — bloqueado temporalmente para
+// el primer despliegue público (nadie debe poder autoconcederse un plan de
+// pago sin pagar). Cambiar a true (y el mismo flag en
+// server/src/routes/subscription.ts) para reactivar el cambio de plan.
+const PLAN_CHANGES_ENABLED = false;
+
 const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
+  const { t } = useTranslation();
   const { showToast } = useToast();
+  const { limits, subscription, refreshSubscription } = useSubscription();
+  const isChefPreferencesLocked = !limits.hasChefPreferences;
+  // Única fuente de verdad para "¿es pro?": el plan que devuelve el servidor
+  // (SubscriptionContext), no `profile.is_pro` — ese campo (marcado deprecated
+  // en types.ts) se actualizaba de forma optimista sin refrescar `limits`,
+  // así que justo después de darse de alta esta tarjeta decía "Pro" mientras
+  // las secciones de abajo (que sí leen `limits`) seguían bloqueadas.
+  const isCurrentlyPro = subscription.plan_type !== 'Nipote';
   const [saved, setSaved] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
-  const [isSubscribing, setIsSubscribing] = React.useState(false);
+  const [isPlanModalOpen, setIsPlanModalOpen] = React.useState(false);
 
   const handleSave = async () => {
     if (!session?.user?.id) return;
-    
+
     setIsSaving(true);
-    
+
     try {
-      const { error } = await saveChefPreferences(session.user.id, profile);
-      
+      const { error } = await saveChefPreferences(profile);
+
       if (error) {
         throw error;
       }
 
       setSaved(true);
-      showToast('Preferencias guardadas correctamente', 'success');
+      showToast(t('app.preferences.toastSaved'), 'success');
       setTimeout(() => setSaved(false), 2000);
-    } catch (err: any) {
-      console.error("Error saving preferences:", err);
-      showToast("No se pudieron guardar los cambios. Intenta de nuevo.", 'error');
+    } catch (err) {
+      console.error('Error saving preferences:', err);
+      showToast(t('app.preferences.toastSaveError'), 'error');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleSubscriptionToggle = async () => {
-    if (!session?.user?.id) return;
-    setIsSubscribing(true);
-    
-    const isCurrentlyPro = profile.is_pro || false;
-    
-    try {
-        const { error } = await toggleSubscription(session.user.id, isCurrentlyPro);
-        
-        if (error) throw error;
-
-        // Optimistically update UI
-        setProfile({ ...profile, is_pro: !isCurrentlyPro });
-        
-        if (!isCurrentlyPro) {
-            showToast("¡Bienvenido al plan Chef! Disfruta de imágenes paso a paso.", 'success');
-        } else {
-            showToast("Tu suscripción ha sido cancelada.", 'info');
-        }
-
-    } catch (err: any) {
-        console.error(err);
-        showToast("Error actualizando la suscripción.", 'error');
-    } finally {
-        setIsSubscribing(false);
-    }
+  // El modal (PlanCheckoutModal) hace la llamada real a changeSubscription y
+  // la "simulación de pago" — aquí solo hay que refrescar `limits`/`subscription`
+  // para que toda la página (incluidos los candados de abajo) quede al día.
+  const handlePlanChanged = async () => {
+    await refreshSubscription();
+    setIsPlanModalOpen(false);
   };
-
-  const Toggle = ({ label, checked, onChange, description }: { label: string, checked: boolean, onChange: (v: boolean) => void, description?: string }) => (
-    <div className="flex items-center justify-between py-4">
-      <div>
-        <h4 className="text-sm font-medium text-gray-900 dark:text-white">{label}</h4>
-        {description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{description}</p>}
-      </div>
-      <button
-        onClick={() => onChange(!checked)}
-        className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${checked ? 'bg-primary' : 'bg-gray-200 dark:bg-gray-600'}`}
-      >
-        <span
-          aria-hidden="true"
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${checked ? 'translate-x-5' : 'translate-x-0'}`}
-        />
-      </button>
-    </div>
-  );
 
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Configuración del Chef</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">Personaliza cómo la IA genera tus recetas.</p>
+        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.preferences.title')}</h1>
+        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">{t('app.preferences.subtitle')}</p>
       </div>
 
       <div className="space-y-6">
-        
-        {/* Subscription Management (Linked to DB) */}
-        <section className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 p-6 rounded-2xl border border-gray-700 shadow-lg text-white">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-yellow-500/20 p-2 rounded-lg">
-              <Crown className="w-5 h-5 text-yellow-400" />
-            </div>
-            <div>
-                <h2 className="text-lg font-bold text-white">Tu Plan Actual</h2>
-                <p className="text-xs text-gray-400">Gestiona tu suscripción nonnapp Pro.</p>
-            </div>
-          </div>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-between py-2 gap-4">
-             <div className="pr-4 w-full">
-                <div className="flex items-baseline gap-2">
-                    <h4 className="text-xl font-bold text-white">
-                        {profile.is_pro ? "Plan Chef (Pro)" : "Plan Gratuito"}
-                    </h4>
-                    {profile.is_pro && <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full font-bold">ACTIVO</span>}
-                </div>
-                <p className="text-sm text-gray-400 mt-2">
-                    {profile.is_pro 
-                        ? "Tienes acceso a generación de imágenes paso a paso, historial ilimitado y soporte prioritario." 
-                        : "Actualiza a Pro para generar imágenes de cada paso de tus recetas y eliminar límites."}
-                </p>
-             </div>
-             
-             <button
-                onClick={handleSubscriptionToggle}
-                disabled={isSubscribing}
-                className={`flex-shrink-0 px-6 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-lg active:scale-95 whitespace-nowrap min-w-[140px] justify-center
-                    ${profile.is_pro 
-                        ? 'bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600' 
-                        : 'bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-400 hover:to-yellow-400 text-white shadow-orange-900/20'
-                    }`}
-             >
-                {isSubscribing ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                ) : profile.is_pro ? (
-                    "Cancelar Suscripción"
-                ) : (
-                    <>
-                        <CreditCard className="w-4 h-4" />
-                        Obtener Pro
-                    </>
-                )}
-             </button>
-          </div>
-        </section>
+        <SubscriptionCard
+          subscription={subscription}
+          isCurrentlyPro={isCurrentlyPro}
+          onOpenPlanModal={() => setIsPlanModalOpen(true)}
+        />
 
-        {/* Nivel de Cocina */}
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
-              <Settings className="w-5 h-5 text-primary" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Habilidad Culinaria</h2>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-4">
-            {['beginner', 'intermediate', 'advanced'].map((level) => (
-              <button
-                key={level}
-                onClick={() => setProfile({ ...profile, cooking_skill: level as any })}
-                className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  profile.cooking_skill === level 
-                    ? 'border-primary bg-orange-50 dark:bg-orange-900/20 ring-1 ring-primary' 
-                    : 'border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600'
-                }`}
-              >
-                <div className="font-semibold text-gray-900 dark:text-white capitalize">
-                  {level === 'beginner' && 'Principiante'}
-                  {level === 'intermediate' && 'Intermedio'}
-                  {level === 'advanced' && 'Avanzado'}
-                </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  {level === 'beginner' && 'Instrucciones detalladas y simples.'}
-                  {level === 'intermediate' && 'Equilibrio entre detalle y libertad.'}
-                  {level === 'advanced' && 'Técnicas complejas y menos guía.'}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
+        {isPlanModalOpen && (
+          PLAN_CHANGES_ENABLED ? (
+            <PlanCheckoutModal
+              currentPlan={subscription.plan_type}
+              onClose={() => setIsPlanModalOpen(false)}
+              onChanged={handlePlanChanged}
+            />
+          ) : (
+            <PlanChangeDisabledNotice onClose={() => setIsPlanModalOpen(false)} />
+          )
+        )}
 
-        {/* Intolerancias */}
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all">
-          <div className="flex items-center gap-3 mb-4 border-b border-gray-50 dark:border-gray-700 pb-4">
-            <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-500" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Restricciones Alimentarias</h2>
-          </div>
+        <SkillLevelSection
+          value={profile.cooking_skill}
+          onChange={(level) => setProfile({ ...profile, cooking_skill: level })}
+        />
 
-          <Toggle 
-            label="Activar Filtro de Alergias/Intolerancias" 
-            description="La IA será estricta excluyendo ingredientes."
-            checked={profile.use_allergies || false}
-            onChange={(val) => setProfile({...profile, use_allergies: val})}
-          />
+        <AllergiesSection
+          useAllergies={profile.use_allergies || false}
+          allergies={profile.allergies}
+          onUseAllergiesChange={(val) => setProfile({ ...profile, use_allergies: val })}
+          onAllergiesChange={(val) => setProfile({ ...profile, allergies: val })}
+          locked={isChefPreferencesLocked}
+        />
 
-          {profile.use_allergies && (
-            <div className="mt-4 animate-in slide-in-from-top-2 fade-in">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Lista de alergias o dietas (separadas por comas)
-              </label>
-              <textarea
-                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent outline-none h-32 resize-none bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Ej: Gluten, Lactosa, Cacahuetes, Dieta Keto..."
-                value={profile.allergies}
-                onChange={(e) => setProfile({ ...profile, allergies: e.target.value })}
-              />
-            </div>
-          )}
-        </section>
+        <DislikedIngredientsSection
+          value={profile.disliked_ingredients}
+          onChange={(val) => setProfile({ ...profile, disliked_ingredients: val })}
+          locked={isChefPreferencesLocked}
+        />
 
-        {/* Ingredientes NO deseados (Separado - Estilo Clean) */}
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all">
-          <div className="flex items-center gap-3 mb-4 border-b border-gray-50 dark:border-gray-700 pb-4">
-            <div className="bg-gray-100 dark:bg-gray-700 p-2 rounded-lg">
-              <Ban className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Preferencias de Ingredientes</h2>
-          </div>
+        <UtensilsSection
+          useUtensils={profile.use_utensils || false}
+          availableUtensils={profile.available_utensils || ''}
+          onUseUtensilsChange={(val) => setProfile({ ...profile, use_utensils: val })}
+          onAvailableUtensilsChange={(val) => setProfile({ ...profile, available_utensils: val })}
+          locked={isChefPreferencesLocked}
+        />
 
-          <div className="mt-4 animate-in slide-in-from-top-2 fade-in">
-             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Ingredientes que NO te gustan (Opcional)
-              </label>
-              <input
-                type="text"
-                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Ej: Cilantro, Cebolla, Pimiento..."
-                value={profile.disliked_ingredients}
-                onChange={(e) => setProfile({ ...profile, disliked_ingredients: e.target.value })}
-              />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                La IA evitará activamente incluir estos ingredientes en tus recetas.
-              </p>
-          </div>
-        </section>
-
-        {/* Utensilios */}
-        <section className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all">
-          <div className="flex items-center gap-3 mb-4 border-b border-gray-50 dark:border-gray-700 pb-4">
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
-              <UtensilsCrossed className="w-5 h-5 text-blue-500" />
-            </div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Utensilios de Cocina</h2>
-          </div>
-
-          <Toggle 
-            label="Limitar a mis utensilios disponibles" 
-            description="Solo se generarán recetas que puedas cocinar con tu equipo (Guarda solo en sesión actual)."
-            checked={profile.use_utensils || false}
-            onChange={(val) => setProfile({...profile, use_utensils: val})}
-          />
-
-          {profile.use_utensils && (
-            <div className="mt-4 animate-in slide-in-from-top-2 fade-in">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                ¿Qué tienes en tu cocina?
-              </label>
-              <input
-                type="text"
-                className="w-full p-4 rounded-xl border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white"
-                placeholder="Ej: Batidora, Horno, Air Fryer, Sartén..."
-                value={profile.available_utensils || ''}
-                onChange={(e) => setProfile({ ...profile, available_utensils: e.target.value })}
-              />
-              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-                Deja esto en blanco si tienes una cocina estándar equipada.
-              </p>
-            </div>
-          )}
-        </section>
-
-        {/* Save Button Action */}
         <div className="flex justify-end pt-4">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition-all transform active:scale-95 shadow-lg ${saved ? 'bg-green-500' : 'bg-primary hover:bg-orange-600 shadow-orange-200 dark:shadow-none'} disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition transform active:scale-95 shadow-lg ${saved ? 'bg-green-500' : 'bg-primary hover:bg-orange-600 shadow-orange-200 dark:shadow-none'} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isSaving ? (
-               <>
+              <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Guardando...
-               </>
+                {t('app.profile.saving')}
+              </>
             ) : saved ? (
               <>
                 <Check className="w-5 h-5" />
-                Guardado
+                {t('app.profile.saved')}
               </>
             ) : (
               <>
                 <Save className="w-5 h-5" />
-                Guardar Cambios
+                {t('app.profile.saveChanges')}
               </>
             )}
           </button>

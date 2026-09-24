@@ -1,3 +1,8 @@
+/**
+ * Error boundary global: si algo falla al renderizar, muestra una pantalla de
+ * error de reserva (respetando el tema) en vez de dejar la página en blanco.
+ */
+
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { RefreshCw, AlertTriangle } from 'lucide-react';
@@ -45,21 +50,21 @@ class ErrorBoundary extends Component<Props, State> {
       console.log('⚠️ Rendering error boundary with error:', this.state.error?.message);
 
       return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 text-center transition-colors duration-300">
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl max-w-md w-full border border-red-100 dark:border-red-900/30 transition-colors duration-300">
+        <div className="min-h-screen bg-[#FCF6EC] dark:bg-[#130F0A] flex flex-col items-center justify-center p-4 text-center transition-colors duration-300">
+          <div className="bg-white dark:bg-[#18130D] p-8 rounded-3xl shadow-xl max-w-md w-full border border-red-100 dark:border-red-900/30 transition-colors duration-300">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
               <AlertTriangle className="w-8 h-8" />
             </div>
             
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
               ¡Ups! Algo se quemó en la cocina
             </h1>
             
-            <p className="text-gray-500 dark:text-gray-400 mb-6">
+            <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6">
               Ha ocurrido un error inesperado. No te preocupes, nuestros chefs digitales ya están limpiando el desastre.
             </p>
 
-            <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-xl mb-6 text-left overflow-hidden">
+            <div className="p-4 bg-primary/10 rounded-xl mb-6 text-left overflow-hidden">
                <code className="text-xs text-red-500 font-mono break-all">
                  {this.state.error?.message || 'Error desconocido'}
                </code>
@@ -78,7 +83,7 @@ class ErrorBoundary extends Component<Props, State> {
                 this.resetError();
                 window.location.href = '/';
               }}
-              className="w-full mt-3 py-3 text-gray-500 dark:text-gray-400 font-medium hover:text-gray-900 dark:hover:text-white transition-colors"
+              className="w-full mt-3 py-3 text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:text-[#241B10] dark:hover:text-white transition-colors"
             >
               Volver al Inicio
             </button>

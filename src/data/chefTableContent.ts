@@ -1,0 +1,169 @@
+/**
+ * Contenido estático de La Mesa de la Nonna: los estilos de cocina
+ * predefinidos (`CHEF_STYLES`) y las recetas destacadas (`FEATURED_RECIPES`).
+ */
+
+import type { RecipeDB } from '../types';
+
+// Estilos de "Nonnas" Predefinidos
+export const CHEF_STYLES = [
+  {
+    id: 'francesca',
+    name: 'Nonna Francesca',
+    subtitle: 'La Exigente',
+    description: 'No tolera un corte mal hecho. Técnica perfecta y sabores intensos.',
+    style: 'Estilo de cocina de alta gama, técnica francesa moderna pero con alma italiana, exigente, presentación minimalista y elegante.',
+    image: 'https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?auto=format&fit=crop&w=400&q=80',
+    color: 'from-red-500 to-orange-600',
+    dish: 'Osobuco a la Milanesa Perfecto',
+  },
+  {
+    id: 'maria',
+    name: 'Nonna Maria',
+    subtitle: 'La Clásica',
+    description: 'Comida que te abraza. Mucha mantequilla y mucho amor.',
+    style: 'Estilo casero rústico, cocina italiana tradicional de la vieja escuela, porciones generosas, ingredientes frescos y simples, confort food.',
+    image: 'https://images.unsplash.com/photo-1466637574441-749b8f19452f?auto=format&fit=crop&w=400&q=80',
+    color: 'from-green-500 to-emerald-700',
+    dish: 'Lasaña de la Abuela',
+  },
+  {
+    id: 'valentina',
+    name: 'Nonna Valentina',
+    subtitle: 'La Viajera',
+    description: 'Vivió 10 años en Asia y Sudamérica. Le gusta experimentar.',
+    style: 'Cocina fusión italo-asiática-latina, atrevida, picante, cítrica, emplatado colorido y artístico, ingredientes exóticos.',
+    image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80',
+    color: 'from-purple-500 to-indigo-600',
+    dish: 'Tiradito de Lubina al Pesto',
+  },
+  {
+    id: 'sofia',
+    name: 'Nonna Sofia',
+    subtitle: 'La Moderna',
+    description: 'Dice que la quinoa es el nuevo arroz. Saludable y bio.',
+    style: 'Cocina basada en plantas, superalimentos, vibrante, fresca, bowls nutritivos, bajo en carbohidratos, keto-friendly.',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80',
+    color: 'from-lime-500 to-green-600',
+    dish: 'Risotto de Coliflor y Trufa',
+  },
+  {
+    id: 'rosa',
+    name: 'Nonna Rosa',
+    subtitle: 'La Siciliana',
+    description: 'Cocina con vista al mar. Todo lleva limón, alcaparras y mucho aceite de oliva.',
+    style: 'Cocina mediterránea siciliana, pescado y marisco fresco, cítricos, alcaparras, aceite de oliva virgen extra, pasta fresca, sabores intensos y directos, presentación colorida y veraniega.',
+    image: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=400&q=80',
+    color: 'from-cyan-500 to-blue-600',
+    dish: 'Pasta alla Norma con Berenjena',
+  },
+  {
+    id: 'giulia',
+    name: 'Nonna Giulia',
+    subtitle: 'La Repostera',
+    description: 'El postre es sagrado. No hay comida de domingo sin algo dulce hecho en casa.',
+    style: 'Repostería casera italiana, tartas, cremas, frutas de temporada, técnica de pastelería clásica pero acogedora, presentación delicada y dulce, ideal para sobremesa.',
+    image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=400&q=80',
+    color: 'from-pink-500 to-rose-600',
+    dish: 'Crêpes de la Nonna con Fresas y Nata',
+  },
+];
+
+// Recetas de Autor (Recetas de Familia) — contenido de muestra, no viene de la BBDD.
+export const FEATURED_RECIPES: RecipeDB[] = [
+  {
+    id: 99901,
+    main_image_url: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?q=80&w=1200&auto=format&fit=crop',
+    recipe_metadata: {
+      title: 'Risotto de Setas de la Familia',
+      description:
+        'La receta secreta del domingo. Un risotto cremoso con setas silvestres, terminado con aceite de trufa y parmesano reggiano de 24 meses.',
+      difficulty: 'Media',
+      cooking_time: '45 min',
+      servings: 4,
+      calories: 650,
+      macros: { protein: '18g', carbs: '80g', fat: '28g' },
+    },
+    ingredients: [
+      { item: 'Arroz Arborio', quantity: '320g' },
+      { item: 'Setas variadas (Boletus, Champiñón)', quantity: '400g' },
+      { item: 'Caldo de verduras', quantity: '1.5L' },
+      { item: 'Vino blanco seco', quantity: '150ml' },
+      { item: 'Mantequilla', quantity: '60g' },
+      { item: 'Queso Parmesano', quantity: '80g' },
+      { item: 'Aceite de trufa', quantity: '1 cda' },
+    ],
+    steps: [
+      { step_number: 1, instruction: 'Sofríe la cebolla picada muy fina en la mitad de la mantequilla hasta que esté transparente.', visual_tag: 'sofrito' },
+      { step_number: 2, instruction: 'Añade las setas troceadas y cocina hasta que suelten su agua y se doren ligeramente.', visual_tag: 'setas' },
+      { step_number: 3, instruction: 'Incorpora el arroz y tuéstalo (nacarar) durante 2 minutos hasta que los bordes sean translúcidos.', visual_tag: 'arroz' },
+      { step_number: 4, instruction: 'Vierte el vino blanco y deja evaporar el alcohol completamente.', visual_tag: 'vino' },
+      { step_number: 5, instruction: 'Añade el caldo caliente cazo a cazo, removiendo constantemente. Espera a que se absorba antes de añadir más.', visual_tag: 'caldo' },
+      { step_number: 6, instruction: 'Mantecar: Retira del fuego, añade el resto de mantequilla, el parmesano y el aceite de trufa. Remueve enérgicamente.', visual_tag: 'mantecar' },
+    ],
+    utensils: ['Olla ancha', 'Cucharón', 'Espátula de madera'],
+    is_ai_generated: false,
+  },
+  {
+    id: 99902,
+    main_image_url: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?q=80&w=1200&auto=format&fit=crop',
+    recipe_metadata: {
+      title: 'Salmón al Limón de la Tía',
+      description:
+        'Filetes de salmón fresco horneados con una costra de hierbas, acompañados de espárragos trigueros y una salsa ligera de mantequilla y limón.',
+      difficulty: 'Fácil',
+      cooking_time: '25 min',
+      servings: 2,
+      calories: 480,
+      macros: { protein: '35g', carbs: '8g', fat: '32g' },
+    },
+    ingredients: [
+      { item: 'Lomos de Salmón', quantity: '2 unidades' },
+      { item: 'Espárragos verdes', quantity: '1 manojo' },
+      { item: 'Limón', quantity: '1 unidad' },
+      { item: 'Eneldo fresco', quantity: '1 ramillete' },
+      { item: 'Ajo', quantity: '2 dientes' },
+      { item: 'Mantequilla', quantity: '30g' },
+    ],
+    steps: [
+      { step_number: 1, instruction: 'Precalienta el horno a 200°C.', visual_tag: 'horno' },
+      { step_number: 2, instruction: 'Coloca el salmón y los espárragos en una bandeja. Salpimienta al gusto.', visual_tag: 'bandeja' },
+      { step_number: 3, instruction: 'Mezcla la mantequilla derretida con ajo picado, zumo de limón y eneldo.', visual_tag: 'salsa' },
+      { step_number: 4, instruction: 'Pincela el salmón y las verduras con la mezcla.', visual_tag: 'pincelar' },
+      { step_number: 5, instruction: 'Hornea durante 12-15 minutos hasta que el salmón esté rosado y se deslasque fácilmente.', visual_tag: 'hornear' },
+    ],
+    utensils: ['Bandeja de horno', 'Bol pequeño'],
+    is_ai_generated: false,
+  },
+  {
+    id: 99903,
+    main_image_url: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=1200&auto=format&fit=crop',
+    recipe_metadata: {
+      title: 'Tarta de Queso Sin Horno',
+      description:
+        'Una versión ligera de la clásica tarta de queso, con una base de galleta crujiente y un coulis casero de frutos del bosque. Imposible fallar.',
+      difficulty: 'Fácil',
+      cooking_time: '20 min (+3h frío)',
+      servings: 8,
+      calories: 320,
+      macros: { protein: '8g', carbs: '35g', fat: '18g' },
+    },
+    ingredients: [
+      { item: 'Queso crema', quantity: '400g' },
+      { item: 'Nata para montar', quantity: '200ml' },
+      { item: 'Azúcar', quantity: '100g' },
+      { item: 'Galletas tipo Digestive', quantity: '150g' },
+      { item: 'Mantequilla', quantity: '60g' },
+      { item: 'Frutos rojos', quantity: '200g' },
+    ],
+    steps: [
+      { step_number: 1, instruction: 'Tritura las galletas y mézclalas con la mantequilla derretida. Cubre la base del molde.', visual_tag: 'base' },
+      { step_number: 2, instruction: 'Bate el queso crema con el azúcar hasta que esté suave.', visual_tag: 'crema' },
+      { step_number: 3, instruction: 'Monta la nata e incorpórala a la mezcla de queso con movimientos envolventes.', visual_tag: 'mezcla' },
+      { step_number: 4, instruction: 'Vierte sobre la base y refrigera mínimo 3 horas.', visual_tag: 'refrigerar' },
+      { step_number: 5, instruction: 'Cocina los frutos rojos con un poco de azúcar hasta tener una salsa espesa. Deja enfriar y sirve encima.', visual_tag: 'coulis' },
+    ],
+    utensils: ['Molde desmontable', 'Batidora'],
+    is_ai_generated: false,
+  },
+];

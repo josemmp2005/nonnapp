@@ -1,43 +1,57 @@
+/**
+ * Página `/app` (Dashboard): saludo, recetas recientes y accesos rápidos para
+ * generar.
+ */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import HistoryList from './HistoryList';
-import { fetchRecentRecipes } from '../services/supabase';
+import { fetchRecentRecipes } from '../services/data';
 import type { UserProfile as UserProfileType, RecipeDB } from '../types';
 import { Sparkles, Coffee, Zap, Utensils, ArrowRight } from 'lucide-react';
+import { Reveal } from './ui/Reveal';
 import { useSubscription } from '../context/SubscriptionContext';
 import ChefTableWidget from './ChefTableWidget';
+import RecipePreviewModal from './RecipePreviewModal';
+import type { AuthSession } from '../services/auth';
+import { useToast } from '../context/ToastContext';
 
 interface Props {
   userProfile: UserProfileType;
-  session: any;
+  session: AuthSession | null;
 }
 
 const Dashboard: React.FC<Props> = ({ session }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit } = useSubscription();
   const [recentRecipes, setRecentRecipes] = useState<RecipeDB[]>([]);
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [quickInput, setQuickInput] = useState('');
-  
-  // Saludo basado en la hora
-  const [greeting, setGreeting] = useState('');
+  const [previewId, setPreviewId] = useState<number | null>(null);
+
+  // Saludo basado en la hora — puro cálculo derivado, no necesita
+  // estado+efecto (solo cambiaría si se recarga la página igualmente).
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? t('app.dashboard.greetingMorning') : hour < 20 ? t('app.dashboard.greetingAfternoon') : t('app.dashboard.greetingEvening');
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Buenos días');
-    else if (hour < 20) setGreeting('Buenas tardes');
-    else setGreeting('Buenas noches');
-    
+    const loadHistory = async () => {
+      setIsHistoryLoading(true);
+      try {
+        const history = await fetchRecentRecipes();
+        setRecentRecipes(history);
+      } catch {
+        showToast(t('app.dashboard.loadHistoryError'), 'error');
+      } finally {
+        setIsHistoryLoading(false);
+      }
+    };
     loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const loadHistory = async () => {
-    setIsHistoryLoading(true);
-    const history = await fetchRecentRecipes();
-    setRecentRecipes(history);
-    setIsHistoryLoading(false);
-  };
 
   const handleQuickInputSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +66,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
   };
 
   const handleHistorySelect = (recipe: RecipeDB) => {
-    navigate(`/app/recipe/${recipe.id}`);
+    if (recipe.id != null) setPreviewId(recipe.id);
   };
 
   const triggerQuickAction = (action: string) => {
@@ -94,48 +108,48 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         {/* Header Dashboard */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
             <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">
                     {greeting}, <span className="text-primary">{username}</span>
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2">
+                <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1 flex items-center gap-2">
                     <Utensils className="w-4 h-4" />
-                    Tu cocina inteligente está lista.
+                    {t('app.dashboard.subtitle')}
                 </p>
             </div>
             
             {/* Mini Stats */}
             <div className="flex gap-3">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[80px]">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
+                    <span className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6]">
                       {limits.maxRecipesPerDay === Infinity ? '∞' : remaining}
                     </span>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
-                      {limits.maxRecipesPerDay === Infinity ? 'Recetas' : 'Hoy'}
+                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">
+                      {limits.maxRecipesPerDay === Infinity ? t('app.dashboard.statsRecipesUnlimited') : t('app.dashboard.statsToday')}
                     </span>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex flex-col items-center min-w-[80px]">
+                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
                     <span className="text-2xl font-bold text-primary flex items-center gap-1">
                         {planNames[subscription.plan_type]}
                     </span>
-                    <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Plan</span>
+                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">{t('app.dashboard.statsPlan')}</span>
                 </div>
             </div>
         </div>
 
         {/* Hero Search Input */}
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 dark:from-gray-800 dark:to-gray-900 rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-[#241B10] to-[#18130D] dark:from-[#18130D] dark:to-[#0D0A06] rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
-                <h2 className="text-2xl font-bold text-white mb-6">¿Qué tienes en mente hoy?</h2>
+                <h2 className="text-2xl font-bold text-white mb-6">{t('app.dashboard.heroTitle')}</h2>
                 <form onSubmit={handleQuickInputSubmit} className="relative">
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         value={quickInput}
                         onChange={(e) => setQuickInput(e.target.value)}
-                        placeholder="Ej: Pasta con champiñones, algo con pollo..." 
-                        className="w-full pl-6 pr-14 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 focus:bg-white/20 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+                        placeholder={t('app.dashboard.heroPlaceholder')}
+                        className="w-full pl-6 pr-14 py-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-white/50 focus:bg-white/20 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
                     />
-                    <button 
+                    <button
                         type="submit"
                         className="absolute right-2 top-2 bottom-2 aspect-square bg-primary hover:bg-orange-600 text-white rounded-xl flex items-center justify-center transition-colors shadow-lg"
                     >
@@ -143,56 +157,64 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                     </button>
                 </form>
                 <div className="mt-4 flex flex-wrap justify-center gap-2">
-                    <button onClick={() => setQuickInput("Desayuno saludable")} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">Desayuno saludable</button>
-                    <button onClick={() => setQuickInput("Cena romántica")} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">Cena romántica</button>
-                    <button onClick={() => setQuickInput("Huevos, tomate, arroz")} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">Modo Despensa</button>
+                    <button onClick={() => setQuickInput(t('app.dashboard.chipBreakfast'))} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">{t('app.dashboard.chipBreakfast')}</button>
+                    <button onClick={() => setQuickInput(t('app.dashboard.chipDinner'))} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">{t('app.dashboard.chipDinner')}</button>
+                    <button onClick={() => setQuickInput("Huevos, tomate, arroz")} className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded-full transition-colors">{t('app.dashboard.chipPantry')}</button>
                 </div>
             </div>
         </div>
 
         {/* Quick Actions Grid */}
         <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 px-1">Acciones Rápidas</h3>
+            <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 px-1">{t('app.dashboard.quickActionsTitle')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-               <button 
+               <Reveal delayMs={0}>
+               <button
                  onClick={() => triggerQuickAction('surprise')}
-                 className="p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl text-white shadow-lg shadow-purple-200 dark:shadow-none hover:scale-[1.02] transition-transform text-left relative overflow-hidden group"
+                 className="w-full p-4 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl text-white shadow-lg shadow-purple-200 dark:shadow-none hover:scale-[1.02] active:scale-[0.98] transition-transform text-left relative overflow-hidden group"
                >
                   <div className="relative z-10">
-                      <Sparkles className="w-6 h-6 mb-2 text-purple-100" />
-                      <span className="font-bold block">Sorpréndeme</span>
-                      <span className="text-xs text-purple-100 opacity-80">Algo nuevo hoy</span>
+                      <Sparkles aria-hidden="true" className="w-6 h-6 mb-2 text-purple-100" />
+                      <span className="font-bold block">{t('app.dashboard.surpriseTitle')}</span>
+                      <span className="text-xs text-purple-100 opacity-80">{t('app.dashboard.surpriseSubtitle')}</span>
                   </div>
-                  <Sparkles className="absolute -right-4 -bottom-4 w-20 h-20 text-white opacity-10 group-hover:rotate-12 transition-transform" />
+                  <Sparkles aria-hidden="true" className="absolute -right-4 -bottom-4 w-20 h-20 text-white opacity-10 group-hover:rotate-12 transition-transform" />
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={70}>
+               <button
                  onClick={() => triggerQuickAction('breakfast')}
-                 className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-white shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-gray-750 transition-all text-left group"
+                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
-                  <Coffee className="w-6 h-6 mb-2 text-orange-500" />
-                  <span className="font-bold block">Desayuno Rápido</span>
-                  <span className="text-xs text-gray-400">Listo en 15 min</span>
+                  <Coffee aria-hidden="true" className="w-6 h-6 mb-2 text-orange-500" />
+                  <span className="font-bold block">{t('app.dashboard.breakfastTitle')}</span>
+                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{t('app.dashboard.breakfastSubtitle')}</span>
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={140}>
+               <button
                  onClick={() => triggerQuickAction('healthy')}
-                 className="p-4 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl text-gray-800 dark:text-white shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-gray-750 transition-all text-left group"
+                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
-                  <Zap className="w-6 h-6 mb-2 text-green-500" />
-                  <span className="font-bold block">Modo Fit</span>
-                  <span className="text-xs text-gray-400">Bajo en calorías</span>
+                  <Zap aria-hidden="true" className="w-6 h-6 mb-2 text-green-500" />
+                  <span className="font-bold block">{t('app.dashboard.healthyTitle')}</span>
+                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{t('app.dashboard.healthySubtitle')}</span>
                </button>
+               </Reveal>
 
-               <button 
+               <Reveal delayMs={210}>
+               <button
                   onClick={() => navigate('/app/generate')}
-                  className="p-4 bg-gray-50 dark:bg-gray-800/50 border border-dashed border-gray-200 dark:border-gray-700 rounded-2xl flex flex-col items-center justify-center text-center text-gray-400 hover:border-primary hover:text-primary transition-colors"
+                  className="w-full h-full p-4 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl flex flex-col items-center justify-center text-center text-[#6B5D48] dark:text-[#9A8D74] hover:border-primary hover:text-primary active:scale-[0.98] transition-colors"
                >
-                  <div className="w-8 h-8 rounded-full bg-white dark:bg-gray-700 shadow-sm flex items-center justify-center mb-2">
-                    <Utensils className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-full bg-white dark:bg-[#221B12] shadow-sm flex items-center justify-center mb-2">
+                    <Utensils aria-hidden="true" className="w-4 h-4" />
                   </div>
-                  <span className="text-xs font-bold">Generador Avanzado</span>
+                  <span className="text-xs font-bold">{t('app.dashboard.advancedGenerator')}</span>
                </button>
+               </Reveal>
             </div>
         </div>
 
@@ -200,17 +222,21 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         <ChefTableWidget isLocked={!limits.hasChefChat} />
         
         {/* Recent History */}
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-8">
+        <div className="border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 pt-8">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Tus Creaciones Recientes</h3>
-                <button onClick={() => navigate('/app/history')} className="text-sm text-primary hover:underline">Ver todo</button>
+                <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.dashboard.recentTitle')}</h3>
+                <button onClick={() => navigate('/app/history')} className="text-sm text-primary hover:underline">{t('app.dashboard.viewAll')}</button>
             </div>
-            <HistoryList 
-              recipes={recentRecipes} 
+            <HistoryList
+              recipes={recentRecipes}
               isLoading={isHistoryLoading}
-              onSelect={handleHistorySelect} 
+              onSelect={handleHistorySelect}
             />
         </div>
+
+        {previewId != null && (
+          <RecipePreviewModal recipeId={previewId} onClose={() => setPreviewId(null)} />
+        )}
     </div>
   );
 };
