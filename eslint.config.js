@@ -7,10 +7,9 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
   // server/ es un backend Node aparte (sin este eslint.config.js — no tiene
-  // linter propio todavía) y archive/ es código muerto de la versión con
-  // Supabase, ya no en uso: ninguno de los dos debería recibir reglas
-  // pensadas para React/navegador.
-  globalIgnores(['dist', 'server', 'archive']),
+  // linter propio todavía): no debería recibir reglas pensadas para
+  // React/navegador.
+  globalIgnores(['dist', 'server']),
   {
     files: ['src/**/*.{ts,tsx}'],
     extends: [

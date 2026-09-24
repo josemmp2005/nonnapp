@@ -45,7 +45,6 @@ sabora-app/
   docker-compose.yml      Postgres + Adminer (dev) + server/web (stack completo, ver más abajo)
   Dockerfile              Imagen del frontend (build Vite + nginx)
   server/Dockerfile        Imagen del backend (build TypeScript + runtime)
-  archive/                Código de la versión antigua con Supabase (referencia, no se usa)
 ```
 
 ## Desarrollo local
@@ -254,7 +253,7 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 
 ## Notas de arquitectura
 
-- **Sin Supabase**: la app usaba Supabase (auth + BBDD + Edge Functions) hasta que se migró a Postgres local + este backend propio. El código y los scripts SQL de esa época quedan en `archive/` solo como referencia — no se ejecutan.
+- **Sin Supabase**: la app usaba Supabase (auth + BBDD + Edge Functions) hasta que se migró a Postgres local + este backend propio. El código y los scripts SQL de esa época (Edge Functions, políticas RLS) se eliminaron del repo; siguen en el historial de git por si hiciera falta consultarlos.
 - **Sesión**: JWT en cookie `httpOnly` (`Secure` + `SameSite=None` en producción porque frontend y backend son cross-site; `Lax` en local), nunca en `localStorage` (evita robo por XSS). `localStorage` solo guarda cosas no sensibles: tema (`sabora_theme`), idioma (`nonnapp_lang`), contador diario de recetas y el cooldown de reenvío de verificación. El frontend nunca toca el token directamente. El JWT lleva además el id de una fila en la tabla `sessions` — `requireAuth` comprueba en cada request que esa sesión no esté revocada, así que se puede invalidar una sesión concreta (logout) o todas las de un usuario (cambio de contraseña, reset) sin esperar a que el JWT expire solo.
 - **Verificación de email**: al registrarse se manda un email con un link de un solo uso (`/verify-email?token=...`, caduca en 24h). Hasta que se verifica, la cuenta no puede usar nada de la app: el backend devuelve 403 `EMAIL_NOT_VERIFIED` en `/api/recipes/*`, `/api/profile/*`, `/api/subscription/*` y `/api/ai/*` (middleware `requireVerifiedEmail`), y el frontend muestra una pantalla de bloqueo en cualquier ruta de `/app` en vez del contenido real (`ProtectedRoute` en `App.tsx` + `EmailVerificationGate.tsx`). Las rutas de gestión de la propia cuenta (`/me`, `/logout`, `/update-password`, `/resend-verification`) siguen abiertas para que el usuario pueda reenviar el email o cerrar sesión.
 - **Rate limiting, en dos capas**:

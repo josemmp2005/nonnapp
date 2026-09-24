@@ -33,5 +33,3 @@ coverage/
 *.zip
 *.tar
 *.tar.gz
-# Caché de la CLI de Supabase (versión antigua del proyecto): incluye IDs de proyecto, no debe subirse
-archive/supabase/.temp/
