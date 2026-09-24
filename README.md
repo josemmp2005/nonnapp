@@ -6,7 +6,7 @@ Este documento es la referencia **de código** (stack, arquitectura, cómo levan
 
 ## Stack
 
-- **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + React Router.
+- **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + React Router. Textos en 4 idiomas con `react-i18next`.
 - **Backend**: Node.js + Express + TypeScript, driver `pg` directo (sin ORM).
 - **Base de datos**: PostgreSQL (local, vía Docker).
 - **IA**: [Groq](https://groq.com) — texto de las recetas y chat del chef. No hay generación de imágenes.
@@ -17,8 +17,10 @@ Este documento es la referencia **de código** (stack, arquitectura, cómo levan
 ```
 sabora-app/
   src/                    Frontend (Vite)
-    components/           Páginas y componentes de React
+    components/           Páginas y componentes de React (ui/ = Button, Card, Input... reutilizables)
     context/               Theme, Toast, Subscription (React Context)
+    i18n/                  Configuración de i18next + locales/{es,en,fr,pt}.json
+    assets/                Imágenes; los fondos vienen en 4 variantes (pc/móvil x claro/oscuro), .webp
     services/
       api.ts                Wrapper fetch de bajo nivel (cookies, JSON, errores)
       auth.ts                Login/signup/logout/reset — llama a /api/auth/*
@@ -31,7 +33,12 @@ sabora-app/
       db.ts                  Pool de Postgres + helper de transacciones
       schema.sql             Esquema canónico de la BBDD (fuente de verdad)
       env.ts                 Lectura/validación de variables de entorno
+      app.ts                 App de Express (sin app.listen, para poder testearla con Supertest)
       middleware/auth.ts      Verifica el JWT de la cookie, exige sesión
+      middleware/rateLimit.ts Límites por IP/usuario (express-rate-limit)
+      middleware/sameOrigin.ts Defensa CSRF: rechaza escrituras cuyo Origin no sea el del frontend
+      middleware/plan.ts      requirePlan(...): bloqueo por plan en el servidor
+      lib/loginThrottle.ts    Bloqueo temporal del login por cuenta (tabla login_throttle)
       lib/groq.ts             Cliente HTTP a la API de Groq
       lib/mailer.ts           Envío de emails (Brevo, API HTTP)
       routes/                 Un archivo por área: auth, recipes, profile, subscription, ai
@@ -114,7 +121,7 @@ Si prefieres verlos por separado (dos terminales, por ejemplo para reiniciar sol
 | `DATABASE_URL` | Cadena de conexión a Postgres |
 | `DB_SSL` | `true` solo con un Postgres gestionado que exige TLS (Neon, Render...). El de docker-compose no lo soporta |
 | `JWT_SECRET` | Firma de las cookies de sesión — cambiarlo cierra la sesión a todo el mundo |
-| `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend) |
+| `CORS_ORIGIN` | Origen permitido para llamar a la API (el del frontend). Además de CORS, `middleware/sameOrigin.ts` rechaza con 403 cualquier `POST`/`PUT`/`PATCH`/`DELETE` cuyo header `Origin` no coincida exactamente con este valor (esquema + dominio, sin barra final) — solo se admite un origen, así que las URLs de preview de Vercel no pasan |
 | `APP_URL` | URL del frontend a la que el servidor manda al usuario: redirect tras el login con Google y links de los emails (verificar, restablecer contraseña, bienvenida). Opcional: si falta se usa `CORS_ORIGIN`. En producción, un valor `localhost` se ignora a favor de `CORS_ORIGIN` (y se avisa en el log) |
 | `GROQ_API_KEY` / `GROQ_MODEL` | Generación de recetas y chat del chef |
 | `BREVO_API_KEY` / `BREVO_FROM` | Opcional — envío real de emails (verificación, bienvenida, reset de contraseña) vía [Brevo](https://brevo.com) (API HTTP, no SMTP — el SMTP saliente está bloqueado en el plan gratuito de Render y similares). `BREVO_FROM` debe ser un email verificado en Brevo (Senders, Domains & Dedicated IPs → Senders) — no hace falta dominio propio, y a diferencia de Resend permite mandar a cualquier destinatario en el plan gratuito. Sin `BREVO_API_KEY`, el email se loguea en consola en vez de enviarse |
@@ -206,6 +213,7 @@ Fuente de verdad: [`server/src/schema.sql`](server/src/schema.sql).
 | `password_reset_tokens` | Tokens de un solo uso para "olvidé mi contraseña" (hasheados, con caducidad) |
 | `email_verification_tokens` | Tokens de un solo uso para verificar el email al registrarse (hasheados, caducan a las 24h) |
 | `sessions` | Una fila por sesión activa (login). El JWT de la cookie referencia su id; revocarla (logout, cambio de contraseña) la invalida antes de que expire sola |
+| `login_throttle` | Contador de fallos de login y `locked_until` por email normalizado. Sin FK a `users` a propósito: un email inexistente se bloquea igual que uno real (no delata qué cuentas existen). Se vacía con un login correcto o al restablecer la contraseña; las filas de más de 24 h se purgan solas |
 | `subscriptions` | Plan activo del usuario (`nipote` / `mamma` / `nonna`) |
 | `user_profiles` | Preferencias del chef IA: alergias, ingredientes que no gustan, nivel de habilidad |
 | `recipes` | Cabecera de cada receta generada (título, descripción, macros, imagen...) |
@@ -217,18 +225,18 @@ No hay ORM ni migraciones versionadas todavía: `schema.sql` usa `CREATE TABLE I
 
 ## API
 
-Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset-password`, `/verify-email`) exigen sesión — leen el JWT de la cookie `sabora_session` (`credentials: 'include'` en el fetch del frontend). Las rutas de `/api/recipes/*`, `/api/profile/*`, `/api/subscription/*` y `/api/ai/*` exigen además el email verificado (403 `EMAIL_NOT_VERIFIED` si no); solo las rutas de gestión de la propia cuenta (`me`, `logout`, `update-password`, `resend-verification`) siguen abiertas para un usuario sin verificar. `/signup`, `/login` y `/forgot-password` están limitadas a 8 intentos / 15 min por IP (cada una con su propio contador); `/reset-password`, `/verify-email` y `/resend-verification` a 20 / 15 min.
+Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset-password`, `/verify-email`) exigen sesión — leen el JWT de la cookie `sabora_session` (`credentials: 'include'` en el fetch del frontend). Las rutas de `/api/recipes/*`, `/api/profile/*`, `/api/subscription/*` y `/api/ai/*` exigen además el email verificado (403 `EMAIL_NOT_VERIFIED` si no); solo las rutas de gestión de la propia cuenta (`me`, `logout`, `update-password`, `resend-verification`) siguen abiertas para un usuario sin verificar. `/signup`, `/login` y `/forgot-password` están limitadas a 8 intentos / 15 min por IP (cada una con su propio contador); `/reset-password`, `/verify-email` y `/resend-verification` a 20 / 15 min; todo `/api` a 300 / 15 min por IP y `/api/ai/*` a 30 / 15 min por usuario. Además, `/login` bloquea la cuenta 15 min tras 5 fallos seguidos (429 con `Retry-After` y `retryAfterSeconds`) y `/forgot-password` no manda más de 3 emails por hora a una misma cuenta (la respuesta sigue siendo la genérica). Todas las peticiones que modifican estado deben venir del `Origin` del frontend (403 si no; las que no llevan `Origin`, como curl, pasan).
 
 | Método | Ruta | Auth | Qué hace |
 |---|---|---|---|
 | POST | `/api/auth/signup` | — | Crea cuenta + suscripción `nipote` gratis, inicia sesión, envía email de verificación |
-| POST | `/api/auth/login` | — | Inicia sesión |
+| POST | `/api/auth/login` | — | Inicia sesión. Error genérico (401) tanto si el email no existe como si la contraseña falla; 429 si la cuenta está bloqueada |
 | POST | `/api/auth/logout` | ✔ | Revoca la sesión actual en BBDD y borra la cookie |
 | GET | `/api/auth/me` | ✔ | Devuelve el usuario autenticado (restaura sesión al recargar) |
 | PATCH | `/api/auth/me` | ✔ | Cambia el username |
 | POST | `/api/auth/update-password` | ✔ | Cambia la contraseña; revoca todas las demás sesiones activas del usuario |
 | POST | `/api/auth/forgot-password` | — | Envía email con link de recuperación (respuesta genérica siempre) |
-| POST | `/api/auth/reset-password` | — | Cambia la contraseña con el token del email; revoca todas las sesiones del usuario |
+| POST | `/api/auth/reset-password` | — | Cambia la contraseña con el token del email; revoca todas las sesiones del usuario y desbloquea el login si estaba bloqueado |
 | POST | `/api/auth/verify-email` | — | Marca el email como verificado con el token del email (un solo uso, caduca en 24h) |
 | POST | `/api/auth/resend-verification` | ✔ | Reenvía el email de verificación si aún no está verificado |
 | GET | `/api/auth/google` | — | Redirige al consentimiento de Google (navegación de página completa, no fetch) |
@@ -247,13 +255,19 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 ## Notas de arquitectura
 
 - **Sin Supabase**: la app usaba Supabase (auth + BBDD + Edge Functions) hasta que se migró a Postgres local + este backend propio. El código y los scripts SQL de esa época quedan en `archive/` solo como referencia — no se ejecutan.
-- **Sesión**: JWT en cookie `httpOnly` + `SameSite=Lax`, nunca en `localStorage` (evita robo por XSS). El frontend nunca toca el token directamente. El JWT lleva además el id de una fila en la tabla `sessions` — `requireAuth` comprueba en cada request que esa sesión no esté revocada, así que se puede invalidar una sesión concreta (logout) o todas las de un usuario (cambio de contraseña, reset) sin esperar a que el JWT expire solo.
+- **Sesión**: JWT en cookie `httpOnly` (`Secure` + `SameSite=None` en producción porque frontend y backend son cross-site; `Lax` en local), nunca en `localStorage` (evita robo por XSS). `localStorage` solo guarda cosas no sensibles: tema (`sabora_theme`), idioma (`nonnapp_lang`), contador diario de recetas y el cooldown de reenvío de verificación. El frontend nunca toca el token directamente. El JWT lleva además el id de una fila en la tabla `sessions` — `requireAuth` comprueba en cada request que esa sesión no esté revocada, así que se puede invalidar una sesión concreta (logout) o todas las de un usuario (cambio de contraseña, reset) sin esperar a que el JWT expire solo.
 - **Verificación de email**: al registrarse se manda un email con un link de un solo uso (`/verify-email?token=...`, caduca en 24h). Hasta que se verifica, la cuenta no puede usar nada de la app: el backend devuelve 403 `EMAIL_NOT_VERIFIED` en `/api/recipes/*`, `/api/profile/*`, `/api/subscription/*` y `/api/ai/*` (middleware `requireVerifiedEmail`), y el frontend muestra una pantalla de bloqueo en cualquier ruta de `/app` en vez del contenido real (`ProtectedRoute` en `App.tsx` + `EmailVerificationGate.tsx`). Las rutas de gestión de la propia cuenta (`/me`, `/logout`, `/update-password`, `/resend-verification`) siguen abiertas para que el usuario pueda reenviar el email o cerrar sesión.
-- **Rate limiting**: `express-rate-limit` en las rutas de auth más sensibles a fuerza bruta / abuso (login, signup, forgot-password, reset-password, verify-email). En memoria del proceso — se resetea si el backend se reinicia; suficiente para un solo proceso, no pensado para desplegar detrás de varias instancias sin un store compartido (Redis).
+- **Rate limiting, en dos capas**:
+  - *Por IP* (`express-rate-limit`, `middleware/rateLimit.ts`): login, signup, forgot-password, reset-password, verify-email, resend-verification, un backstop general en `/api` y otro por usuario en `/api/ai/*` (cada llamada cuesta dinero en Groq). Vive en memoria del proceso — se resetea si el backend se reinicia; suficiente para una sola instancia, no pensado para varias sin un store compartido (Redis). Se desactiva solo con `NODE_ENV=test`. En producción, `trust proxy` está activo para contar la IP real del cliente y no la del proxy de Render.
+  - *Por cuenta* (`lib/loginThrottle.ts`, en Postgres, sobrevive a reinicios): el límite por IP no frena a quien reparte los intentos entre muchas IPs contra un mismo email. 5 fallos de login seguidos (ventana de 15 min) bloquean ese email 15 min; el bloqueo se comprueba antes de tocar `users` ni bcrypt. Contrapartida conocida: alguien puede bloquearle la cuenta a otra persona a propósito; se suaviza con el bloqueo corto y con que restablecer la contraseña por email lo levanta.
+- **Login sin filtrar qué emails existen**: error 401 genérico, y `bcrypt.compare` se ejecuta siempre (contra un hash de relleno de coste 12 si el email no existe o la cuenta es solo-Google), para que el tiempo de respuesta tampoco delate qué cuentas están registradas. `/forgot-password` responde siempre igual. Queda una excepción asumida: `/signup` devuelve 409 si el email ya existe.
+- **CSRF**: la cookie de sesión es `SameSite=None` en producción, así que el navegador la adjunta también a peticiones lanzadas desde otros sitios. CORS por sí solo no cubre los `POST`/`DELETE` sin body JSON (p. ej. `/logout`), que un `<form>` externo enviaría sin preflight. `middleware/sameOrigin.ts` comprueba el header `Origin` de toda petición que modifica estado y responde 403 si no es el del frontend (`CORS_ORIGIN`); sin `Origin` (curl, servidor a servidor) se deja pasar, porque esos clientes no llevan la cookie de la víctima.
+- **Idiomas (i18n)**: español (por defecto), inglés, francés y portugués con `react-i18next`; los textos viven en `src/i18n/locales/*.json`. El idioma se detecta de `localStorage` (`nonnapp_lang`) y luego del navegador. El selector con banderas está en la cabecera pública y en Editar perfil. Los mensajes de error que devuelve el backend siguen en español (sin traducir).
+- **Tema claro/oscuro y fondos**: `ThemeContext` pone/quita la clase `dark` en `<html>`. Los fondos de la landing (hero), `/auth` y la app autenticada (dashboard) tienen variantes pc/móvil x claro/oscuro; la variante se elige en JS según el tema (así solo se descarga la que hace falta) y en `/auth` y en la app la imagen entra con un fundido al terminar de cargar (también al cambiar de tema; el hero de la landing solo hace el fundido al montarse, así que al cambiar de tema con la landing abierta la foto cambia de golpe). Al pasar de fuera a `/app` (login o landing) el contenedor de la app entra con un fundido + subida corta; navegar entre páginas de dentro no repite la animación.
 - **Validación de entrada**: todas las rutas que reciben body (`auth`, `recipes`, `profile`, `subscription`, `ai`) validan con `zod` (`server/src/lib/schemas.ts` + `server/src/lib/validate.ts`) — tipos, longitudes máximas y formatos antes de tocar la BBDD o llamar a la IA.
 - **IA**: la clave de Groq vive solo en `server/.env` — el frontend nunca ve una API key de IA, todo pasa por `/api/ai/*` con sesión y email verificado. No hay generación de imágenes (se usó Gemini para eso hasta que se quitó del todo).
 - **Apagado limpio**: el backend maneja `SIGTERM`/`SIGINT` (`server/src/index.ts`) — al recibirlos deja de aceptar conexiones nuevas, espera a que terminen las que ya estaban en curso, cierra el pool de Postgres y solo entonces sale (con un límite de 10s para no quedar colgado si algo no cierra). Importa sobre todo en Docker: `docker stop` manda `SIGTERM` y sin esto Node muere en seco a mitad de una request o con conexiones a Postgres abiertas.
 - **Login con Google**: OAuth 2.0 implementado a mano (sin Passport ni ninguna librería — solo `fetch` contra los endpoints de Google en `server/src/lib/google.ts`), con `state` anti-CSRF en una cookie httpOnly propia. Si el email de Google coincide con una cuenta ya creada por contraseña, se enlaza esa cuenta (`google_id`) en vez de duplicarla, y se marca `email_verified = true` directamente (Google ya lo verificó). `password_hash` es `NULL` para cuentas que solo entraron por Google — el login por contraseña lo detecta y responde con el mismo error genérico. Se degrada solo (redirige con `?error=google_not_configured`) si `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET` no están puestas.
 - **Límites por plan, aplicados en el servidor**: los `limits.hasX` de `SubscriptionContext.tsx` (modo despensa, foto, chat, preferencias del chef) son solo para ocultar botones/secciones en la UI — la restricción real vive en `server/src/middleware/plan.ts` (`requirePlan(...planes)`), en un chequeo puntual dentro de `POST /api/ai/generate-recipe` para el modo despensa, y en `PUT /api/profile/preferences` para alergias/ingredientes. Llamar a esas rutas directamente sin pasar por la UI devuelve 403 `PLAN_REQUIRED` igual. El plan activo de un usuario se resuelve en un único sitio (`server/src/lib/subscription.ts`, `getActivePlan`/`getActiveSubscription`) — antes esa misma query vivía copiada en tres archivos de rutas distintos.
 - **Alergias/ingredientes no deseados nunca se leen del cliente**: `POST /api/ai/generate-recipe` los saca de `user_profiles` en BBDD usando `req.userId`, no de un `userProfile` mandado en el body (ese campo se quitó del schema). Es a propósito — el estado de React de la página de Preferencias cambia con cada tecla, se guarde o no, así que confiar en lo que mande el cliente habría dejado sin efecto el bloqueo de `PUT /preferences` para Il Nipote. Si el plan activo es `nipote`, tanto `GET /preferences` como la generación fuerzan esos campos a vacío aunque hubiera datos guardados de un plan de pago anterior.
-- **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): pasarela de pago real para los planes de pago, subida de avatar.
+- **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): pasarela de pago real para los planes de pago, subida de avatar, doble factor de autenticación (2FA/TOTP — implementación futura).

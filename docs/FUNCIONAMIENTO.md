@@ -9,8 +9,9 @@ Sabora genera recetas de cocina con IA a partir de lo que el usuario tiene en la
 ## Páginas y flujo
 
 - **`/`** — Landing pública: qué es la app, cómo funciona, planes.
-- **`/auth`** — Registro / inicio de sesión (solo email + contraseña).
+- **`/auth`** — Registro / inicio de sesión (email + contraseña, o "Continuar con Google").
 - **`/reset-password?token=...`** — Se llega aquí desde el link del email de recuperación.
+- **`/verify-email?token=...`** — Se llega aquí desde el link del email de verificación.
 - **`/terms`**, **`/privacy`** — Legal.
 - **`/app`** — Dashboard: saludo, recetas recientes, accesos rápidos ("Sorpréndeme", "Desayuno rápido", "Modo Fit").
 - **`/app/generate`** — El generador de recetas (ver abajo).
@@ -25,10 +26,16 @@ Todo lo que empieza por `/app` exige sesión iniciada; si no hay sesión, rediri
 ## Cuenta y sesión
 
 - Registro: email + contraseña (mínimo 6 caracteres) + nombre de usuario. Se crea la cuenta, un plan gratis ("Nipote") y se inicia sesión automáticamente. Se manda un email de verificación y **la cuenta queda bloqueada hasta que se verifica**: al entrar en cualquier página de `/app` se muestra una pantalla de "verifica tu email" (con botón para reenviarlo) en vez del Dashboard, Generador, etc. — no se puede generar recetas, ver el historial, ni tocar preferencias o suscripción sin verificar. El backend aplica el mismo bloqueo (403 `EMAIL_NOT_VERIFIED`) en todas las rutas de `/api/recipes`, `/api/profile`, `/api/subscription` y `/api/ai`, así que no es solo un candado de la interfaz.
-- Login: mismo email/contraseña. Por seguridad, un email que no existe y una contraseña incorrecta dan el mismo mensaje de error genérico (no se puede saber si un email está registrado probando a hacer login). Máximo 8 intentos cada 15 minutos por IP.
+- Login: mismo email/contraseña. Por seguridad, un email que no existe y una contraseña incorrecta dan el mismo mensaje de error genérico (no se puede saber si un email está registrado probando a hacer login). Tampoco se puede deducir por el tiempo de respuesta. Límites contra fuerza bruta: máximo 8 intentos cada 15 minutos por IP y, además, **tras 5 contraseñas incorrectas seguidas la cuenta se bloquea 15 minutos** (aunque después se acierte la contraseña, hay que esperar; la app avisa con un mensaje genérico de "demasiados intentos" y el servidor indica cuántos segundos faltan en la respuesta, pero la pantalla todavía no los muestra). Un login correcto pone el contador a cero, y restablecer la contraseña por email desbloquea la cuenta al momento. El bloqueo es igual para emails que no existen, así que no revela qué cuentas están registradas.
 - La sesión se mantiene con una cookie segura (httpOnly, 7 días de validez) — cerrar y volver a abrir el navegador no desloguea. Cada sesión (login) queda registrada en el servidor: cerrar sesión, o cambiar de contraseña, invalida esa sesión (o todas las demás) al instante, sin esperar a que caduque sola.
-- "Olvidé mi contraseña": se manda un link por email válido 30 minutos. Si el email no existe, la respuesta es igualmente "revisa tu correo" (no revela qué emails están registrados). Al completar el cambio, se cierran todas las sesiones activas de la cuenta (por si el link lo usó alguien con acceso al correo pero no a las sesiones ya abiertas).
+- "Olvidé mi contraseña": se manda un link por email válido 30 minutos. Si el email no existe, la respuesta es igualmente "revisa tu correo" (no revela qué emails están registrados). Cada cuenta recibe como máximo 3 de estos emails por hora (desde cualquier IP), para que nadie pueda llenarle la bandeja a otra persona; al pasarse, la app sigue respondiendo lo mismo pero no manda más. Al completar el cambio, se cierran todas las sesiones activas de la cuenta (por si el link lo usó alguien con acceso al correo pero no a las sesiones ya abiertas).
 - "Continuar con Google": crea la cuenta (o la enlaza, si ya existía una con ese email creada por contraseña) sin pedir verificación de email aparte — Google ya confirma que el email es del usuario. Una cuenta creada solo con Google no tiene contraseña hasta que el usuario le pone una desde Editar perfil.
+
+## Idioma y tema
+
+- **Idioma**: español, inglés, francés y portugués. Se elige según el idioma guardado o, si no hay, el del navegador (español si no coincide con ninguno). Se puede cambiar con las banderas de la cabecera pública y desde Editar perfil. Los mensajes de error que manda el servidor (por ejemplo "Credenciales inválidas") siguen apareciendo en español.
+- **Tema claro/oscuro**: se cambia con el botón de la cabecera y se recuerda entre visitas. Cada pantalla con foto de fondo (landing, login y app) tiene su versión de día y de noche, y una para móvil y otra para escritorio.
+- **Animaciones**: la tarjeta del login aparece con un fundido, el título se escribe letra a letra, y al entrar en la app (desde el login o desde la landing) la pantalla aparece con un fundido suave. Las animaciones de la landing (hero) y la del título del login se desactivan con la opción "reducir movimiento" del sistema; los fundidos de la tarjeta del login y de la entrada a la app todavía no la respetan.
 
 ## Generar una receta
 
@@ -79,4 +86,5 @@ En `/app/preferences` el usuario configura:
 
 - Subida de foto de perfil (avatar) — para cuentas de email/contraseña sigue siendo solo la inicial del nombre (las de Google sí traen foto de perfil real).
 - Pago real de los planes (Stripe o similar).
+- Doble factor de autenticación (2FA): decidido dejarlo para una implementación futura; hoy la protección de la cuenta es contraseña + verificación de email + límites/bloqueo de intentos.
 - Persistencia del chat del chef y de la lista de la compra entre sesiones.
