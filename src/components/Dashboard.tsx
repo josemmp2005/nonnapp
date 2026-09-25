@@ -16,6 +16,7 @@ import ChefTableWidget from './ChefTableWidget';
 import RecipePreviewModal from './RecipePreviewModal';
 import type { AuthSession } from '../services/auth';
 import { useToast } from '../context/ToastContext';
+import { quickActionPrompt, type QuickAction } from '../utils/quickActionPrompts';
 
 interface Props {
   userProfile: UserProfileType;
@@ -69,26 +70,14 @@ const Dashboard: React.FC<Props> = ({ session }) => {
     if (recipe.id != null) setPreviewId(recipe.id);
   };
 
-  const triggerQuickAction = (action: string) => {
-    let prompt = "";
-    let timeLimit = "unlimited";
-
-    if (action === 'breakfast') {
-        prompt = "Un desayuno energético, saludable y rápido para empezar el día.";
-        timeLimit = "15 minutes";
-    } else if (action === 'surprise') {
-        prompt = "Sorpréndeme con una receta exótica de cualquier parte del mundo. Algo que probablemente no haya cocinado antes.";
-    } else if (action === 'healthy') {
-        prompt = "Una cena ligera, baja en carbohidratos, alta en proteínas y llena de sabor.";
-    }
-
-    navigate('/app/generate', { 
-        state: { 
+  const triggerQuickAction = (action: QuickAction) => {
+    navigate('/app/generate', {
+        state: {
             autoTrigger: true,
-            prompt,
+            prompt: quickActionPrompt(action),
             mode: 'text',
-            timeLimit
-        } 
+            timeLimit: action === 'breakfast' ? '15 minutes' : 'unlimited'
+        }
     });
   };
 

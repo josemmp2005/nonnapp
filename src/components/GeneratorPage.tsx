@@ -4,8 +4,8 @@
  * del plan.
  */
 
-import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
@@ -28,6 +28,9 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const { showToast } = useToast();
   const { subscription, limits, checkRecipeLimit, incrementRecipeCount, markDailyLimitReached } = useSubscription();
   const location = useLocation();
+  const navigate = useNavigate();
+  // `key` de la navegación cuyo auto-disparo ya se ha lanzado (ver el efecto de abajo).
+  const autoTriggeredKey = useRef<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
@@ -123,21 +126,30 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   // location.state.autoTrigger). Este efecto DEBE llamarse siempre en el
   // mismo orden en cada render — por eso vive antes del `if (!userProfile)`
   // de abajo, que solo decide qué se pinta, no si el hook se ejecuta.
+  //
+  // Una navegación con `autoTrigger` genera UNA receta. `userProfile` está en
+  // las dependencias y cambia cuando llega el perfil real (unos segundos
+  // después de abrir la app, sobre todo con el servidor en frío); como el state
+  // seguía ahí, cada cambio volvía a generar y la receta se sustituía por otra a
+  // los pocos segundos. Por eso se recuerda la `key` de la navegación ya
+  // atendida y se borra el state del router (`window.history.replaceState` no
+  // toca el `location.state` que lee React Router).
   useEffect(() => {
-    if (location.state && location.state.autoTrigger && userProfile) {
-      const { prompt, mode, servings, timeLimit } = location.state;
-      handleGenerate({
-        prompt,
-        mode: mode || 'text',
-        servings: servings || 2,
-        timeLimit: timeLimit || 'unlimited',
-        ingredients: mode === 'pantry' ? prompt : undefined
-      });
-      // Limpia el state para que no se repita si el usuario navega hacia atrás.
-      window.history.replaceState({}, document.title);
-    }
+    if (!location.state?.autoTrigger || !userProfile) return;
+    if (autoTriggeredKey.current === location.key) return;
+    autoTriggeredKey.current = location.key;
+
+    const { prompt, mode, servings, timeLimit } = location.state;
+    handleGenerate({
+      prompt,
+      mode: mode || 'text',
+      servings: servings || 2,
+      timeLimit: timeLimit || 'unlimited',
+      ingredients: mode === 'pantry' ? prompt : undefined
+    });
+    navigate(location.pathname, { replace: true, state: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.state, userProfile]);
+  }, [location.state, location.key, userProfile]);
 
   // Safety check: si userProfile no está listo, se muestra un loader en vez
   // de la pantalla real — va DESPUÉS de todos los hooks, nunca antes.

@@ -13,7 +13,7 @@ Nonnapp genera recetas de cocina con IA a partir de lo que el usuario tiene en l
 - **`/reset-password?token=...`** — Se llega aquí desde el link del email de recuperación.
 - **`/verify-email?token=...`** — Se llega aquí desde el link del email de verificación.
 - **`/terms`**, **`/privacy`** — Legal.
-- **`/app`** — Dashboard: saludo, recetas recientes, accesos rápidos ("Sorpréndeme", "Desayuno rápido", "Modo Fit").
+- **`/app`** — Dashboard: saludo, recetas recientes, accesos rápidos ("Sorpréndeme", "Desayuno rápido", "Modo Fit"). Cada pulsación le pide a la IA un enfoque distinto (un tipo de desayuno, una proteína, una cocina del mundo...) y no repite ninguno hasta haberlos usado todos; con un texto fijo la IA acababa dando casi siempre lo mismo (avena, pollo, Bunny Chow).
 - **`/app/generate`** — El generador de recetas (ver abajo).
 - **`/app/chef`** — "Mesa de la Nonna": estilos de cocina predefinidos para generar con un toque.
 - **`/app/preferences`** — Alergias, ingredientes que no gustan, nivel de habilidad, gestión del plan.
