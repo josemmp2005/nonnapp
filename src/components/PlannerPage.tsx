@@ -35,7 +35,7 @@ const ComingSoonScreen: React.FC = () => {
   const navigate = useNavigate();
   return (
     <div className="max-w-3xl mx-auto pb-20 animate-in fade-in duration-500">
-      <div className="relative rounded-3xl bg-gradient-to-br from-[#18130D] to-[#0D0A06] overflow-hidden p-12 text-center">
+      <div className="relative rounded-3xl bg-gradient-to-br from-surface-dark to-paper-dark overflow-hidden p-12 text-center">
         <div aria-hidden="true" className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
 
         <div className="relative z-10 max-w-xl mx-auto space-y-6">
@@ -161,11 +161,11 @@ const PlannerPage: React.FC = () => {
               <Lock aria-hidden="true" className="w-10 h-10 text-white" />
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] mb-4">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-ink dark:text-[#F8F2E6] mb-4">
               Planificador Semanal
             </h1>
 
-            <p className="text-xl text-[#3A2E1D] dark:text-[#D4D4D8] leading-relaxed mb-8">
+            <p className="text-xl text-body dark:text-body-dark leading-relaxed mb-8">
               Organiza el desayuno, la comida y la cena de toda la semana con tus recetas guardadas, y genera la lista de la compra combinada. Disponible en el plan <span className="font-bold text-primary">La Nonna</span>.
             </p>
 
@@ -188,11 +188,11 @@ const PlannerPage: React.FC = () => {
     <div className="max-w-7xl mx-auto pb-20 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6] flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6] flex items-center gap-2">
             <CalendarDays aria-hidden="true" className="w-7 h-7 text-primary" />
             Planificador Semanal
           </h1>
-          <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1">Asigna tus recetas guardadas a cada día de la semana.</p>
+          <p className="text-muted dark:text-muted-dark mt-1">Asigna tus recetas guardadas a cada día de la semana.</p>
         </div>
         <button
           onClick={handleShoppingList}
@@ -216,7 +216,7 @@ const PlannerPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-4">
           {DAYS.map((dayName, day) => (
             <div key={dayName} className="space-y-2">
-              <h3 className="text-sm font-bold text-[#241B10] dark:text-[#F8F2E6] uppercase tracking-wide px-1">
+              <h3 className="text-sm font-bold text-ink dark:text-[#F8F2E6] uppercase tracking-wide px-1">
                 {dayName}
               </h3>
               {SLOTS.map(({ key: slot, label }) => {
@@ -224,9 +224,9 @@ const PlannerPage: React.FC = () => {
                 return (
                   <div
                     key={slot}
-                    className="bg-white dark:bg-[#18130D] rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm p-2.5 min-h-[76px] flex flex-col justify-between"
+                    className="bg-white dark:bg-surface-dark rounded-xl border border-ink/10 dark:border-ink-light/10 shadow-sm p-2.5 min-h-[76px] flex flex-col justify-between"
                   >
-                    <span className="text-[10px] font-bold text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-muted dark:text-muted-dark uppercase tracking-wider">
                       {label}
                     </span>
                     {recipe ? (
@@ -236,14 +236,14 @@ const PlannerPage: React.FC = () => {
                             <img src={recipe.main_image_url} alt="" className="w-full h-full object-cover" />
                           )}
                         </div>
-                        <p className="text-xs font-medium text-[#241B10] dark:text-[#F8F2E6] line-clamp-2 flex-grow">
+                        <p className="text-xs font-medium text-ink dark:text-[#F8F2E6] line-clamp-2 flex-grow">
                           {recipe.title}
                         </p>
                         <button
                           type="button"
                           onClick={() => handleRemove(day, slot)}
                           aria-label={`Quitar ${recipe.title} de ${label} del ${dayName}`}
-                          className="flex-shrink-0 text-[#6B5D48] dark:text-[#9A8D74] hover:text-red-500 transition-colors"
+                          className="flex-shrink-0 text-muted dark:text-muted-dark hover:text-red-500 transition-colors"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>

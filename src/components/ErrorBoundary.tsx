@@ -42,7 +42,7 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       // Leer el tema directamente del localStorage ya que estamos fuera del ThemeProvider
-      const isDark = localStorage.getItem('sabora_theme') === 'dark';
+      const isDark = localStorage.getItem('nonnapp_theme') === 'dark';
       if (isDark) {
         document.documentElement.classList.add('dark');
       }
@@ -50,17 +50,17 @@ class ErrorBoundary extends Component<Props, State> {
       console.log('⚠️ Rendering error boundary with error:', this.state.error?.message);
 
       return (
-        <div className="min-h-screen bg-[#FCF6EC] dark:bg-[#130F0A] flex flex-col items-center justify-center p-4 text-center transition-colors duration-300">
-          <div className="bg-white dark:bg-[#18130D] p-8 rounded-3xl shadow-xl max-w-md w-full border border-red-100 dark:border-red-900/30 transition-colors duration-300">
+        <div className="min-h-screen bg-cream dark:bg-cream-dark flex flex-col items-center justify-center p-4 text-center transition-colors duration-300">
+          <div className="bg-white dark:bg-surface-dark p-8 rounded-3xl shadow-xl max-w-md w-full border border-red-100 dark:border-red-900/30 transition-colors duration-300">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-red-500">
               <AlertTriangle className="w-8 h-8" />
             </div>
             
-            <h1 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+            <h1 className="text-2xl font-bold text-ink dark:text-[#F8F2E6] mb-2">
               ¡Ups! Algo se quemó en la cocina
             </h1>
             
-            <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6">
+            <p className="text-muted dark:text-muted-dark mb-6">
               Ha ocurrido un error inesperado. No te preocupes, nuestros chefs digitales ya están limpiando el desastre.
             </p>
 
@@ -83,7 +83,7 @@ class ErrorBoundary extends Component<Props, State> {
                 this.resetError();
                 window.location.href = '/';
               }}
-              className="w-full mt-3 py-3 text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:text-[#241B10] dark:hover:text-white transition-colors"
+              className="w-full mt-3 py-3 text-muted dark:text-muted-dark font-medium hover:text-ink dark:hover:text-white transition-colors"
             >
               Volver al Inicio
             </button>

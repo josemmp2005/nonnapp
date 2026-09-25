@@ -108,10 +108,10 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         {/* Header Dashboard */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
             <div>
-                <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6] tracking-tight">
+                <h1 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-[#F8F2E6] tracking-tight">
                     {greeting}, <span className="text-primary">{username}</span>
                 </h1>
-                <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1 flex items-center gap-2">
+                <p className="text-muted dark:text-muted-dark mt-1 flex items-center gap-2">
                     <Utensils className="w-4 h-4" />
                     {t('app.dashboard.subtitle')}
                 </p>
@@ -119,25 +119,25 @@ const Dashboard: React.FC<Props> = ({ session }) => {
             
             {/* Mini Stats */}
             <div className="flex gap-3">
-                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
-                    <span className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6]">
+                <div className="bg-white dark:bg-surface-dark p-3 rounded-xl border border-ink/10 dark:border-ink-light/10 shadow-sm flex flex-col items-center min-w-[80px]">
+                    <span className="text-2xl font-bold text-ink dark:text-[#F8F2E6]">
                       {limits.maxRecipesPerDay === Infinity ? '∞' : remaining}
                     </span>
-                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">
+                    <span className="text-[10px] text-muted uppercase font-bold tracking-wider">
                       {limits.maxRecipesPerDay === Infinity ? t('app.dashboard.statsRecipesUnlimited') : t('app.dashboard.statsToday')}
                     </span>
                 </div>
-                <div className="bg-white dark:bg-[#18130D] p-3 rounded-xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm flex flex-col items-center min-w-[80px]">
+                <div className="bg-white dark:bg-surface-dark p-3 rounded-xl border border-ink/10 dark:border-ink-light/10 shadow-sm flex flex-col items-center min-w-[80px]">
                     <span className="text-2xl font-bold text-primary flex items-center gap-1">
                         {planNames[subscription.plan_type]}
                     </span>
-                    <span className="text-[10px] text-[#6B5D48] uppercase font-bold tracking-wider">{t('app.dashboard.statsPlan')}</span>
+                    <span className="text-[10px] text-muted uppercase font-bold tracking-wider">{t('app.dashboard.statsPlan')}</span>
                 </div>
             </div>
         </div>
 
         {/* Hero Search Input */}
-        <div className="bg-gradient-to-r from-[#241B10] to-[#18130D] dark:from-[#18130D] dark:to-[#0D0A06] rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-ink to-surface-dark dark:from-surface-dark dark:to-paper-dark rounded-3xl p-8 shadow-xl text-center relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-primary/20 transition-colors"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
                 <h2 className="text-2xl font-bold text-white mb-6">{t('app.dashboard.heroTitle')}</h2>
@@ -166,7 +166,7 @@ const Dashboard: React.FC<Props> = ({ session }) => {
 
         {/* Quick Actions Grid */}
         <div>
-            <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4 px-1">{t('app.dashboard.quickActionsTitle')}</h3>
+            <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] mb-4 px-1">{t('app.dashboard.quickActionsTitle')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                <Reveal delayMs={0}>
                <button
@@ -185,29 +185,29 @@ const Dashboard: React.FC<Props> = ({ session }) => {
                <Reveal delayMs={70}>
                <button
                  onClick={() => triggerQuickAction('breakfast')}
-                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
+                 className="w-full p-4 bg-white dark:bg-surface-dark border border-ink/10 dark:border-ink-light/10 rounded-2xl text-body dark:text-[#F8F2E6] shadow-sm hover:border-orange-200 dark:hover:border-orange-900 hover:bg-orange-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
                   <Coffee aria-hidden="true" className="w-6 h-6 mb-2 text-orange-500" />
                   <span className="font-bold block">{t('app.dashboard.breakfastTitle')}</span>
-                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{t('app.dashboard.breakfastSubtitle')}</span>
+                  <span className="text-xs text-muted dark:text-muted-dark">{t('app.dashboard.breakfastSubtitle')}</span>
                </button>
                </Reveal>
 
                <Reveal delayMs={140}>
                <button
                  onClick={() => triggerQuickAction('healthy')}
-                 className="w-full p-4 bg-white dark:bg-[#18130D] border border-[#241B10]/10 dark:border-[#F5E6CD]/10 rounded-2xl text-[#3A2E1D] dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
+                 className="w-full p-4 bg-white dark:bg-surface-dark border border-ink/10 dark:border-ink-light/10 rounded-2xl text-body dark:text-[#F8F2E6] shadow-sm hover:border-green-200 dark:hover:border-green-900 hover:bg-green-50 dark:hover:bg-[#221B12] active:scale-[0.98] transition text-left group"
                >
                   <Zap aria-hidden="true" className="w-6 h-6 mb-2 text-green-500" />
                   <span className="font-bold block">{t('app.dashboard.healthyTitle')}</span>
-                  <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{t('app.dashboard.healthySubtitle')}</span>
+                  <span className="text-xs text-muted dark:text-muted-dark">{t('app.dashboard.healthySubtitle')}</span>
                </button>
                </Reveal>
 
                <Reveal delayMs={210}>
                <button
                   onClick={() => navigate('/app/generate')}
-                  className="w-full h-full p-4 bg-[#FCF6EC] dark:bg-[#18130D]/50 border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-2xl flex flex-col items-center justify-center text-center text-[#6B5D48] dark:text-[#9A8D74] hover:border-primary hover:text-primary active:scale-[0.98] transition-colors"
+                  className="w-full h-full p-4 bg-cream dark:bg-surface-dark/50 border border-dashed border-ink/15 dark:border-ink-light/15 rounded-2xl flex flex-col items-center justify-center text-center text-muted dark:text-muted-dark hover:border-primary hover:text-primary active:scale-[0.98] transition-colors"
                >
                   <div className="w-8 h-8 rounded-full bg-white dark:bg-[#221B12] shadow-sm flex items-center justify-center mb-2">
                     <Utensils aria-hidden="true" className="w-4 h-4" />
@@ -222,9 +222,9 @@ const Dashboard: React.FC<Props> = ({ session }) => {
         <ChefTableWidget isLocked={!limits.hasChefChat} />
         
         {/* Recent History */}
-        <div className="border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 pt-8">
+        <div className="border-t border-ink/10 dark:border-ink-light/10 pt-8">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.dashboard.recentTitle')}</h3>
+                <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6]">{t('app.dashboard.recentTitle')}</h3>
                 <button onClick={() => navigate('/app/history')} className="text-sm text-primary hover:underline">{t('app.dashboard.viewAll')}</button>
             </div>
             <HistoryList

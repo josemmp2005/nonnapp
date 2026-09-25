@@ -12,6 +12,7 @@ import cookieParser from 'cookie-parser';
 import { env, isProd } from './env.js';
 import { createApiRateLimiter } from './middleware/rateLimit.js';
 import { requireSameOrigin } from './middleware/sameOrigin.js';
+import { errorHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import recipesRoutes from './routes/recipes.js';
 import profileRoutes from './routes/profile.js';
@@ -57,3 +58,6 @@ app.use('/api/planner', plannerRoutes);
 app.use((req, res) => {
   res.status(404).json({ error: `Ruta no encontrada: ${req.method} ${req.path}` });
 });
+
+// Siempre el último: recoge lo que llegue a next(err).
+app.use(errorHandler);

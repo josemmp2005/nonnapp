@@ -15,6 +15,8 @@ import { Logo } from './Logo';
 import { useToast } from '../context/ToastContext';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
 import { useTheme } from '../context/ThemeContext';
+import { useThemedImage } from '../hooks/useThemedImage';
+import { authModeFromUrl, type AuthMode } from '../utils/authMode';
 import loginBgPc from '../assets/login-background-pc.webp';
 import loginBgPcDark from '../assets/login-background-pc-dark.webp';
 import loginBgMobile from '../assets/login-background-mobile.webp';
@@ -45,6 +47,11 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+// "forgot" no se codifica en la URL (solo se llega ahí desde el propio
+// formulario de login) — por eso es un estado interno que se suma a
+// AuthMode (login/signup, ver utils/authMode.ts), no parte de ese tipo.
+type Mode = AuthMode | 'forgot';
+
 interface Props {
   onAuthChange: (session: AuthSession | null) => void;
 }
@@ -53,21 +60,17 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
   const { t } = useTranslation();
   const { theme } = useTheme();
   // La URL manda: los botones "Iniciar sesión"/"Crear cuenta" de la cabecera
-  // enlazan a /auth?modo=login|registro. Estado inicial desde la URL; los
-  // cambios posteriores los resincroniza el efecto de más abajo.
-  const [isLogin, setIsLogin] = useState(() => new URLSearchParams(window.location.search).get('modo') !== 'registro');
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  // enlazan a /auth?modo=login|registro. "forgot" no se codifica en la URL
+  // (solo se llega ahí desde el propio formulario de login), así que el
+  // estado inicial y la resincronización de más abajo solo distinguen
+  // login/signup; volver de "forgot" siempre aterriza en login.
+  const [mode, setMode] = useState<Mode>(() => authModeFromUrl(window.location.search));
   // Mientras carga la foto de fondo se ve el crema liso de abajo (ya es del
   // color de marca, no un hueco roto) y la foto entra con un fundido en
-  // cuanto está lista, en vez de aparecer de golpe. Se resetea al cambiar de
-  // tema porque ahí sí cambia el src (claro/oscuro) — mismo criterio que el
+  // cuanto está lista, en vez de aparecer de golpe. Mismo hook que usa el
   // fondo de toda la app en Layout.tsx.
-  const [isPcBgLoaded, setIsPcBgLoaded] = useState(false);
-  const [isMobileBgLoaded, setIsMobileBgLoaded] = useState(false);
-  useEffect(() => {
-    setIsPcBgLoaded(false);
-    setIsMobileBgLoaded(false);
-  }, [theme]);
+  const pcBg = useThemedImage(theme, loginBgPc, loginBgPcDark);
+  const mobileBg = useThemedImage(theme, loginBgMobile, loginBgMobileDark);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -88,22 +91,17 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
   // cuenta" con el formulario ya en registro, o con "¿Olvidaste tu
   // contraseña?" abierto — vuelve al formulario normal).
   useEffect(() => {
-    setIsLogin(new URLSearchParams(location.search).get('modo') !== 'registro');
-    setIsForgotPassword(false);
+    setMode(authModeFromUrl(location.search));
     setUsername('');
     setPassword('');
     setConfirmPassword('');
     setShowPassword(false);
   }, [location.key, location.search]);
 
-  // Validation States
-  const [isPasswordLengthValid, setIsPasswordLengthValid] = useState(false);
-  const [doPasswordsMatch, setDoPasswordsMatch] = useState(false);
-
-  useEffect(() => {
-    setIsPasswordLengthValid(password.length >= 6);
-    setDoPasswordsMatch(password === confirmPassword && password.length > 0);
-  }, [password, confirmPassword]);
+  // Derivadas del propio password/confirmPassword en cada render — no hace
+  // falta guardarlas como estado aparte ni un efecto para mantenerlas al día.
+  const isPasswordLengthValid = password.length >= 6;
+  const doPasswordsMatch = password === confirmPassword && password.length > 0;
 
   // El backend redirige aquí con ?error=... si el login con Google falla
   // (el usuario cancela, la config no está lista, el state no cuadra, etc.).
@@ -129,13 +127,13 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
     setIsLoading(true);
 
     try {
-      if (isForgotPassword) {
+      if (mode === 'forgot') {
         const { error } = await requestPasswordReset(email);
         if (error) throw new Error(error.message || t('app.auth.errorForgotGeneric'));
         showToast(t('app.auth.toastForgotSuccess'), 'success');
-        setIsForgotPassword(false);
+        setMode('login');
         setEmail('');
-      } else if (isLogin) {
+      } else if (mode === 'login') {
         const { user, error } = await signInWithEmail(email, password);
         if (error || !user) throw new Error(error?.message || t('app.auth.errorLoginGeneric'));
         onAuthChange({ user });
@@ -169,85 +167,85 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           bajas (portátiles, 1024×768) la tarjeta no se salía del hueco y
           quedaba tapada por el footer. */}
       <img
-        src={theme === 'dark' ? loginBgPcDark : loginBgPc}
+        src={pcBg.src}
         alt=""
         aria-hidden="true"
-        onLoad={() => setIsPcBgLoaded(true)}
-        className={`hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isPcBgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={pcBg.onLoad}
+        className={`hidden md:block absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${pcBg.loaded ? 'opacity-100' : 'opacity-0'}`}
       />
       <img
-        src={theme === 'dark' ? loginBgMobileDark : loginBgMobile}
+        src={mobileBg.src}
         alt=""
         aria-hidden="true"
-        onLoad={() => setIsMobileBgLoaded(true)}
-        className={`md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isMobileBgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        onLoad={mobileBg.onLoad}
+        className={`md:hidden absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${mobileBg.loaded ? 'opacity-100' : 'opacity-0'}`}
       />
 
       <div className="relative z-10 w-full px-4 py-10">
-      <div className="animate-in fade-in zoom-in-95 duration-300 bg-white/80 dark:bg-[#18130D]/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto border border-white/40 dark:border-[#F5E6CD]/10 transition duration-300 hover:bg-white/90 dark:hover:bg-[#18130D]/90 hover:shadow-2xl hover:shadow-primary/5">
+      <div className="animate-in fade-in zoom-in-95 duration-300 bg-white/80 dark:bg-surface-dark/80 backdrop-blur-xl rounded-2xl shadow-xl p-8 w-full max-w-md mx-auto border border-white/40 dark:border-ink-light/10 transition duration-300 hover:bg-white/90 dark:hover:bg-surface-dark/90 hover:shadow-2xl hover:shadow-primary/5">
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
           {/* key={mode}: fuerza un remount (y por tanto un nuevo letter-in /
               animate-in) cada vez que cambia de login/registro/recuperar,
               para que el cambio de título se lea como un estado nuevo y no
               un salto. */}
-          <div key={isForgotPassword ? 'forgot' : isLogin ? 'login' : 'signup'} className="flex flex-col items-center">
-            <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mt-4">
+          <div key={mode} className="flex flex-col items-center">
+            <h2 className="text-xl font-bold text-ink dark:text-[#F8F2E6] mt-4">
               <AnimatedTitle
                 text={
-                  isForgotPassword
+                  mode === 'forgot'
                     ? t('app.auth.titleForgot')
-                    : isLogin
+                    : mode === 'login'
                       ? t('app.auth.titleLogin')
                       : t('app.auth.titleSignup')
                 }
               />
             </h2>
-            <p className="animate-in fade-in duration-300 delay-300 fill-mode-both text-[#6B5D48] dark:text-[#9A8D74] mt-2 text-sm text-center">
-              {isForgotPassword
+            <p className="animate-in fade-in duration-300 delay-300 fill-mode-both text-muted dark:text-muted-dark mt-2 text-sm text-center">
+              {mode === 'forgot'
                 ? t('app.auth.subtitleForgot')
-                : isLogin
+                : mode === 'login'
                   ? t('app.auth.subtitleLogin')
                   : t('app.auth.subtitleSignup')}
             </p>
           </div>
         </div>
 
-        {!isForgotPassword && (
+        {mode !== 'forgot' && (
           <div className="animate-in fade-in slide-in-from-top-2 duration-200">
             <button
               type="button"
               onClick={handleGoogleLogin}
-              className="w-full flex items-center justify-center gap-3 py-3 border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl font-semibold text-[#3A2E1D] dark:text-[#D4D4D8] bg-white dark:bg-[#221B12] hover:bg-[#241B10]/5 dark:hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0 transition duration-300"
+              className="w-full flex items-center justify-center gap-3 py-3 border border-ink/15 dark:border-ink-light/15 rounded-xl font-semibold text-body dark:text-body-dark bg-white dark:bg-[#221B12] hover:bg-ink/5 dark:hover:bg-white/5 hover:-translate-y-0.5 active:translate-y-0 transition duration-300"
             >
               <GoogleIcon className="w-5 h-5" />
               {t('app.auth.continueWithGoogle')}
             </button>
 
             <div className="flex items-center gap-3 my-6">
-              <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
-              <span className="text-xs text-[#6B5D48] dark:text-[#9A8D74] uppercase tracking-wide">{t('app.auth.orWithEmail')}</span>
-              <div className="flex-grow h-px bg-[#241B10]/10 dark:bg-[#F5E6CD]/10" />
+              <div className="flex-grow h-px bg-ink/10 dark:bg-ink-light/10" />
+              <span className="text-xs text-muted dark:text-muted-dark uppercase tracking-wide">{t('app.auth.orWithEmail')}</span>
+              <div className="flex-grow h-px bg-ink/10 dark:bg-ink-light/10" />
             </div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {!isLogin && !isForgotPassword && (
+          {mode === 'signup' && (
             <div className="animate-in slide-in-from-top-2 fade-in space-y-4">
               <div className="space-y-1">
-                <label htmlFor="auth-username" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.usernameLabel')}</label>
+                <label htmlFor="auth-username" className="text-sm font-medium text-body dark:text-body-dark">{t('app.auth.usernameLabel')}</label>
                 <div className="relative">
-                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
                   <input
                     id="auth-username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder={t('app.auth.usernamePlaceholder')}
-                    required={!isLogin && !isForgotPassword}
-                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
+                    required={mode === 'signup'}
+                    className="w-full pl-10 pr-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-ink dark:text-[#F8F2E6]"
                   />
                 </div>
               </div>
@@ -255,9 +253,9 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
           )}
 
           <div className="space-y-1">
-            <label htmlFor="auth-email" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.emailLabel')}</label>
+            <label htmlFor="auth-email" className="text-sm font-medium text-body dark:text-body-dark">{t('app.auth.emailLabel')}</label>
             <div className="relative">
-              <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+              <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
               <input
                 id="auth-email"
                 type="email"
@@ -265,17 +263,17 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('app.auth.emailPlaceholder')}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
+                className="w-full pl-10 pr-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-ink dark:text-[#F8F2E6]"
               />
             </div>
           </div>
 
-          {!isForgotPassword && (
+          {mode !== 'forgot' && (
             <>
               <div className="space-y-1">
-                <label htmlFor="auth-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.passwordLabel')}</label>
+                <label htmlFor="auth-password" className="text-sm font-medium text-body dark:text-body-dark">{t('app.auth.passwordLabel')}</label>
                 <div className="relative">
-                  <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+                  <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
                   <input
                     id="auth-password"
                     type={showPassword ? "text" : "password"}
@@ -283,46 +281,46 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    className="w-full pl-10 pr-12 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full pl-10 pr-12 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-ink dark:text-[#F8F2E6]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? t('app.auth.hidePassword') : t('app.auth.showPassword')}
-                    className="absolute right-3 top-3.5 text-[#6B5D48] hover:text-[#5C4E3A] dark:hover:text-[#D4D4D8] transition-colors"
+                    className="absolute right-3 top-3.5 text-muted hover:text-[#5C4E3A] dark:hover:text-body-dark transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
 
-                {!isLogin && <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />}
+                {mode === 'signup' && <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />}
               </div>
 
-              {!isLogin && (
+              {mode === 'signup' && (
                 <div className="space-y-1 animate-in fade-in slide-in-from-top-2">
-                  <label htmlFor="auth-confirm-password" className="text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.auth.confirmPasswordLabel')}</label>
+                  <label htmlFor="auth-confirm-password" className="text-sm font-medium text-body dark:text-body-dark">{t('app.auth.confirmPasswordLabel')}</label>
                   <div className="relative">
-                    <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+                    <Lock aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
                     <input
                       id="auth-confirm-password"
                       type={showPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      required={!isLogin}
-                      className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
+                      required={mode === 'signup'}
+                      className="w-full pl-10 pr-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-ink dark:text-[#F8F2E6]"
                     />
                   </div>
                   <PasswordCheckItem ok={doPasswordsMatch} label={t('app.profile.passwordsMatch')} />
                 </div>
               )}
 
-              {isLogin && (
+              {mode === 'login' && (
                 <div className="flex justify-end animate-in fade-in duration-200">
                   <button
                     type="button"
                     onClick={() => {
-                      setIsForgotPassword(true);
+                      setMode('forgot');
                       setPassword('');
                     }}
                     className="text-sm text-primary hover:underline font-medium"
@@ -336,14 +334,14 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
 
           <button
             type="submit"
-            disabled={isLoading || (!isForgotPassword && !isLogin && (!isPasswordLengthValid || !doPasswordsMatch))}
+            disabled={isLoading || (mode === 'signup' && (!isPasswordLengthValid || !doPasswordsMatch))}
             className="w-full py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl shadow-md transition active:scale-[0.98] flex items-center justify-center gap-2 mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 key="loading" className="w-5 h-5 animate-spin animate-in fade-in duration-150" />
             ) : (
               <span key="idle" className="animate-in fade-in duration-150 flex items-center gap-2">
-                {isForgotPassword ? t('app.auth.submitForgot') : isLogin ? t('app.auth.submitLogin') : t('app.auth.submitSignup')}
+                {mode === 'forgot' ? t('app.auth.submitForgot') : mode === 'login' ? t('app.auth.submitLogin') : t('app.auth.submitSignup')}
                 <ArrowRight className="w-4 h-4" />
               </span>
             )}
@@ -351,27 +349,27 @@ const Auth: React.FC<Props> = ({ onAuthChange }) => {
         </form>
 
         <div className="mt-6 text-center">
-          {isForgotPassword ? (
+          {mode === 'forgot' ? (
             <button
               onClick={() => {
-                setIsForgotPassword(false);
+                setMode('login');
                 setEmail('');
               }}
-              className="text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium"
+              className="text-sm text-muted dark:text-muted-dark hover:text-primary font-medium"
             >
               {t('app.auth.backToLogin')}
             </button>
           ) : (
-            <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74]">
-              {isLogin ? t('app.auth.noAccount') : t('app.auth.hasAccount')}
+            <p className="text-sm text-muted dark:text-muted-dark">
+              {mode === 'login' ? t('app.auth.noAccount') : t('app.auth.hasAccount')}
               <button
                 onClick={() => {
                   // cambia la URL; el efecto de arriba actualiza el formulario
-                  setSearchParams({ modo: isLogin ? 'registro' : 'login' }, { replace: true });
+                  setSearchParams({ modo: mode === 'login' ? 'registro' : 'login' }, { replace: true });
                 }}
                 className="text-primary font-bold hover:underline"
               >
-                {isLogin ? t('app.auth.signupLink') : t('app.auth.loginLink')}
+                {mode === 'login' ? t('app.auth.signupLink') : t('app.auth.loginLink')}
               </button>
             </p>
           )}

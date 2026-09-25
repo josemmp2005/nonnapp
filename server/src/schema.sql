@@ -1,4 +1,4 @@
--- Sabora — esquema canónico para Postgres local.
+-- Nonnapp — esquema canónico para Postgres local.
 -- Sustituye a los parches sueltos de ../sql/*.sql (pensados para el dashboard
 -- de Supabase, con auth.users/auth.uid()). Aquí la autorización vive en el
 -- backend (server/src/middleware/auth.ts + routes/*), no en RLS.

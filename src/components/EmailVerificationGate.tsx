@@ -19,7 +19,7 @@ interface Props {
 // backend manda el `retryAfterSeconds` real y ese manda sobre este.
 const DEFAULT_COOLDOWN_SECONDS = 60;
 
-const cooldownKey = (email: string) => `sabora_resend_cooldown_${email}`;
+const cooldownKey = (email: string) => `nonnapp_resend_cooldown_${email}`;
 
 const readStoredCooldown = (email: string): number => {
   try {
@@ -75,18 +75,18 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
-      <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center">
+      <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-xl p-8 w-full max-w-md border border-ink/10 dark:border-ink-light/10 text-center">
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
           <MailCheck className="w-8 h-8 text-primary" />
         </div>
-        <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+        <h2 className="text-xl font-bold text-ink dark:text-[#F8F2E6] mb-2">
           {t('app.emailVerification.title')}
         </h2>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-1">
+        <p className="text-muted dark:text-muted-dark text-sm mb-1">
           {t('app.emailVerification.sentTo')}
         </p>
-        <p className="text-[#3A2E1D] dark:text-[#D4D4D8] font-semibold mb-6 break-all">{email}</p>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm mb-6">
+        <p className="text-body dark:text-body-dark font-semibold mb-6 break-all">{email}</p>
+        <p className="text-muted dark:text-muted-dark text-sm mb-6">
           {t('app.emailVerification.instructions')}
         </p>
         <button
@@ -103,7 +103,7 @@ const EmailVerificationGate: React.FC<Props> = ({ email }) => {
 
         <Link
           to="/"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-[#6B5D48] dark:text-[#9A8D74] hover:text-primary font-medium transition-colors"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted dark:text-muted-dark hover:text-primary font-medium transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           {t('app.emailVerification.backHome')}

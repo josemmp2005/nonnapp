@@ -7,6 +7,7 @@ import { Router } from 'express';
 import { pool } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';
 import { validateBody } from '../lib/validate.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import { preferencesSchema } from '../lib/schemas.js';
 import { getActivePlan } from '../lib/subscription.js';
 
@@ -56,7 +57,7 @@ router.get('/preferences', async (req, res) => {
   }
 });
 
-router.put('/preferences', validateBody(preferencesSchema), async (req, res) => {
+router.put('/preferences', validateBody(preferencesSchema), asyncHandler(async (req, res) => {
   const { allergies, disliked_ingredients, cooking_skill } = req.body;
 
   // Alergias/ingredientes son de pago (igual que el modo despensa, la foto o
@@ -86,6 +87,6 @@ router.put('/preferences', validateBody(preferencesSchema), async (req, res) => 
     console.error('Error guardando preferencias:', err);
     return res.status(500).json({ error: 'No se pudieron guardar las preferencias' });
   }
-});
+}));
 
 export default router;

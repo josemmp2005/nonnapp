@@ -6,7 +6,7 @@
  */
 
 import type { AIRecipeResponse } from '../types';
-import { aiRateLimiter, recipeCache } from '../utils/rateLimiter';
+import { aiRateLimiter } from '../utils/rateLimiter';
 import { getMockRecipe } from './mock-recipe';
 import { apiFetch, ApiError } from './api';
 
@@ -49,6 +49,24 @@ export class RecipeOffTopicError extends Error {
 const isRecipeOffTopicError = (error: unknown): boolean =>
   error instanceof ApiError && error.status === 422 && error.message === 'RECIPE_OFF_TOPIC';
 
+// Groq tiene un límite de tokens/minuto que se agota con uso normal — cuando
+// pasa, el servidor responde 429 en vez del 502 genérico. Se avisa aparte
+// (en vez de "algo salió mal") porque aquí sí tiene sentido decirle al
+// usuario que espere un momento y reintente.
+export class AiRateLimitedError extends Error {
+  constructor() {
+    super('AI_RATE_LIMITED');
+    this.name = 'AiRateLimitedError';
+  }
+}
+
+const isAiRateLimitedError = (error: unknown): boolean =>
+  error instanceof ApiError && error.status === 429 && error.message === 'AI_RATE_LIMITED';
+
+// 20s de margen: el límite de Groq es por minuto (TPM), así que un solo
+// intervalo de 5s (el normal entre llamadas) no basta para que se libere.
+const AI_RATE_LIMIT_COOLDOWN_MS = 20000;
+
 // Foto genérica solo para el modo mock de desarrollo — en producción la
 // imagen real la elige el backend (server/src/lib/recipeImages.ts).
 const MOCK_IMAGE_URL = 'https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=1200&q=80';
@@ -80,13 +98,10 @@ export const generateRecipeAI = async (
     return { recipe: getMockRecipe(prompt), imageUrl: MOCK_IMAGE_URL };
   }
 
-  const cacheKey = JSON.stringify({ prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot });
-  const cached = recipeCache.get(cacheKey);
-  if (cached) {
-    console.log('✅ Receta obtenida del caché');
-    return cached as GeneratedRecipe;
-  }
-
+  // Sin caché de resultados a propósito: la IA genera con temperature > 0
+  // porque cada llamada debe poder dar una receta distinta aunque el prompt
+  // sea idéntico (p. ej. pulsar "Sorpréndeme" dos veces seguidas) — cachear
+  // por inputs devolvía la misma receta hasta recargar la página.
   return aiRateLimiter.execute(async () => {
     try {
       const result = await apiFetch<{ success: boolean; data: AIRecipeResponse; imageUrl: string }>(
@@ -97,9 +112,7 @@ export const generateRecipeAI = async (
         }
       );
 
-      const generated: GeneratedRecipe = { recipe: result.data, imageUrl: result.imageUrl };
-      recipeCache.set(cacheKey, generated);
-      return generated;
+      return { recipe: result.data, imageUrl: result.imageUrl };
     } catch (error) {
       console.error('Error generando receta:', error);
       if (error instanceof ApiError && error.status === 403 && error.message === 'EMAIL_NOT_VERIFIED') {
@@ -110,6 +123,13 @@ export const generateRecipeAI = async (
       }
       if (isRecipeOffTopicError(error)) {
         throw new RecipeOffTopicError();
+      }
+      if (isAiRateLimitedError(error)) {
+        // Alarga la espera de la SIGUIENTE llamada (esta ya ha fallado): sin
+        // esto, un reintento inmediato del usuario volvería a chocar con el
+        // mismo límite de Groq.
+        aiRateLimiter.penalize(AI_RATE_LIMIT_COOLDOWN_MS);
+        throw new AiRateLimitedError();
       }
       throw new Error(error instanceof Error ? error.message : 'No se pudo generar la receta. Intenta de nuevo.');
     }
@@ -131,6 +151,14 @@ export const askChefAboutRecipe = async (
     console.error('Error en el chat:', error);
     if (isPlanRequiredError(error)) {
       return 'El chat con el chef está disponible en el plan La Nonna.';
+    }
+    if (isAiRateLimitedError(error)) {
+      // El chat no pasa por aiRateLimiter (no hay cola que espaciar, una
+      // pregunta escrita a mano ya viene espaciada de por sí) — pero comparte
+      // cuota con la generación de recetas, así que un 429 aquí también
+      // frena la siguiente llamada a esa cola.
+      aiRateLimiter.penalize(AI_RATE_LIMIT_COOLDOWN_MS);
+      return 'La IA está saturada ahora mismo. Espera un momento y prueba otra vez.';
     }
     return 'Hubo un error al procesar tu pregunta.';
   }

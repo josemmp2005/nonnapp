@@ -1,5 +1,8 @@
 {
   "common": {
+    "splash": {
+      "loading": "On allume les fourneaux..."
+    },
     "nav": {
       "recipes": "Recettes",
       "whatYouHave": "Ce que vous avez chez vous",
@@ -330,6 +333,7 @@
       "toastEmailNotVerified": "Vérifiez votre email avant de générer des recettes. Consultez votre boîte de réception.",
       "toastPlanRequired": "Le mode placard est disponible avec les offres La Mamma et La Nonna.",
       "toastOffTopic": "Nonna ne prépare que des recettes de cuisine. Dites-lui ce que vous voulez cuisiner ou quels ingrédients vous avez.",
+      "toastAiRateLimited": "L'IA est très sollicitée en ce moment. Attends quelques secondes et réessaie.",
       "toastGenericError": "Désolé, une erreur est survenue lors de la génération de votre recette. Veuillez réessayer.",
       "title": "Le laboratoire du chef",
       "subtitle": "Décrivez votre envie ou dites-nous quels ingrédients vous avez. L'IA créera la recette parfaite.",
@@ -401,7 +405,7 @@
         "planDescMamma": "Vous avez des recettes illimitées, le mode placard et la personnalisation des allergies/ingrédients. Le chat avec le chef et La Mesa de la Nonna sont réservés à La Nonna.",
         "planDescNipote": "Passez à La Mamma pour débloquer le mode placard, ou à La Nonna pour tout avoir : chat avec le chef et La Mesa de la Nonna.",
         "title": "Votre offre actuelle",
-        "subtitle": "Gérez votre abonnement Sabora.",
+        "subtitle": "Gérez votre abonnement Nonnapp.",
         "freePlanName": "Il Nipote (gratuit)",
         "activeBadge": "ACTIVE",
         "changePlanButton": "Changer d'offre"
@@ -571,7 +575,7 @@
     "verifyEmail": {
       "verifying": "Vérification de votre email...",
       "successTitle": "Email vérifié",
-      "successText": "Vous pouvez maintenant générer des recettes et utiliser toutes les fonctionnalités de Sabora.",
+      "successText": "Vous pouvez maintenant générer des recettes et utiliser toutes les fonctionnalités de Nonnapp.",
       "goToApp": "Aller à l'application",
       "errorTitle": "Vérification impossible",
       "backToApp": "← Retour à l'application",

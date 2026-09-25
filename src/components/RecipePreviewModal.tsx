@@ -3,13 +3,13 @@
  * lista.
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Clock, Flame, Users, ChefHat, ArrowRight } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { getFullRecipeById } from '../services/data';
-import { useEscapeKey } from '../hooks/useEscapeKey';
+import { Modal } from './ui/Modal';
 import RecipeImage from './ui/RecipeImage';
 
 interface Props {
@@ -23,19 +23,16 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   const [recipe, setRecipe] = useState<RecipeDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    const data = await getFullRecipeById(recipeId);
-    if (data) setRecipe(data);
-    else setError(true);
-    setLoading(false);
-  }, [recipeId]);
+  // El botón "Reintentar" suma 1 aquí para volver a disparar el efecto de
+  // abajo con la misma lógica (antes tenía su propia copia sin protección
+  // contra condición de carrera: si se pulsaba reintentar dos veces seguidas,
+  // una respuesta más lenta de la primera podía llegar después y pisar el
+  // resultado de la segunda).
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       setLoading(true);
       setError(false);
       const data = await getFullRecipeById(recipeId);
@@ -43,50 +40,43 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
       if (data) setRecipe(data);
       else setError(true);
       setLoading(false);
-    })();
+    };
+    load();
     return () => {
       cancelled = true;
     };
-  }, [recipeId]);
-
-  useEscapeKey(onClose);
+  }, [recipeId, retryCount]);
 
   const meta = recipe?.recipe_metadata;
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={meta?.title || t('app.recipePreview.defaultAriaTitle')}
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in"
-      onClick={onClose}
+    <Modal
+      onClose={onClose}
+      label={meta?.title || t('app.recipePreview.defaultAriaTitle')}
+      panelClassName="bg-white dark:bg-cream-dark rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
     >
-      <div
-        className="bg-white dark:bg-[#130F0A] rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
         {loading ? (
           <div className="animate-pulse">
-            <div className="aspect-video bg-[#241B10]/10 dark:bg-[#221B12]" />
+            <div className="aspect-video bg-ink/10 dark:bg-[#221B12]" />
             <div className="p-5 space-y-3">
-              <div className="h-5 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-2/3" />
+              <div className="h-5 bg-ink/10 dark:bg-[#221B12] rounded w-2/3" />
               <div className="flex gap-2">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-6 w-16 bg-[#241B10]/10 dark:bg-[#221B12] rounded-lg" />
+                  <div key={i} className="h-6 w-16 bg-ink/10 dark:bg-[#221B12] rounded-lg" />
                 ))}
               </div>
-              <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-full" />
-              <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-4/5" />
+              <div className="h-3 bg-ink/10 dark:bg-[#221B12] rounded w-full" />
+              <div className="h-3 bg-ink/10 dark:bg-[#221B12] rounded w-4/5" />
             </div>
           </div>
         ) : error || !recipe ? (
           <div className="flex flex-col items-center justify-center gap-3 py-24 px-6 text-center">
-            <p className="text-[#241B10] dark:text-[#F8F2E6] font-bold">{t('app.recipePreview.loadError')}</p>
+            <p className="text-ink dark:text-[#F8F2E6] font-bold">{t('app.recipePreview.loadError')}</p>
             <div className="flex items-center gap-4">
-              <button onClick={load} className="text-primary font-medium hover:underline">
+              <button onClick={() => setRetryCount((n) => n + 1)} className="text-primary font-medium hover:underline">
                 {t('app.common.retry')}
               </button>
-              <button onClick={onClose} className="text-[#6B5D48] dark:text-[#9A8D74] font-medium hover:underline">
+              <button onClick={onClose} className="text-muted dark:text-muted-dark font-medium hover:underline">
                 {t('app.common.close')}
               </button>
             </div>
@@ -140,10 +130,10 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
 
               {recipe.ingredients && recipe.ingredients.length > 0 && (
                 <div className="mb-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wide text-[#6B5D48] dark:text-[#9A8D74] mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wide text-muted dark:text-muted-dark mb-2">
                     {t('app.recipePreview.ingredientsHeading', { count: recipe.ingredients.length })}
                   </h3>
-                  <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-[#3A2E1D] dark:text-[#D4D4D8]">
+                  <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm text-body dark:text-body-dark">
                     {recipe.ingredients.slice(0, 8).map((ing, i) => (
                       <li key={i} className="flex items-center gap-1.5 truncate">
                         <span className="w-1 h-1 rounded-full bg-primary flex-shrink-0" />
@@ -155,7 +145,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                     ))}
                   </ul>
                   {recipe.ingredients.length > 8 && (
-                    <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-2">
+                    <p className="text-xs text-muted dark:text-muted-dark mt-2">
                       {t('app.recipePreview.moreIngredients', { count: recipe.ingredients.length - 8 })}
                     </p>
                   )}
@@ -163,7 +153,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
               )}
             </div>
 
-            <div className="p-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex-shrink-0">
+            <div className="p-4 border-t border-ink/10 dark:border-ink-light/10 flex-shrink-0">
               <button
                 onClick={() => navigate(`/app/recipe/${recipeId}`)}
                 className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-orange-600 text-white font-bold rounded-xl transition-colors active:scale-[0.98]"
@@ -174,8 +164,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
             </div>
           </>
         )}
-      </div>
-    </div>
+    </Modal>
   );
 };
 

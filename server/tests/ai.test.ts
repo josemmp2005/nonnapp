@@ -77,6 +77,43 @@ describe('POST /api/ai/generate-recipe', () => {
     expect(res.body).toEqual({ success: false, error: 'RECIPE_OFF_TOPIC' });
   });
 
+  // Groq tiene un límite de tokens/minuto bajo (TPM) que se agota rápido con
+  // uso normal — sin esto, un 429 de Groq se enterraba en un 502 genérico
+  // ("No se pudo generar la receta") indistinguible de un fallo real, y el
+  // cliente no tenía forma de saber que debía esperar en vez de reintentar
+  // en bucle.
+  it('propaga un 429 de Groq como 429 AI_RATE_LIMITED (no como 502 genérico)', async () => {
+    vi.mocked(groqChat).mockRejectedValueOnce(
+      Object.assign(new Error('Groq API error: 429 - {"error":{"message":"Rate limit reached..."}}'), { status: 429 })
+    );
+
+    const user = await createUser({ plan: 'nipote' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/generate-recipe')
+      .set('Cookie', cookie)
+      .send({ prompt: 'algo rápido', mode: 'text' });
+
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ success: false, error: 'AI_RATE_LIMITED' });
+  });
+
+  it('un fallo de Groq que no es 429 sigue dando el 502 genérico de siempre', async () => {
+    vi.mocked(groqChat).mockRejectedValueOnce(new Error('fetch failed'));
+
+    const user = await createUser({ plan: 'nipote' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/generate-recipe')
+      .set('Cookie', cookie)
+      .send({ prompt: 'algo rápido', mode: 'text' });
+
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ success: false, error: 'No se pudo generar la receta' });
+  });
+
   it('descarta cualquier "userProfile" que mande el cliente en el body', async () => {
     const user = await createUser({ plan: 'mamma' });
     const cookie = await loginCookie(user.email);
@@ -147,6 +184,23 @@ describe('POST /api/ai/chat', () => {
       });
 
     expect(res.status).toBe(400);
+  });
+
+  it('propaga un 429 de Groq como 429 AI_RATE_LIMITED (no como 502 genérico)', async () => {
+    vi.mocked(groqChat).mockRejectedValueOnce(
+      Object.assign(new Error('Groq API error: 429 - {"error":{"message":"Rate limit reached..."}}'), { status: 429 })
+    );
+
+    const user = await createUser({ plan: 'nonna' });
+    const cookie = await loginCookie(user.email);
+
+    const res = await request(app)
+      .post('/api/ai/chat')
+      .set('Cookie', cookie)
+      .send({ question: '¿Puedo sustituir el huevo?', recipeContext: validRecipeContext });
+
+    expect(res.status).toBe(429);
+    expect(res.body).toEqual({ error: 'AI_RATE_LIMITED' });
   });
 
   it('rechaza con 400 un recipeContext.steps que no es un array, en vez de crashear', async () => {

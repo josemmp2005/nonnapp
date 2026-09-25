@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError, RecipeOffTopicError } from '../services/ai';
+import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError, RecipeOffTopicError, AiRateLimitedError } from '../services/ai';
 import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -108,6 +108,8 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         showToast(t('app.generator.toastPlanRequired'), 'error');
       } else if (err instanceof RecipeOffTopicError) {
         showToast(t('app.generator.toastOffTopic'), 'error');
+      } else if (err instanceof AiRateLimitedError) {
+        showToast(t('app.generator.toastAiRateLimited'), 'error');
       } else {
         showToast(t('app.generator.toastGenericError'), 'error');
       }
@@ -144,7 +146,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       <div className="max-w-5xl mx-auto pb-20 flex items-center justify-center min-h-[50vh]">
         <div className="text-center flex flex-col items-center gap-3">
           <Loader2 aria-hidden="true" className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-[#6B5D48] dark:text-[#9A8D74]">{t('app.generator.profileLoading')}</p>
+          <p className="text-muted dark:text-muted-dark">{t('app.generator.profileLoading')}</p>
         </div>
       </div>
     );
@@ -166,10 +168,10 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
              <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl mb-2 shadow-inner">
                 <Sparkles aria-hidden="true" className="w-8 h-8 text-primary" />
              </div>
-             <h1 className="text-3xl md:text-4xl font-extrabold text-[#241B10] dark:text-[#F8F2E6]">
+             <h1 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-[#F8F2E6]">
                {t('app.generator.title')}
              </h1>
-             <p className="text-[#6B5D48] dark:text-[#9A8D74] max-w-xl mx-auto text-lg">
+             <p className="text-muted dark:text-muted-dark max-w-xl mx-auto text-lg">
                {t('app.generator.subtitle')}
              </p>
           </div>

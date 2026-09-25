@@ -80,8 +80,8 @@ const PreferencesPage: React.FC<Props> = ({ profile, setProfile, session }) => {
   return (
     <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.preferences.title')}</h1>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">{t('app.preferences.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.preferences.title')}</h1>
+        <p className="text-muted dark:text-muted-dark mt-2">{t('app.preferences.subtitle')}</p>
       </div>
 
       <div className="space-y-6">

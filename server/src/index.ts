@@ -53,7 +53,7 @@ let server: ReturnType<typeof app.listen>;
 applySchema()
   .then(() => {
     server = app.listen(env.port, () => {
-      console.log(`🚀 Sabora API escuchando en http://localhost:${env.port}`);
+      console.log(`🚀 Nonnapp API escuchando en http://localhost:${env.port}`);
       logConfig();
     });
   })

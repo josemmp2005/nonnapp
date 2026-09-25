@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../env.js';
 import { pool } from '../db.js';
 
-export const SESSION_COOKIE = 'sabora_session';
+export const SESSION_COOKIE = 'nonnapp_session';
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 días
 
 interface AccessTokenPayload {

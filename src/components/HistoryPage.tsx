@@ -81,21 +81,21 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
     <div className="max-w-6xl mx-auto animate-in fade-in duration-500 pb-20">
       
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.historyPage.title')}</h1>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-1">{t('app.historyPage.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.historyPage.title')}</h1>
+        <p className="text-muted dark:text-muted-dark mt-1">{t('app.historyPage.subtitle')}</p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-8">
 
         <div className="relative flex-grow">
-          <Search aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6B5D48] dark:text-[#9A8D74] w-5 h-5" />
+          <Search aria-hidden="true" className="absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-muted-dark w-5 h-5" />
           <input
             type="text"
             aria-label={t('app.historyPage.searchAria')}
             placeholder={t('app.historyPage.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition text-[#241B10] dark:text-[#F8F2E6]"
+            className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm transition text-ink dark:text-[#F8F2E6]"
           />
         </div>
 
@@ -104,14 +104,14 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
              value={difficulty}
              onChange={(e) => setDifficulty(e.target.value)}
              aria-label={t('app.historyPage.difficultyFilterAria')}
-             className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-[#3A2E1D] dark:text-[#D4D4D8] cursor-pointer"
+             className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-body dark:text-body-dark cursor-pointer"
            >
              <option value="all">{t('app.historyPage.difficultyAll')}</option>
              <option value="Fácil">{t('app.historyPage.difficultyEasy')}</option>
              <option value="Media">{t('app.historyPage.difficultyMedium')}</option>
              <option value="Difícil">{t('app.historyPage.difficultyHard')}</option>
            </select>
-           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B5D48] dark:text-[#9A8D74]">
+           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted dark:text-muted-dark">
              <Filter aria-hidden="true" className="w-4 h-4" />
            </div>
         </div>
@@ -121,12 +121,12 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
              value={sortOrder}
              onChange={(e) => setSortOrder(e.target.value)}
              aria-label={t('app.historyPage.sortAria')}
-             className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-[#3A2E1D] dark:text-[#D4D4D8] cursor-pointer"
+             className="w-full appearance-none pl-4 pr-10 py-3.5 bg-white dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none shadow-sm text-body dark:text-body-dark cursor-pointer"
            >
              <option value="newest">{t('app.historyPage.sortNewest')}</option>
              <option value="oldest">{t('app.historyPage.sortOldest')}</option>
            </select>
-           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6B5D48] dark:text-[#9A8D74]">
+           <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted dark:text-muted-dark">
              <ArrowDownUp aria-hidden="true" className="w-4 h-4" />
            </div>
         </div>
@@ -136,21 +136,21 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
       {loading ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm overflow-hidden">
-              <div className="aspect-video bg-[#241B10]/10 dark:bg-[#221B12]" />
+            <div key={i} className="bg-white dark:bg-surface-dark rounded-2xl border border-ink/10 dark:border-ink-light/10 shadow-sm overflow-hidden">
+              <div className="aspect-video bg-ink/10 dark:bg-[#221B12]" />
               <div className="p-5 space-y-3">
-                <div className="h-4 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-3/4" />
-                <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-1/2" />
-                <div className="h-3 bg-[#241B10]/10 dark:bg-[#221B12] rounded w-full" />
+                <div className="h-4 bg-ink/10 dark:bg-[#221B12] rounded w-3/4" />
+                <div className="h-3 bg-ink/10 dark:bg-[#221B12] rounded w-1/2" />
+                <div className="h-3 bg-ink/10 dark:bg-[#221B12] rounded w-full" />
               </div>
             </div>
           ))}
         </div>
       ) : filteredRecipes.length === 0 ? (
-        <div className="text-center py-20 bg-white dark:bg-[#18130D] rounded-3xl border border-dashed border-[#241B10]/15 dark:border-[#F5E6CD]/15">
+        <div className="text-center py-20 bg-white dark:bg-surface-dark rounded-3xl border border-dashed border-ink/15 dark:border-ink-light/15">
            <div aria-hidden="true" className="text-6xl mb-4">🍲</div>
-           <h3 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.historyPage.emptyTitle')}</h3>
-           <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2 mb-6">{t('app.historyPage.emptySubtitle')}</p>
+           <h3 className="text-xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.historyPage.emptyTitle')}</h3>
+           <p className="text-muted dark:text-muted-dark mt-2 mb-6">{t('app.historyPage.emptySubtitle')}</p>
            <button
              onClick={() => navigate('/app')}
              className="px-6 py-2 bg-primary text-white font-bold rounded-xl hover:bg-orange-600 active:scale-95 transition-colors"
@@ -166,7 +166,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
             <button
               type="button"
               onClick={() => recipe.id != null && setPreviewId(recipe.id)}
-              className="w-full text-left bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition cursor-pointer group overflow-hidden flex flex-col h-full"
+              className="w-full text-left bg-white dark:bg-surface-dark rounded-2xl border border-ink/10 dark:border-ink-light/10 shadow-sm hover:shadow-xl hover:-translate-y-1 transition cursor-pointer group overflow-hidden flex flex-col h-full"
             >
               <div className="aspect-video bg-primary/10 relative overflow-hidden">
                 {recipe.main_image_url ? (
@@ -194,13 +194,13 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
 
               <div className="p-5 flex-grow flex flex-col">
                 <div className="mb-3">
-                   <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                   <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors line-clamp-2">
                      {recipe.recipe_metadata?.title || t('app.common.untitledRecipe')}
                    </h3>
-                   <div className="flex items-center gap-2 mt-2 text-xs text-[#6B5D48] dark:text-[#9A8D74]">
+                   <div className="flex items-center gap-2 mt-2 text-xs text-muted dark:text-muted-dark">
                      <Calendar aria-hidden="true" className="w-3 h-3" />
                      {new Date(recipe.created_at || '').toLocaleDateString()}
-                     <span className="w-1 h-1 bg-[#241B10]/20 dark:bg-[#2A2114] rounded-full"></span>
+                     <span className="w-1 h-1 bg-ink/20 dark:bg-[#2A2114] rounded-full"></span>
                      <span className={`capitalize font-medium ${
                        recipe.recipe_metadata?.difficulty === 'Fácil' ? 'text-green-600 dark:text-green-400' :
                        recipe.recipe_metadata?.difficulty === 'Difícil' ? 'text-red-600 dark:text-red-400' : 'text-orange-600 dark:text-orange-400'
@@ -210,11 +210,11 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                    </div>
                 </div>
 
-                <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm line-clamp-3 mb-4 flex-grow">
+                <p className="text-muted dark:text-muted-dark text-sm line-clamp-3 mb-4 flex-grow">
                   {recipe.recipe_metadata?.description || t('app.recipePreview.noDescription')}
                 </p>
 
-                <div className="pt-4 border-t border-[#241B10]/5 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium text-primary">
+                <div className="pt-4 border-t border-ink/5 dark:border-ink-light/10 flex items-center justify-between text-sm font-medium text-primary">
                   <span>{t('app.historyPage.previewLabel')}</span>
                   <ChevronRight aria-hidden="true" className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
@@ -232,7 +232,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
                 <Lock aria-hidden="true" className="w-8 h-8 text-white" />
               </div>
             </div>
-            <h3 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center justify-center gap-2">
+            <h3 className="text-2xl font-bold text-ink dark:text-[#F8F2E6] mb-2 flex items-center justify-center gap-2">
               <Crown aria-hidden="true" className="w-6 h-6 text-amber-500" />
               {t('app.historyPage.upgradeTitle')}
             </h3>

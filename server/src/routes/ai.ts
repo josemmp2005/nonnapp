@@ -13,6 +13,7 @@ import { pool } from '../db.js';
 import { groqChat } from '../lib/groq.js';
 import { getActivePlan } from '../lib/subscription.js';
 import { validateBody } from '../lib/validate.js';
+import { asyncHandler } from '../lib/asyncHandler.js';
 import { generateRecipeSchema, chatSchema } from '../lib/schemas.js';
 import { pickRecipeImage } from '../lib/recipeImages.js';
 
@@ -39,7 +40,7 @@ const RECIPE_JSON_FORMAT = `Responde ÚNICAMENTE con un objeto JSON válido (sin
   "steps": [ { "step_number": number, "instruction": "string", "visual_tag": "string" } ]
 }`;
 
-router.post('/generate-recipe', validateBody(generateRecipeSchema), async (req, res) => {
+router.post('/generate-recipe', validateBody(generateRecipeSchema), asyncHandler(async (req, res) => {
   const { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot } = req.body;
 
   const plan = await getActivePlan(pool, req.userId!);
@@ -134,9 +135,12 @@ router.post('/generate-recipe', validateBody(generateRecipeSchema), async (req, 
     return res.json({ success: true, data, imageUrl });
   } catch (err) {
     console.error('Error generando receta:', err);
+    if ((err as { status?: number })?.status === 429) {
+      return res.status(429).json({ success: false, error: 'AI_RATE_LIMITED' });
+    }
     return res.status(502).json({ success: false, error: 'No se pudo generar la receta' });
   }
-});
+}));
 
 router.post('/chat', validateBody(chatSchema), requirePlan('nonna'), async (req, res) => {
   const { question, recipeContext, history }: z.infer<typeof chatSchema> = req.body;
@@ -182,6 +186,13 @@ router.post('/chat', validateBody(chatSchema), requirePlan('nonna'), async (req,
     return res.json({ reply });
   } catch (err) {
     console.error('Error en chat:', err);
+    // Distinto del resto de errores de esta ruta (que van dentro de `reply`,
+    // como si el chef mismo respondiera): un 429 de Groq no es un fallo del
+    // chef, es un límite temporal — se señaliza como `error` (mismo patrón
+    // que el resto de la API) para que el cliente pueda distinguirlo.
+    if ((err as { status?: number })?.status === 429) {
+      return res.status(429).json({ error: 'AI_RATE_LIMITED' });
+    }
     return res.status(502).json({ reply: 'Tuve un pequeño problema de conexión en la cocina. ¿Me lo repites?' });
   }
 });

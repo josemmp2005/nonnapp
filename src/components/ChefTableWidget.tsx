@@ -58,7 +58,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 px-1 gap-4">
             <div className="flex items-center gap-2">
                 <Heart className={`text-primary ${variant === 'full' ? 'w-8 h-8' : 'w-6 h-6'}`} />
-                <h2 className={`${variant === 'full' ? 'text-3xl' : 'text-2xl'} font-bold text-[#241B10] dark:text-[#F8F2E6]`}>
+                <h2 className={`${variant === 'full' ? 'text-3xl' : 'text-2xl'} font-bold text-ink dark:text-[#F8F2E6]`}>
                     La Mesa de la Nonna
                 </h2>
             </div>
@@ -66,13 +66,13 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
             <div className="flex p-1 bg-primary/10 rounded-xl">
                 <button
                 onClick={() => setChefTab('styles')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'styles' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-muted dark:text-muted-dark hover:text-body dark:hover:text-body-dark'}`}
                 >
                 {t('app.chefTable.tabStyles')}
                 </button>
                 <button
                 onClick={() => setChefTab('featured')}
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-[#6B5D48] dark:text-[#9A8D74] hover:text-[#3A2E1D] dark:hover:text-[#D4D4D8]'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition ${chefTab === 'featured' ? 'bg-white dark:bg-[#221B12] shadow-sm text-primary' : 'text-muted dark:text-muted-dark hover:text-body dark:hover:text-body-dark'}`}
                 >
                 {t('app.chefTable.tabFeatured')}
                 </button>
@@ -132,7 +132,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                     type="button"
                     key={recipe.id}
                     onClick={() => openFeaturedRecipe(recipe)}
-                    className={`w-full text-left bg-white dark:bg-[#18130D] rounded-2xl border border-[#241B10]/10 dark:border-[#F5E6CD]/10 shadow-sm hover:shadow-xl transition group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    className={`w-full text-left bg-white dark:bg-surface-dark rounded-2xl border border-ink/10 dark:border-ink-light/10 shadow-sm hover:shadow-xl transition group overflow-hidden flex flex-col relative ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                     <div className="h-48 relative overflow-hidden">
                         <RecipeImage
@@ -140,7 +140,7 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                             alt={recipe.recipe_metadata.title}
                             className={`w-full h-full object-cover transition-transform duration-700 ${isLocked ? 'filter grayscale opacity-60' : 'group-hover:scale-105'}`}
                         />
-                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-[#241B10] dark:text-[#F8F2E6] shadow-sm flex items-center gap-1">
+                        <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs font-bold text-ink dark:text-[#F8F2E6] shadow-sm flex items-center gap-1">
                             <BookOpen aria-hidden="true" className="w-3 h-3 text-primary" /> {t('app.chefTable.recipeBadge')}
                         </div>
 
@@ -158,15 +158,15 @@ const ChefTableWidget: React.FC<Props> = ({ variant = 'dashboard', isLocked = fa
                             <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-orange-50 dark:bg-orange-900/20 px-2 py-1 rounded-md mb-2 inline-block">
                                 {recipe.recipe_metadata.difficulty} • {recipe.recipe_metadata.cooking_time}
                             </span>
-                            <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors">
+                            <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] leading-tight group-hover:text-primary transition-colors">
                                 {recipe.recipe_metadata.title}
                             </h3>
                         </div>
-                        <p className="text-[#6B5D48] dark:text-[#9A8D74] text-sm line-clamp-2 mb-4">
+                        <p className="text-muted dark:text-muted-dark text-sm line-clamp-2 mb-4">
                             {recipe.recipe_metadata.description}
                         </p>
-                        <div className="mt-auto pt-4 border-t border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex items-center justify-between text-sm font-medium">
-                            <span className="text-[#6B5D48] text-xs">
+                        <div className="mt-auto pt-4 border-t border-ink/10 dark:border-ink-light/10 flex items-center justify-between text-sm font-medium">
+                            <span className="text-muted text-xs">
                                 {t('app.chefTable.ingredientsCount', { count: recipe.ingredients.length })}
                             </span>
                             <span className="text-primary flex items-center gap-1 group-hover:gap-2 transition-[gap]">

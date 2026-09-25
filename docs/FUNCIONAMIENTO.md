@@ -4,7 +4,7 @@ Este documento explica la app desde el punto de vista de lo que hace, no de cóm
 
 ## Qué es
 
-Sabora genera recetas de cocina con IA a partir de lo que el usuario tiene en la despensa o de una idea de plato, con pasos claros y un "chef" al que preguntarle dudas mientras cocina.
+Nonnapp genera recetas de cocina con IA a partir de lo que el usuario tiene en la despensa o de una idea de plato, con pasos claros y un "chef" al que preguntarle dudas mientras cocina.
 
 ## Páginas y flujo
 

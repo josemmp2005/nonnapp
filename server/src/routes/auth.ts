@@ -20,6 +20,7 @@ import {
   clearFailedLogins,
   clearFailedLoginsForUser,
 } from '../lib/loginThrottle.js';
+import { generateToken, consumeToken } from '../lib/oneTimeToken.js';
 import {
   signupSchema,
   loginSchema,
@@ -71,16 +72,15 @@ const toPublicUser = (row: {
 });
 
 const sendVerificationEmail = async (userId: string, email: string, username: string) => {
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+  const { raw, hash } = generateToken();
   const expiresAt = new Date(Date.now() + VERIFY_TOKEN_TTL_MS);
 
   await pool.query(
     `INSERT INTO email_verification_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)`,
-    [userId, tokenHash, expiresAt]
+    [userId, hash, expiresAt]
   );
 
-  const verifyLink = `${env.appUrl}/verify-email?token=${rawToken}`;
+  const verifyLink = `${env.appUrl}/verify-email?token=${raw}`;
   const { subject, html, text } = verificationEmailTemplate(username, verifyLink);
   await sendMail(email, subject, html, text);
 };
@@ -273,17 +273,16 @@ router.post('/forgot-password', createStrictAuthRateLimiter(), validateBody(forg
       );
 
       if (recentRows[0].n < MAX_RESET_EMAILS_PER_HOUR) {
-        const rawToken = crypto.randomBytes(32).toString('hex');
-        const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
+        const { raw, hash } = generateToken();
         const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
 
         await pool.query(
           `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
            VALUES ($1, $2, $3)`,
-          [user.id, tokenHash, expiresAt]
+          [user.id, hash, expiresAt]
         );
 
-        const resetLink = `${env.appUrl}/reset-password?token=${rawToken}`;
+        const resetLink = `${env.appUrl}/reset-password?token=${raw}`;
         const resetEmail = resetPasswordEmailTemplate(resetLink);
         await sendMail(user.email, resetEmail.subject, resetEmail.html, resetEmail.text);
       }
@@ -299,30 +298,17 @@ router.post('/forgot-password', createStrictAuthRateLimiter(), validateBody(forg
 
 router.post('/reset-password', createTokenRateLimiter(), validateBody(resetPasswordSchema), async (req, res) => {
   const { token, password } = req.body;
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
   try {
     const userId = await withTransaction(async (client) => {
-      const { rows } = await client.query(
-        `SELECT id, user_id FROM password_reset_tokens
-         WHERE token_hash = $1 AND used_at IS NULL AND expires_at > NOW()
-         FOR UPDATE`,
-        [tokenHash]
-      );
-
-      if (rows.length === 0) {
-        throw Object.assign(new Error('Token inválido o expirado'), { status: 400 });
-      }
-
-      const { id: tokenId, user_id: uid } = rows[0];
+      const { userId: uid } = await consumeToken(client, 'password_reset_tokens', token, 'Token inválido o expirado');
       const passwordHash = await bcrypt.hash(password, 12);
 
       await client.query('UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2', [
         passwordHash,
         uid,
       ]);
-      await client.query('UPDATE password_reset_tokens SET used_at = NOW() WHERE id = $1', [tokenId]);
-      return uid as string;
+      return uid;
     });
 
     // Quien pide un reset por email no tiene "sesión actual" que conservar:
@@ -343,24 +329,16 @@ router.post('/reset-password', createTokenRateLimiter(), validateBody(resetPassw
 
 router.post('/verify-email', createTokenRateLimiter(), validateBody(verifyEmailSchema), async (req, res) => {
   const { token } = req.body;
-  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
   try {
     await withTransaction(async (client) => {
-      const { rows } = await client.query(
-        `SELECT id, user_id FROM email_verification_tokens
-         WHERE token_hash = $1 AND used_at IS NULL AND expires_at > NOW()
-         FOR UPDATE`,
-        [tokenHash]
+      const { userId } = await consumeToken(
+        client,
+        'email_verification_tokens',
+        token,
+        'Enlace de verificación inválido o expirado'
       );
-
-      if (rows.length === 0) {
-        throw Object.assign(new Error('Enlace de verificación inválido o expirado'), { status: 400 });
-      }
-
-      const { id: tokenId, user_id: userId } = rows[0];
       await client.query('UPDATE users SET email_verified = true, updated_at = NOW() WHERE id = $1', [userId]);
-      await client.query('UPDATE email_verification_tokens SET used_at = NOW() WHERE id = $1', [tokenId]);
     });
 
     return res.status(204).send();
@@ -411,7 +389,7 @@ router.post('/resend-verification', requireAuth, createTokenRateLimiter(), async
   }
 });
 
-const GOOGLE_STATE_COOKIE = 'sabora_google_state';
+const GOOGLE_STATE_COOKIE = 'nonnapp_google_state';
 const GOOGLE_STATE_TTL_MS = 10 * 60 * 1000; // 10 min, tiempo de sobra para completar el consentimiento
 
 // Sin rate limiter aquí a propósito: es una navegación de página completa

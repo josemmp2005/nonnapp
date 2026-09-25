@@ -36,7 +36,12 @@ export const groqChat = async (messages: GroqMessage[], options: GroqChatOptions
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Groq API error: ${response.status} - ${errorText.substring(0, 200)}`);
+    // `status` va en el propio Error (no solo en el mensaje) para que las
+    // rutas puedan distinguir un 429 de Groq (límite de tokens/minuto — se
+    // agota rápido) de cualquier otro fallo, sin parsear el texto del mensaje.
+    throw Object.assign(new Error(`Groq API error: ${response.status} - ${errorText.substring(0, 200)}`), {
+      status: response.status,
+    });
   }
 
   const data = await response.json();
