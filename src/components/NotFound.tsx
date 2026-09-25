@@ -12,17 +12,17 @@ const NotFound: React.FC = () => {
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center text-center px-4 animate-in fade-in zoom-in duration-500">
       <div className="relative mb-8">
-        <span className="text-9xl font-extrabold text-[#241B10]/10 dark:text-[#3A2E1D] select-none">404</span>
+        <span className="text-9xl font-extrabold text-ink/10 dark:text-body select-none">404</span>
         <div aria-hidden="true" className="absolute inset-0 flex items-center justify-center">
             <span className="text-6xl animate-bounce">🥘</span>
         </div>
       </div>
       
-      <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-3">
+      <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6] mb-3">
         {t('app.notFound.title')}
       </h1>
 
-      <p className="text-[#6B5D48] dark:text-[#9A8D74] max-w-md mb-8 text-lg">
+      <p className="text-muted dark:text-muted-dark max-w-md mb-8 text-lg">
         {t('app.notFound.subtitle')}
       </p>
 
@@ -36,7 +36,7 @@ const NotFound: React.FC = () => {
         </Link>
         <Link
           to="/"
-          className="px-8 py-3 bg-white dark:bg-[#18130D] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 text-[#3A2E1D] dark:text-[#D4D4D8] font-bold rounded-xl hover:bg-[#FCF6EC] dark:hover:bg-white/5 active:scale-95 transition flex items-center justify-center gap-2"
+          className="px-8 py-3 bg-white dark:bg-surface-dark border border-ink/15 dark:border-ink-light/15 text-body dark:text-body-dark font-bold rounded-xl hover:bg-cream dark:hover:bg-white/5 active:scale-95 transition flex items-center justify-center gap-2"
         >
           <Home aria-hidden="true" className="w-5 h-5" />
           {t('app.notFound.goHome')}

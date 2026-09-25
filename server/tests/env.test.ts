@@ -33,9 +33,9 @@ describe('env.googleRedirectUri', () => {
   });
 
   it('en Render se deriva de RENDER_EXTERNAL_URL, sin barra final duplicada', async () => {
-    stub({ GOOGLE_REDIRECT_URI: '', RENDER_EXTERNAL_URL: 'https://sabora-api.onrender.com/' });
+    stub({ GOOGLE_REDIRECT_URI: '', RENDER_EXTERNAL_URL: 'https://nonnapp-api.onrender.com/' });
     const { env } = await loadEnv();
-    expect(env.googleRedirectUri).toBe('https://sabora-api.onrender.com/api/auth/google/callback');
+    expect(env.googleRedirectUri).toBe('https://nonnapp-api.onrender.com/api/auth/google/callback');
   });
 
   it('en local cae a localhost con el puerto configurado', async () => {
@@ -48,10 +48,10 @@ describe('env.googleRedirectUri', () => {
     stub({
       NODE_ENV: 'production',
       GOOGLE_REDIRECT_URI: 'http://localhost:3001/api/auth/google/callback',
-      RENDER_EXTERNAL_URL: 'https://sabora-api.onrender.com',
+      RENDER_EXTERNAL_URL: 'https://nonnapp-api.onrender.com',
     });
     const { env, envWarnings } = await loadEnv();
-    expect(env.googleRedirectUri).toBe('https://sabora-api.onrender.com/api/auth/google/callback');
+    expect(env.googleRedirectUri).toBe('https://nonnapp-api.onrender.com/api/auth/google/callback');
     expect(envWarnings.some((w) => w.includes('GOOGLE_REDIRECT_URI'))).toBe(true);
   });
 

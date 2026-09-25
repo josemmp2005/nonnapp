@@ -52,7 +52,7 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-10">
-      <div className="bg-white dark:bg-[#18130D] rounded-2xl shadow-xl p-8 w-full max-w-md border border-[#241B10]/10 dark:border-[#F5E6CD]/10 text-center">
+      <div className="bg-white dark:bg-surface-dark rounded-2xl shadow-xl p-8 w-full max-w-md border border-ink/10 dark:border-ink-light/10 text-center">
         <div className="flex flex-col items-center mb-6">
           <Logo className="w-16 h-16 mb-2" textClassName="text-3xl" />
         </div>
@@ -61,17 +61,17 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
           {status === 'loading' && (
             <>
               <Loader2 aria-hidden="true" className="w-10 h-10 mx-auto text-primary animate-spin mb-4" />
-              <p className="text-[#3A2E1D] dark:text-[#D4D4D8]">{t('app.verifyEmail.verifying')}</p>
+              <p className="text-body dark:text-body-dark">{t('app.verifyEmail.verifying')}</p>
             </>
           )}
 
           {status === 'success' && (
             <div className="animate-in fade-in zoom-in-95 duration-300">
               <CheckCircle2 aria-hidden="true" className="w-12 h-12 mx-auto text-green-500 mb-4" />
-              <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+              <h2 className="text-xl font-bold text-ink dark:text-[#F8F2E6] mb-2">
                 {t('app.verifyEmail.successTitle')}
               </h2>
-              <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">
+              <p className="text-muted dark:text-muted-dark mb-6 text-sm">
                 {t('app.verifyEmail.successText')}
               </p>
               <button
@@ -86,10 +86,10 @@ const VerifyEmailPage: React.FC<Props> = ({ onEmailVerified }) => {
           {status === 'error' && (
             <div className="animate-in fade-in zoom-in-95 duration-300">
               <XCircle aria-hidden="true" className="w-12 h-12 mx-auto text-red-500 mb-4" />
-              <h2 className="text-xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2">
+              <h2 className="text-xl font-bold text-ink dark:text-[#F8F2E6] mb-2">
                 {t('app.verifyEmail.errorTitle')}
               </h2>
-              <p className="text-[#6B5D48] dark:text-[#9A8D74] mb-6 text-sm">{errorMessage}</p>
+              <p className="text-muted dark:text-muted-dark mb-6 text-sm">{errorMessage}</p>
               <button
                 onClick={() => navigate('/app')}
                 className="text-sm text-primary hover:underline font-medium"

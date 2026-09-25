@@ -1,5 +1,8 @@
 {
   "common": {
+    "splash": {
+      "loading": "Firing up the stove..."
+    },
     "nav": {
       "recipes": "Recipes",
       "whatYouHave": "What you have at home",
@@ -330,6 +333,7 @@
       "toastEmailNotVerified": "Verify your email before generating recipes. Check your inbox.",
       "toastPlanRequired": "Pantry mode is available on the La Mamma and La Nonna plans.",
       "toastOffTopic": "Nonna only makes cooking recipes. Tell her what you want to cook or what ingredients you have.",
+      "toastAiRateLimited": "The AI is very busy right now. Wait a few seconds and try again.",
       "toastGenericError": "Sorry, there was an error generating your recipe. Please try again.",
       "title": "The Chef's Lab",
       "subtitle": "Describe your craving or tell us what ingredients you have. The AI will create the perfect recipe.",
@@ -401,7 +405,7 @@
         "planDescMamma": "You have unlimited recipes, pantry mode, and allergy/ingredient personalization. Chef chat and La Mesa de la Nonna are on La Nonna.",
         "planDescNipote": "Upgrade to La Mamma to unlock pantry mode, or to La Nonna to get everything: chef chat and La Mesa de la Nonna.",
         "title": "Your Current Plan",
-        "subtitle": "Manage your Sabora subscription.",
+        "subtitle": "Manage your Nonnapp subscription.",
         "freePlanName": "Il Nipote (free)",
         "activeBadge": "ACTIVE",
         "changePlanButton": "Change plan"
@@ -571,7 +575,7 @@
     "verifyEmail": {
       "verifying": "Verifying your email...",
       "successTitle": "Email verified",
-      "successText": "You can now generate recipes and use all of Sabora's features.",
+      "successText": "You can now generate recipes and use all of Nonnapp's features.",
       "goToApp": "Go to the app",
       "errorTitle": "Couldn't verify",
       "backToApp": "← Back to the app",

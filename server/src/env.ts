@@ -26,7 +26,7 @@ const port = Number(process.env.PORT) || 3001;
 export const envWarnings: string[] = [];
 
 // Render inyecta RENDER_EXTERNAL_URL (la URL pública del propio servicio, p.ej.
-// https://sabora-api.onrender.com) en todos los Web Services. Se usa como base
+// https://nonnapp-api.onrender.com) en todos los Web Services. Se usa como base
 // por defecto del callback de Google para que en producción no caiga en
 // silencio a localhost — que Google rechaza con `redirect_uri_mismatch`.
 const publicApiUrl = trimSlash(process.env.RENDER_EXTERNAL_URL);

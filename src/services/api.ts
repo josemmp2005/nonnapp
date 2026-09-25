@@ -12,7 +12,7 @@
 // en silencio contra un localhost que no existe en el navegador del usuario.
 if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
   console.error(
-    '[Sabora] VITE_API_URL no estaba definida al compilar este build de producción — ' +
+    '[Nonnapp] VITE_API_URL no estaba definida al compilar este build de producción — ' +
     'todas las llamadas a la API irán a localhost y fallarán. Configúrala en las variables ' +
     'de entorno de tu hosting (Netlify/Vercel) y vuelve a desplegar.'
   );
@@ -39,7 +39,7 @@ interface RequestOptions {
 }
 
 /**
- * Fetch wrapper for the Sabora API. Always sends the httpOnly session
+ * Fetch wrapper for the Nonnapp API. Always sends the httpOnly session
  * cookie (`credentials: 'include'`) — the frontend never touches the JWT.
  */
 export const apiFetch = async <T = unknown>(path: string, options: RequestOptions = {}): Promise<T> => {

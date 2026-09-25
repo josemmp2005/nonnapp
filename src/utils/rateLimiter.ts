@@ -1,5 +1,6 @@
 /**
- * Rate limiter para controlar llamadas a la API
+ * Espaciador de llamadas a la IA: encola y las separa un mínimo de tiempo
+ * entre sí para no saturar la cuota de Groq.
  */
 
 interface QueueItem {
@@ -64,54 +65,15 @@ class RateLimiter {
   getQueueLength(): number {
     return this.queue.length;
   }
+
+  // Tras un 429 real de Groq (límite de tokens/minuto), la siguiente llamada
+  // debe esperar más que el intervalo normal de 5s — si no, el primer
+  // reintento (manual o el siguiente de la cola) vuelve a chocar con el mismo
+  // límite. `Math.max` evita acortar una espera ya en curso más larga.
+  penalize(extraMs: number): void {
+    this.lastCallTime = Math.max(this.lastCallTime, Date.now() + extraMs - this.minInterval);
+  }
 }
 
 // Instancia global
 export const aiRateLimiter = new RateLimiter();
-
-/**
- * Cache simple para evitar llamadas duplicadas
- */
-interface CacheEntry<T> {
-  data: T;
-  timestamp: number;
-}
-
-class SimpleCache<T> {
-  private cache = new Map<string, CacheEntry<T>>();
-  private ttl: number;
-
-  constructor(ttlMinutes = 5) {
-    this.ttl = ttlMinutes * 60 * 1000;
-  }
-
-  set(key: string, data: T): void {
-    this.cache.set(key, {
-      data,
-      timestamp: Date.now()
-    });
-  }
-
-  get(key: string): T | null {
-    const entry = this.cache.get(key);
-    if (!entry) return null;
-
-    const isExpired = Date.now() - entry.timestamp > this.ttl;
-    if (isExpired) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    return entry.data;
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  size(): number {
-    return this.cache.size;
-  }
-}
-
-export const recipeCache = new SimpleCache(5); // Cache por 5 minutos

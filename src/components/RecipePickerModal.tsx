@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { X, Search, ChefHat, Loader2 } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
-import { useEscapeKey } from '../hooks/useEscapeKey';
+import { Modal } from './ui/Modal';
 import RecipeImage from './ui/RecipeImage';
 
 interface Props {
@@ -19,8 +19,6 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
   const [recipes, setRecipes] = useState<RecipeDB[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-
-  useEscapeKey(onClose);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,17 +40,11 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
   );
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="recipe-picker-title"
-      className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in"
-      onClick={onClose}
+    <Modal
+      onClose={onClose}
+      labelledBy="recipe-picker-title"
+      panelClassName="bg-white dark:bg-cream-dark rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
     >
-      <div
-        className="bg-white dark:bg-[#130F0A] rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-center justify-between p-4 border-b bg-primary text-white flex-shrink-0">
           <h3 id="recipe-picker-title" className="text-lg font-bold">Elige una receta</h3>
           <button onClick={onClose} aria-label="Cerrar" className="text-white/80 hover:text-white bg-white/10 p-1 rounded-full hover:bg-white/20">
@@ -60,16 +52,16 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
           </button>
         </div>
 
-        <div className="p-3 border-b border-[#241B10]/10 dark:border-[#F5E6CD]/10 flex-shrink-0">
+        <div className="p-3 border-b border-ink/10 dark:border-ink-light/10 flex-shrink-0">
           <div className="relative">
-            <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B5D48] dark:text-[#9A8D74]" />
+            <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted dark:text-muted-dark" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar en tu historial..."
               aria-label="Buscar receta"
-              className="w-full pl-9 pr-3 py-2 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm text-[#241B10] dark:text-[#F8F2E6]"
+              className="w-full pl-9 pr-3 py-2 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm text-ink dark:text-[#F8F2E6]"
             />
           </div>
         </div>
@@ -81,8 +73,8 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
             </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-10 px-4">
-              <ChefHat aria-hidden="true" className="w-8 h-8 text-[#6B5D48] dark:text-[#9A8D74] mx-auto mb-2" />
-              <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74]">
+              <ChefHat aria-hidden="true" className="w-8 h-8 text-muted dark:text-muted-dark mx-auto mb-2" />
+              <p className="text-sm text-muted dark:text-muted-dark">
                 {recipes.length === 0 ? 'Todavía no tienes recetas guardadas.' : 'No hay recetas que coincidan con la búsqueda.'}
               </p>
             </div>
@@ -102,17 +94,16 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
                   )}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-medium text-sm text-[#241B10] dark:text-[#F8F2E6] truncate">
+                  <p className="font-medium text-sm text-ink dark:text-[#F8F2E6] truncate">
                     {recipe.recipe_metadata?.title || 'Receta sin título'}
                   </p>
-                  <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74]">{recipe.recipe_metadata?.cooking_time || 'N/A'}</p>
+                  <p className="text-xs text-muted dark:text-muted-dark">{recipe.recipe_metadata?.cooking_time || 'N/A'}</p>
                 </div>
               </button>
             ))
           )}
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 };
 

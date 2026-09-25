@@ -40,7 +40,7 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-[#130F0A]/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-white/95 dark:bg-cream-dark/95 backdrop-blur-md animate-in fade-in duration-300 transition-colors"
     >
       <div className="text-center max-w-sm px-6 flex flex-col items-center">
 
@@ -58,14 +58,14 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
           <div className="absolute -bottom-2 w-16 h-2 bg-black/10 dark:bg-black/30 rounded-full blur-sm animate-pulse"></div>
         </div>
 
-        <h3 className="text-2xl font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 transition-colors">
+        <h3 className="text-2xl font-bold text-ink dark:text-[#F8F2E6] mb-2 transition-colors">
           {t('app.loadingOverlay.title')}
         </h3>
 
         <div className="h-8 overflow-hidden relative w-full">
           <p
             key={messageIndex}
-            className="text-[#6B5D48] dark:text-[#9A8D74] font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
+            className="text-muted dark:text-muted-dark font-medium animate-in slide-in-from-bottom-2 fade-in duration-300 absolute w-full left-0 top-0 transition-colors"
           >
             {messages[messageIndex]}
           </p>

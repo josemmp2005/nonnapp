@@ -1,5 +1,5 @@
 /**
- * Contexto del tema claro/oscuro: lo guarda en `localStorage` (`sabora_theme`)
+ * Contexto del tema claro/oscuro: lo guarda en `localStorage` (`nonnapp_theme`)
  * y añade o quita la clase `dark` en `<html>`.
  */
 
@@ -16,7 +16,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('sabora_theme');
+    const savedTheme = localStorage.getItem('nonnapp_theme');
     return (savedTheme as Theme) || 'light';
   });
 
@@ -27,7 +27,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } else {
       root.classList.remove('dark');
     }
-    localStorage.setItem('sabora_theme', theme);
+    localStorage.setItem('nonnapp_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {

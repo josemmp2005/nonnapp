@@ -83,8 +83,8 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
   return (
     <div className="max-w-3xl mx-auto animate-in fade-in duration-500 pb-20">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[#241B10] dark:text-[#F8F2E6]">{t('app.profile.title')}</h1>
-        <p className="text-[#6B5D48] dark:text-[#9A8D74] mt-2">{t('app.profile.subtitle')}</p>
+        <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.profile.title')}</h1>
+        <p className="text-muted dark:text-muted-dark mt-2">{t('app.profile.subtitle')}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -93,16 +93,16 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
           
           {/* Left Column: Avatar */}
           <div className="md:col-span-1">
-            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10">
-              <h3 className="text-sm font-bold text-[#241B10] dark:text-[#F8F2E6] mb-4">{t('app.profile.avatarCardTitle')}</h3>
+            <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10">
+              <h3 className="text-sm font-bold text-ink dark:text-[#F8F2E6] mb-4">{t('app.profile.avatarCardTitle')}</h3>
               
               <div className="flex flex-col items-center gap-4">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center border-4 border-[#241B10]/15 dark:border-[#F5E6CD]/15 shadow-lg">
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-orange-400 to-pink-500 flex items-center justify-center border-4 border-ink/15 dark:border-ink-light/15 shadow-lg">
                   <span className="text-5xl font-bold text-white">
                     {username ? username.charAt(0).toUpperCase() : 'U'}
                   </span>
                 </div>
-                <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] text-center">
+                <p className="text-sm text-muted dark:text-muted-dark text-center">
                   {t('app.profile.avatarGenerated')}
                 </p>
               </div>
@@ -113,36 +113,36 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
           <div className="md:col-span-2 space-y-6">
             
             {/* Personal Info Card */}
-            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
-              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <User aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.personalInfoTitle')}
+            <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10 space-y-4">
+              <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <User aria-hidden="true" className="w-5 h-5 text-muted" /> {t('app.profile.personalInfoTitle')}
               </h3>
 
               <div>
-                <label htmlFor="profile-email" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">{t('app.profile.emailLabel')}</label>
+                <label htmlFor="profile-email" className="block text-sm font-medium text-ink dark:text-body-dark mb-1">{t('app.profile.emailLabel')}</label>
                 <div className="relative opacity-60">
-                  <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+                  <Mail aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
                   <input
                     id="profile-email"
                     type="email"
                     value={email}
                     disabled
-                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl cursor-not-allowed text-[#3A2E1D] dark:text-[#D4D4D8]"
+                    className="w-full pl-10 pr-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl cursor-not-allowed text-body dark:text-body-dark"
                   />
                 </div>
-                <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] mt-1">{t('app.profile.emailHint')}</p>
+                <p className="text-xs text-muted dark:text-muted-dark mt-1">{t('app.profile.emailHint')}</p>
               </div>
 
               <div>
-                <label htmlFor="profile-username" className="block text-sm font-medium text-[#241B10] dark:text-[#D4D4D8] mb-1">{t('app.profile.usernameLabel')}</label>
+                <label htmlFor="profile-username" className="block text-sm font-medium text-ink dark:text-body-dark mb-1">{t('app.profile.usernameLabel')}</label>
                 <div className="relative">
-                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-[#6B5D48]" />
+                  <User aria-hidden="true" className="absolute left-3 top-3.5 w-5 h-5 text-muted" />
                   <input
                     id="profile-username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full pl-10 pr-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition text-ink dark:text-[#F8F2E6]"
                     placeholder={t('app.profile.usernamePlaceholder')}
                   />
                 </div>
@@ -150,11 +150,11 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             </div>
 
             {/* Language Card */}
-            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
-              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <Globe aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.languageTitle')}
+            <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10 space-y-4">
+              <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <Globe aria-hidden="true" className="w-5 h-5 text-muted" /> {t('app.profile.languageTitle')}
               </h3>
-              <p className="text-sm text-[#6B5D48] dark:text-[#9A8D74] -mt-2">{t('app.profile.languageSubtitle')}</p>
+              <p className="text-sm text-muted dark:text-muted-dark -mt-2">{t('app.profile.languageSubtitle')}</p>
               <div className="flex flex-wrap gap-3">
                 {SUPPORTED_LANGUAGES.map((lng) => {
                   const Flag = FLAGS[lng];
@@ -168,11 +168,11 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                       className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl border-2 transition-all duration-200 ${
                         isCurrent
                           ? 'border-primary bg-primary/10'
-                          : 'border-[#241B10]/10 dark:border-[#F5E6CD]/10 hover:border-primary/40'
+                          : 'border-ink/10 dark:border-ink-light/10 hover:border-primary/40'
                       }`}
                     >
                       <Flag className="w-6 h-[17px] rounded-[2px] flex-shrink-0" />
-                      <span className="text-sm font-medium text-[#241B10] dark:text-[#F8F2E6]">{LANGUAGE_NAMES[lng]}</span>
+                      <span className="text-sm font-medium text-ink dark:text-[#F8F2E6]">{LANGUAGE_NAMES[lng]}</span>
                     </button>
                   );
                 })}
@@ -180,38 +180,38 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
             </div>
 
             {/* Security Card */}
-            <div className="bg-white dark:bg-[#18130D] p-6 rounded-2xl shadow-sm border border-[#241B10]/10 dark:border-[#F5E6CD]/10 space-y-4">
-              <h3 className="text-lg font-bold text-[#241B10] dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
-                <Lock aria-hidden="true" className="w-5 h-5 text-[#6B5D48]" /> {t('app.profile.securityTitle')}
+            <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10 space-y-4">
+              <h3 className="text-lg font-bold text-ink dark:text-[#F8F2E6] mb-2 flex items-center gap-2">
+                <Lock aria-hidden="true" className="w-5 h-5 text-muted" /> {t('app.profile.securityTitle')}
               </h3>
 
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="profile-new-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">{t('app.profile.newPasswordLabel')}</label>
+                  <label htmlFor="profile-new-password" className="block text-sm font-medium text-body dark:text-body-dark mb-1">{t('app.profile.newPasswordLabel')}</label>
                   <input
                     id="profile-new-password"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full px-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-ink dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
                   {newPassword.length > 0 && <PasswordCheckItem ok={isPasswordLengthValid} label={t('app.profile.passwordMinLength')} />}
                 </div>
                 <div>
-                  <label htmlFor="profile-confirm-password" className="block text-sm font-medium text-[#3A2E1D] dark:text-[#D4D4D8] mb-1">{t('app.profile.confirmPasswordLabel')}</label>
+                  <label htmlFor="profile-confirm-password" className="block text-sm font-medium text-body dark:text-body-dark mb-1">{t('app.profile.confirmPasswordLabel')}</label>
                   <input
                     id="profile-confirm-password"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#FCF6EC] dark:bg-[#221B12] border border-[#241B10]/15 dark:border-[#F5E6CD]/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-[#241B10] dark:text-[#F8F2E6]"
+                    className="w-full px-4 py-3 bg-cream dark:bg-[#221B12] border border-ink/15 dark:border-ink-light/15 rounded-xl focus:bg-white dark:focus:bg-[#2A2114] focus:ring-2 focus:ring-primary outline-none text-ink dark:text-[#F8F2E6]"
                     placeholder="••••••••"
                   />
                   {newPassword.length > 0 && <PasswordCheckItem ok={doPasswordsMatch} label={t('app.profile.passwordsMatch')} />}
                 </div>
               </div>
-              <p className="text-xs text-[#6B5D48] dark:text-[#9A8D74] italic">
+              <p className="text-xs text-muted dark:text-muted-dark italic">
                 {t('app.profile.passwordHint')}
               </p>
             </div>

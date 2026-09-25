@@ -411,7 +411,7 @@ router.post('/resend-verification', requireAuth, createTokenRateLimiter(), async
   }
 });
 
-const GOOGLE_STATE_COOKIE = 'sabora_google_state';
+const GOOGLE_STATE_COOKIE = 'nonnapp_google_state';
 const GOOGLE_STATE_TTL_MS = 10 * 60 * 1000; // 10 min, tiempo de sobra para completar el consentimiento
 
 // Sin rate limiter aquí a propósito: es una navegación de página completa

@@ -1,10 +1,10 @@
 /**
  * Tests unitarios de `rateLimiter.ts`: el limitador de llamadas a la IA
- * (`aiRateLimiter`) y la caché con caducidad (`recipeCache`).
+ * (`aiRateLimiter`).
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { aiRateLimiter, recipeCache } from './rateLimiter';
+import { aiRateLimiter } from './rateLimiter';
 
 describe('RateLimiter (aiRateLimiter)', () => {
   beforeEach(() => {
@@ -50,37 +50,22 @@ describe('RateLimiter (aiRateLimiter)', () => {
     expect(calls[1] - calls[0]).toBeGreaterThanOrEqual(5000);
     expect(calls[2] - calls[1]).toBeGreaterThanOrEqual(5000);
   });
-});
 
-describe('SimpleCache (recipeCache)', () => {
-  beforeEach(() => {
-    recipeCache.clear();
-  });
+  it('penalize() alarga la espera de la siguiente llamada más allá del intervalo normal de 5s', async () => {
+    const calls: number[] = [];
+    const ok = async () => {
+      calls.push(Date.now());
+    };
 
-  it('guarda y devuelve un valor', () => {
-    recipeCache.set('key1', { foo: 'bar' });
-    expect(recipeCache.get('key1')).toEqual({ foo: 'bar' });
-  });
+    const first = aiRateLimiter.execute(ok);
+    await vi.runAllTimersAsync();
+    await first;
 
-  it('devuelve null para una clave que no existe', () => {
-    expect(recipeCache.get('no-existe')).toBeNull();
-  });
+    aiRateLimiter.penalize(20000);
+    const second = aiRateLimiter.execute(ok);
+    await vi.runAllTimersAsync();
+    await second;
 
-  it('expira una entrada pasado el TTL (5 min)', () => {
-    vi.useFakeTimers();
-    try {
-      recipeCache.set('key1', 'valor');
-      vi.advanceTimersByTime(5 * 60 * 1000 + 1);
-      expect(recipeCache.get('key1')).toBeNull();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it('clear() vacía la caché', () => {
-    recipeCache.set('a', 1);
-    recipeCache.set('b', 2);
-    recipeCache.clear();
-    expect(recipeCache.size()).toBe(0);
+    expect(calls[1] - calls[0]).toBeGreaterThanOrEqual(20000);
   });
 });

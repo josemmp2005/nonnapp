@@ -1,5 +1,8 @@
 {
   "common": {
+    "splash": {
+      "loading": "A acender os fogões..."
+    },
     "nav": {
       "recipes": "Receitas",
       "whatYouHave": "O que tens em casa",
@@ -330,6 +333,7 @@
       "toastEmailNotVerified": "Verifica o teu email antes de gerar receitas. Consulta a tua caixa de entrada.",
       "toastPlanRequired": "O modo despensa está disponível nos planos La Mamma e La Nonna.",
       "toastOffTopic": "A Nonna só prepara receitas de cozinha. Conta-lhe o que queres cozinhar ou que ingredientes tens.",
+      "toastAiRateLimited": "A IA está com muita procura agora. Espera uns segundos e tenta novamente.",
       "toastGenericError": "Desculpa, ocorreu um erro ao gerar a tua receita. Tenta novamente.",
       "title": "O Laboratório do Chef",
       "subtitle": "Descreve o que te apetece ou diz-nos que ingredientes tens. A IA vai criar a receita perfeita.",
@@ -401,7 +405,7 @@
         "planDescMamma": "Tens receitas ilimitadas, modo despensa e personalização de alergias/ingredientes. O chat do chef e A Mesa da Nonna são do plano La Nonna.",
         "planDescNipote": "Faz upgrade para La Mamma para desbloquear o modo despensa, ou para La Nonna para teres tudo: chat do chef e A Mesa da Nonna.",
         "title": "O Teu Plano Atual",
-        "subtitle": "Gere a tua subscrição da Sabora.",
+        "subtitle": "Gere a tua subscrição da Nonnapp.",
         "freePlanName": "Il Nipote (grátis)",
         "activeBadge": "ATIVO",
         "changePlanButton": "Mudar de plano"
@@ -571,7 +575,7 @@
     "verifyEmail": {
       "verifying": "A verificar o teu email...",
       "successTitle": "Email verificado",
-      "successText": "Já podes gerar receitas e usar todas as funcionalidades da Sabora.",
+      "successText": "Já podes gerar receitas e usar todas as funcionalidades da Nonnapp.",
       "goToApp": "Ir para a app",
       "errorTitle": "Não foi possível verificar",
       "backToApp": "← Voltar à app",
