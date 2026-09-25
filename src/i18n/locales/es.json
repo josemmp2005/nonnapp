@@ -27,12 +27,13 @@
       "cta": "Instalar app"
     },
     "installModal": {
-      "title": "Instala nonnapp en tu móvil",
-      "subtitle": "Ábrela como una app, sin barra del navegador. Son tres toques:",
+      "title": "Instala nonnapp como una app",
+      "subtitle": "Ábrela en su propia ventana, sin barra del navegador. Son tres pasos:",
       "close": "Cerrar",
-      "step1": { "before": "Toca el botón", "bold": "Compartir", "after": "de la barra de Safari." },
-      "step2": { "before": "Elige", "bold": "Añadir a pantalla de inicio", "after": "." },
-      "step3": { "before": "Confirma con", "bold": "Añadir", "after": ". ¡Listo!" }
+      "step1": { "before": "Abre el menú del navegador:", "bold": "Compartir", "after": "en iPhone y iPad, o los tres puntos en Android y ordenador." },
+      "step2": { "before": "Elige", "bold": "Instalar app", "after": "o Añadir a pantalla de inicio, según tu navegador." },
+      "step3": { "before": "Confirma con", "bold": "Añadir", "after": "o Instalar. ¡Listo!" },
+      "unsupported": "Si no ves esa opción, tu navegador no permite instalar la app."
     },
     "languageSwitcher": {
       "ariaLabel": "Cambiar idioma"
@@ -174,6 +175,12 @@
       "cta": "Comenzar a cocinar",
       "note": "Prueba gratis. Sin tarjeta de crédito."
     },
+    "install": {
+      "eyebrow": "Instálala",
+      "title": "Instala nonnapp como una app",
+      "subtitle": "Sin tiendas de apps ni descargas: la añades desde el menú de tu navegador y se abre en su propia ventana, con su icono, como cualquier otra app.",
+      "note": "Funciona en el móvil, la tablet y el ordenador, en la mayoría de navegadores. Una vez dentro, también puedes hacerlo desde Editar Perfil."
+    },
     "demoVideo": {
       "eyebrow": "La app en acción",
       "title": "Mira cómo funciona Nonnapp",
@@ -284,6 +291,8 @@
       "usernamePlaceholder": "Tu nombre visible",
       "languageTitle": "Idioma",
       "languageSubtitle": "Elige el idioma en el que quieres ver nonnapp.",
+      "installTitle": "Instalar app",
+      "installSubtitle": "Ábrela como una app, sin barra del navegador y con su propio icono.",
       "securityTitle": "Seguridad",
       "newPasswordLabel": "Nueva Contraseña",
       "confirmPasswordLabel": "Confirmar Contraseña",

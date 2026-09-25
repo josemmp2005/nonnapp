@@ -27,12 +27,13 @@
       "cta": "Instalar app"
     },
     "installModal": {
-      "title": "Instala a nonnapp no teu telemóvel",
-      "subtitle": "Abre-a como uma app, sem barra do navegador. São três toques:",
+      "title": "Instala a nonnapp como uma app",
+      "subtitle": "Abre-a na sua própria janela, sem barra do navegador. São três passos:",
       "close": "Fechar",
-      "step1": { "before": "Toca no botão", "bold": "Partilhar", "after": "na barra do Safari." },
-      "step2": { "before": "Escolhe", "bold": "Adicionar ao ecrã principal", "after": "." },
-      "step3": { "before": "Confirma com", "bold": "Adicionar", "after": ". Pronto!" }
+      "step1": { "before": "Abre o menu do navegador:", "bold": "Partilhar", "after": "no iPhone e no iPad, ou os três pontos no Android e no computador." },
+      "step2": { "before": "Escolhe", "bold": "Instalar app", "after": "ou Adicionar ao ecrã principal, conforme o teu navegador." },
+      "step3": { "before": "Confirma com", "bold": "Adicionar", "after": "ou Instalar. Pronto!" },
+      "unsupported": "Se não vires essa opção, o teu navegador não permite instalar a app."
     },
     "languageSwitcher": {
       "ariaLabel": "Mudar de idioma"
@@ -174,6 +175,12 @@
       "cta": "Começar a cozinhar",
       "note": "Experimenta grátis. Sem cartão de crédito."
     },
+    "install": {
+      "eyebrow": "Instala-a",
+      "title": "Instala a nonnapp como uma app",
+      "subtitle": "Sem lojas de apps nem transferências: adiciona-a a partir do menu do navegador e abre na sua própria janela, com o seu ícone, como qualquer outra app.",
+      "note": "Funciona no telemóvel, no tablet e no computador, na maioria dos navegadores. Depois de entrares, também o podes fazer em Editar Perfil."
+    },
     "demoVideo": {
       "eyebrow": "A app em ação",
       "title": "Vê como funciona a Nonnapp",
@@ -284,6 +291,8 @@
       "usernamePlaceholder": "O teu nome visível",
       "languageTitle": "Idioma",
       "languageSubtitle": "Escolhe o idioma em que queres ver a nonnapp.",
+      "installTitle": "Instalar app",
+      "installSubtitle": "Abre-a como uma app, sem barra do navegador e com o seu próprio ícone.",
       "securityTitle": "Segurança",
       "newPasswordLabel": "Nova Palavra-passe",
       "confirmPasswordLabel": "Confirmar Palavra-passe",

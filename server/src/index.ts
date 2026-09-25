@@ -15,6 +15,7 @@ dns.setDefaultResultOrder('ipv4first');
 import { env, envWarnings, isProd } from './env.js';
 import { pool } from './db.js';
 import { applySchema } from './lib/migrate.js';
+import { backfillRecipeImages } from './lib/recipeImageBackfill.js';
 import { app } from './app.js';
 
 // schema.sql es idempotente (CREATE TABLE / ADD COLUMN IF NOT EXISTS), así
@@ -56,6 +57,13 @@ applySchema()
       console.log(`🚀 Nonnapp API escuchando en http://localhost:${env.port}`);
       logConfig();
     });
+    // Recetas antiguas sin foto: no es imprescindible para servir peticiones,
+    // así que corre aparte y un fallo aquí solo se registra.
+    backfillRecipeImages()
+      .then((filled) => {
+        if (filled > 0) console.log(`🖼️  Foto asignada a ${filled} receta(s) que no tenían`);
+      })
+      .catch((err) => console.error('No se pudo rellenar la foto de recetas antiguas:', err));
   })
   .catch((err) => {
     console.error('❌ No se pudo aplicar el esquema de la base de datos:', err);

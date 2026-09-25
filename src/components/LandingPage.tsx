@@ -1,6 +1,6 @@
 /**
  * Página `/`: compone las secciones de la landing pública (hero, cómo
- * funciona, demo, planes, preguntas frecuentes...).
+ * funciona, demo, cómo instalarla, planes, preguntas frecuentes...).
  */
 
 import React from 'react';
@@ -9,6 +9,7 @@ import FridgeToRecipeSection from './landing/FridgeToRecipeSection';
 import HowItWorksSection from './landing/HowItWorksSection';
 import StatsStripSection from './landing/StatsStripSection';
 import DemoVideoSection from './landing/DemoVideoSection';
+import InstallSection from './landing/InstallSection';
 import RecipeShowcaseSection from './landing/RecipeShowcaseSection';
 import NonnaSection from './landing/NonnaSection';
 import InteractiveDemoSection from './landing/InteractiveDemoSection';
@@ -23,6 +24,7 @@ const LandingPage: React.FC = () => (
     <HowItWorksSection />
     <StatsStripSection />
     <DemoVideoSection />
+    <InstallSection />
     <RecipeShowcaseSection />
     <NonnaSection />
     <InteractiveDemoSection />

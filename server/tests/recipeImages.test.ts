@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { DEFAULT_IMAGES, IMAGE_BANK, pickRecipeImage } from '../src/lib/recipeImages.js';
+import { DEFAULT_IMAGES, IMAGE_BANK, pickImageEntry, pickRecipeImage } from '../src/lib/recipeImages.js';
 
 // Devuelve las fotos de la entrada del banco que contiene esa keyword exacta.
 const urlsOf = (keyword: string): string[] => {
@@ -15,6 +15,13 @@ const urlsOf = (keyword: string): string[] => {
 
 const pick = (title: string, description = '', ingredients: string[] = []) =>
   pickRecipeImage(title, description, ingredients);
+
+// La entrada del banco que contiene esa keyword (sin aleatoriedad de por medio).
+const entryOf = (keyword: string) => {
+  const entry = IMAGE_BANK.find((e) => e.keywords.includes(keyword));
+  if (!entry) throw new Error(`No hay ninguna entrada con la keyword "${keyword}"`);
+  return entry;
+};
 
 describe('IMAGE_BANK', () => {
   it('cada entrada tiene keywords y al menos una foto con el formato esperado', () => {
@@ -33,6 +40,14 @@ describe('IMAGE_BANK', () => {
       for (const kw of entry.keywords) {
         expect(seen.has(kw), `"${kw}" está en las entradas ${seen.get(kw)} y ${i}`).toBe(false);
         seen.set(kw, i);
+      }
+    }
+  });
+
+  it('las palabras débiles (weak) son keywords de la propia entrada', () => {
+    for (const entry of IMAGE_BANK) {
+      for (const kw of entry.weak ?? []) {
+        expect(entry.keywords, `"${kw}" está en weak pero no en keywords`).toContain(kw);
       }
     }
   });
@@ -111,5 +126,68 @@ describe('pickRecipeImage', () => {
     const results = new Set<string>();
     for (let i = 0; i < 200; i++) results.add(pick('Paella valenciana'));
     expect(results.size).toBeGreaterThan(1);
+  });
+});
+
+// Casos reales de recetas generadas (Sorpréndeme, Desayuno rápido, Modo Fit...)
+// que acababan con una foto que no encajaba.
+describe('pickImageEntry: casos reales', () => {
+  it('"bowl" o "desayuno" describen el formato o el momento, no el plato: gana lo que va dentro', () => {
+    expect(pickImageEntry('Bowl de avena energizante al microondas', '', [])).toBe(entryOf('avena'));
+    expect(pickImageEntry('Bowl energético de avena y frutas', '', [])).toBe(entryOf('avena'));
+    expect(pickImageEntry('Desayuno energético de avena con frutas', '', [])).toBe(entryOf('avena'));
+    expect(pickImageEntry('Bowl de pollo con arroz', '', [])).toBe(entryOf('pollo'));
+  });
+
+  it('pero un bowl o un desayuno sin nada más concreto sigue teniendo su foto', () => {
+    expect(pickImageEntry('Bowl saludable de verduras', '', [])).toBe(entryOf('bowl'));
+    expect(pickImageEntry('Bowl de quinoa', '', [])).toBe(entryOf('quinoa'));
+    expect(pickImageEntry('Desayuno completo', '', [])).toBe(entryOf('desayuno'));
+    // "desayuno" es débil: gana el plato concreto (huevos revueltos) a la categoría
+    expect(pickImageEntry('Desayuno con huevos revueltos', '', [])).toBe(entryOf('huevos revueltos'));
+  });
+
+  it('reconoce platos exóticos por su nombre', () => {
+    expect(pickImageEntry('Bánh Xèo (crepes vietnamitas salteados)', '', [])).toBe(entryOf('pad thai'));
+    expect(pickImageEntry('Bunny Chow Sudafricano', 'Pan hueco relleno de guiso', ['Pan de molde'])).toBe(entryOf('curry'));
+  });
+
+  it('un derivado no cuenta como el ingrediente ("pasta de camarón" no es pasta)', () => {
+    expect(
+      pickImageEntry(
+        'Laing filipino (hojas de taro en leche de coco)',
+        'Un plato tradicional filipino de hojas de taro cocidas lentamente en leche de coco aromatizada con camarón, chiles y especias.',
+        ['Hojas de taro frescas', 'Leche de coco', 'Pasta de camarón (bagoong alamang)', 'Chiles rojos', 'Cebolla mediana']
+      )
+    ).toBeNull();
+    // "caldo de pollo" tampoco convierte una sopa de verduras en un plato de pollo
+    expect(pickImageEntry('Plato del día', 'Verduras al vapor', ['Caldo de pollo'])).toBeNull();
+  });
+
+  it('un participio de la descripción ("cocido lentamente") no dispara la categoría cocido', () => {
+    expect(
+      pickImageEntry(
+        'Khorkhog Mongoliano',
+        'Un festín tradicional de Mongolia: cordero cocido lentamente con verduras y piedras calientes.',
+        ['Cordero (paleta o pierna)', 'Papas', 'Zanahorias', 'Cebolla', 'Sal gruesa']
+      )
+    ).toBe(entryOf('cordero'));
+  });
+
+  it('el ingrediente principal (los primeros de la lista) pesa más que el resto', () => {
+    expect(
+      pickImageEntry('Bobotie sudafricano', 'Cazuela de carne picada con especias y una capa cremosa de huevo.', [
+        'Carne picada de res o cordero',
+        'Cebolla picada',
+        'Pan de molde sin corteza',
+        'Leche',
+        'Huevos',
+      ])
+    ).toBe(entryOf('ternera'));
+  });
+
+  it('una sola mención suelta en la descripción no basta: mejor la foto genérica que una equivocada', () => {
+    expect(pickImageEntry('Plato misterioso', 'Un guiso con un toque de camarón.', ['Sal'])).toBeNull();
+    expect(DEFAULT_IMAGES).toContain(pick('Plato misterioso', 'Un guiso con un toque de camarón.', ['Sal']));
   });
 });

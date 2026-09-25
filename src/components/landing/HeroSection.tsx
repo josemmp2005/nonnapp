@@ -13,7 +13,6 @@ import heroBgMobile from '../../assets/hero-background-mobile.webp';
 import heroBgMobileDark from '../../assets/hero-background-mobile-dark.webp';
 import { useHeroMotion } from '../../hooks/useHeroMotion';
 import { useTheme } from '../../context/ThemeContext';
-import InstallAppButton from '../InstallAppButton';
 import SearchBar from './SearchBar';
 
 // Retraso de entrada (ms) que leen las clases .hero-in/.hero-pop/... de index.css.
@@ -142,8 +141,6 @@ const HeroSection: React.FC = () => {
             </p>
 
             <SearchBar animateIn baseDelay={480} className="max-w-[37rem]" />
-
-            <InstallAppButton className="hero-in md:hidden mt-5" style={delay(900)} />
           </div>
         </div>
 

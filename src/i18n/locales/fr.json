@@ -27,12 +27,13 @@
       "cta": "Installer l'appli"
     },
     "installModal": {
-      "title": "Installez nonnapp sur votre téléphone",
-      "subtitle": "Ouvrez-la comme une appli, sans barre de navigateur. Trois gestes suffisent :",
+      "title": "Installez nonnapp comme une appli",
+      "subtitle": "Ouvrez-la dans sa propre fenêtre, sans barre de navigateur. Trois étapes suffisent :",
       "close": "Fermer",
-      "step1": { "before": "Touchez le bouton", "bold": "Partager", "after": "de la barre Safari." },
-      "step2": { "before": "Choisissez", "bold": "Sur l'écran d'accueil", "after": "." },
-      "step3": { "before": "Confirmez avec", "bold": "Ajouter", "after": ". C'est fait !" }
+      "step1": { "before": "Ouvrez le menu du navigateur :", "bold": "Partager", "after": "sur iPhone et iPad, ou les trois points sur Android et ordinateur." },
+      "step2": { "before": "Choisissez", "bold": "Installer l'application", "after": "ou Sur l'écran d'accueil, selon votre navigateur." },
+      "step3": { "before": "Confirmez avec", "bold": "Ajouter", "after": "ou Installer. C'est fait !" },
+      "unsupported": "Si vous ne voyez pas cette option, votre navigateur ne permet pas d'installer l'app."
     },
     "languageSwitcher": {
       "ariaLabel": "Changer de langue"
@@ -174,6 +175,12 @@
       "cta": "Commencer à cuisiner",
       "note": "Essai gratuit. Sans carte bancaire."
     },
+    "install": {
+      "eyebrow": "Installez-la",
+      "title": "Installez nonnapp comme une appli",
+      "subtitle": "Pas de magasin d'applications ni de téléchargement : ajoutez-la depuis le menu de votre navigateur et elle s'ouvre dans sa propre fenêtre, avec son icône, comme n'importe quelle app.",
+      "note": "Fonctionne sur mobile, tablette et ordinateur, dans la plupart des navigateurs. Une fois connecté, vous pouvez aussi le faire depuis Modifier le profil."
+    },
     "demoVideo": {
       "eyebrow": "L'appli en action",
       "title": "Voyez comment fonctionne Nonnapp",
@@ -284,6 +291,8 @@
       "usernamePlaceholder": "Votre nom affiché",
       "languageTitle": "Langue",
       "languageSubtitle": "Choisissez la langue dans laquelle vous voulez voir nonnapp.",
+      "installTitle": "Installer l'app",
+      "installSubtitle": "Ouvrez-la comme une application, sans barre de navigateur et avec sa propre icône.",
       "securityTitle": "Sécurité",
       "newPasswordLabel": "Nouveau mot de passe",
       "confirmPasswordLabel": "Confirmer le mot de passe",

@@ -1,14 +1,15 @@
 /**
- * Punto de entrada del frontend: registra la escucha de instalación de la PWA,
- * carga estilos e i18n y monta `<App />` en `#root`.
+ * Punto de entrada del frontend: carga estilos e i18n, recarga la página si un
+ * módulo cargado con `lazy()` ya no existe tras un despliegue nuevo, captura el
+ * aviso de instalación de la PWA y monta `<App />` en `#root`.
  */
 
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
-import './utils/pwaInstall' // registra `beforeinstallprompt` antes de que monte nada
 import './i18n/config'
+import './utils/pwaInstall' // registra `beforeinstallprompt` antes de que monte nada
 
 // Cada despliegue genera archivos con un hash nuevo (LandingPage-XXXX.js) y
 // borra los de la versión anterior. Quien tuviera la pestaña abierta desde

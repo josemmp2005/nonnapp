@@ -21,6 +21,10 @@ export interface ImageEntry {
   // nombre propio (carbonara, paella, pesto...): si el título menciona las dos,
   // gana el plato con nombre propio. Ver `pickRecipeImage`.
   generic?: boolean;
+  // Subconjunto de `keywords` que solo describe el formato o el momento, no el
+  // plato ("bowl", "desayuno"): pierden contra cualquier otra keyword del
+  // título, así que "Bowl de avena" es avena y no un bowl de verduras.
+  weak?: string[];
 }
 
 const u = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1200&q=80`;
@@ -117,11 +121,11 @@ export const IMAGE_BANK: ImageEntry[] = [
     urls: [u('1638502338747-f7f368214cce'), u('1768326119773-05cae29f4106'), u('1604632910985-5a738e3237d2'), u('1664138218128-2dcf791a9d27')],
   },
   {
-    keywords: ['pad thai', 'bibimbap', 'kimchi', 'banh mi', 'rollito de primavera', 'spring roll', 'vietnamita', 'coreana', 'tailandesa'],
+    keywords: ['pad thai', 'bibimbap', 'kimchi', 'banh mi', 'rollito de primavera', 'spring roll', 'banh xeo', 'vietnamita', 'coreana', 'tailandesa'],
     urls: [u('1655091273851-7bdc2e578a88'), u('1590301157890-4810ed352733'), u('1713047203705-44dd7d762d0c'), u('1582454235987-1e597bafcf58')],
   },
   {
-    keywords: ['tikka', 'masala', 'biryani', 'naan', 'dal', 'indio', 'india', 'tandoori', 'curry'],
+    keywords: ['tikka', 'masala', 'biryani', 'naan', 'dal', 'indio', 'india', 'tandoori', 'curry', 'bunny chow'],
     urls: [u('1631292784640-2b24be784d5d'), u('1631515243349-e0cb75fb8d3a'), u('1631452180539-96aca7d48617'), u('1716535232842-d10da4eb33d5')],
   },
   {
@@ -157,6 +161,7 @@ export const IMAGE_BANK: ImageEntry[] = [
   {
     keywords: ['coliflor', 'quinoa', 'bowl', 'buddha bowl', 'bowl saludable', 'burrito bowl'],
     generic: true,
+    weak: ['bowl'],
     urls: [u('1512621776951-a57141f2eefd'), u('1615865417491-9941019fbc00'), u('1623428186429-e76984bf48ad'), u('1623428187425-873f16e10554'), u('1649000475401-6bc57e7ecf48'), u('1566740933449-11e38b77e6e5'), u('1743779665801-ae26f2d84525'), u('1635107420370-b9fac732b284'), u('1668665771757-4d42737d295a')],
   },
 
@@ -351,6 +356,7 @@ export const IMAGE_BANK: ImageEntry[] = [
   {
     keywords: ['desayuno', 'huevo', 'tostada', 'brunch', 'breakfast', 'tortilla'],
     generic: true,
+    weak: ['desayuno', 'brunch', 'breakfast'],
     urls: [u('1525351484163-7529414344d8'), u('1567620905732-2d1ec7ab7445'), u('1544025162-d76694265947')],
   },
   {
@@ -467,19 +473,41 @@ const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/
 // Coincidencia por palabra completa, tolerando plural ("gamba"/"gambas",
 // "limón"/"limones"). Antes era por subcadena y daba falsos positivos como
 // "res" dentro de "fresa" o "pan" dentro de "pancakes".
-const compiled = IMAGE_BANK.map((entry) => ({
-  entry,
-  tier: entry.generic ? 1 : 0,
-  matchers: entry.keywords.map((kw) => {
-    const normalized = normalize(kw.trim());
-    return {
-      length: normalized.length,
-      words: normalized.split(/\s+/).length,
-      // grupo 1 = la keyword en sí (sin el carácter separador que la precede)
-      re: new RegExp(`(?:^|[^a-z0-9])(${escapeRegExp(normalized)}(?:s|es)?)(?![a-z0-9])`),
-    };
-  }),
-}));
+// Niveles: 0 = plato con nombre propio, 1 = categoría genérica, 2 = palabra débil
+// (formato o momento del día: bowl, desayuno...).
+const WEAK_TIER = 2;
+const compiled = IMAGE_BANK.map((entry) => {
+  const weak = new Set((entry.weak ?? []).map((kw) => normalize(kw.trim())));
+  return {
+    entry,
+    matchers: entry.keywords.map((kw) => {
+      const normalized = normalize(kw.trim());
+      return {
+        tier: weak.has(normalized) ? WEAK_TIER : entry.generic ? 1 : 0,
+        length: normalized.length,
+        words: normalized.split(/\s+/).length,
+        // grupo 1 = la keyword en sí (sin el carácter separador que la precede)
+        re: new RegExp(`(?:^|[^a-z0-9])(${escapeRegExp(normalized)}(?:s|es)?)(?![a-z0-9])`),
+      };
+    }),
+  };
+});
+
+// "pasta de camarón", "harina de arroz" o "caldo de pollo" son derivados que
+// se usan como base o condimento, no el ingrediente que da nombre al plato: se
+// quitan antes de puntuar la descripción y los ingredientes.
+const DERIVED_PRODUCT =
+  /\b(?:pasta|harina|caldo|salsa|aceite|zumo|jugo|polvo|extracto|vinagre|licor|concentrado|esencia|cubito|pastilla)s? (?:de |del |de la |de los |de las )[a-z0-9]+/g;
+const stripDerived = (text: string): string => text.replace(DERIVED_PRODUCT, ' ');
+
+// Los primeros ingredientes de la lista son el plato principal (Groq los da en
+// ese orden); el resto son acompañamientos y fondo de despensa.
+const MAIN_INGREDIENTS = 3;
+const MAIN_INGREDIENT_WEIGHT = 3;
+const SIDE_INGREDIENT_WEIGHT = 1;
+// Sin al menos esta puntuación (una mención en un ingrediente principal, o dos
+// en la descripción) se prefiere la foto genérica antes que una equivocada.
+const MIN_REST_SCORE = 2;
 
 interface TitleMatch {
   tier: number;
@@ -509,37 +537,54 @@ const pickRandom = (urls: string[]): string => urls[Math.floor(Math.random() * u
 //           principal suele ir primero; lo demás son acompañamientos);
 //        c. a igual posición, la keyword más larga ("tarta de queso" antes
 //           que "tarta"); y si sigue empatado, el que va antes en el banco.
-//   2. Si el título no coincide con nada, decide la descripción + ingredientes
-//      sumando cuántas palabras de keyword aparecen (ahí no hay orden útil).
-// De la entrada elegida se devuelve una foto al azar; sin ninguna coincidencia
-// se usa una foto genérica de plato.
-export const pickRecipeImage = (title: string, description: string, ingredients: string[]): string => {
+//        d. las palabras `weak` (bowl, desayuno) solo deciden si no hay ninguna
+//           otra keyword en el título.
+//   2. Si el título no coincide con nada, decide la descripción + ingredientes:
+//      cada keyword suma sus palabras, con más peso si está en uno de los
+//      primeros ingredientes, sin contar derivados ("pasta de camarón") y solo
+//      si llega a un mínimo — mejor la foto genérica que una equivocada.
+// Devuelve la entrada elegida (o null si nada encaja: foto genérica de plato).
+export const pickImageEntry = (title: string, description: string, ingredients: string[]): ImageEntry | null => {
   const titleText = normalize(title);
-  const restText = normalize([description, ...ingredients].join(' '));
+  const descriptionText = stripDerived(normalize(description));
+  const ingredientTexts = ingredients.map((ingredient) => stripDerived(normalize(ingredient)));
 
-  let bestByTitle: { match: TitleMatch; urls: string[] } | null = null;
-  let bestByRest: { score: number; urls: string[] } = { score: 0, urls: DEFAULT_IMAGES };
+  let bestByTitle: { match: TitleMatch; entry: ImageEntry } | null = null;
+  let bestByRest: { score: number; entry: ImageEntry | null } = { score: MIN_REST_SCORE - 1, entry: null };
 
-  for (const { entry, tier, matchers } of compiled) {
+  for (const { entry, matchers } of compiled) {
     let entryMatch: TitleMatch | null = null;
     let restScore = 0;
 
-    for (const { length, words, re } of matchers) {
+    for (const { tier, length, words, re } of matchers) {
       const inTitle = re.exec(titleText);
       if (inTitle) {
         const candidate = { tier, start: inTitle.index + inTitle[0].length - inTitle[1].length, length };
         if (beats(candidate, entryMatch)) entryMatch = candidate;
-      } else if (re.test(restText)) {
-        restScore += words;
+      } else {
+        // Una keyword cuenta una vez por la descripción y una vez por el mejor
+        // ingrediente en el que aparece (no por cada "tomate" de la lista).
+        let ingredientWeight = 0;
+        ingredientTexts.forEach((text, i) => {
+          if (re.test(text)) {
+            ingredientWeight = Math.max(ingredientWeight, i < MAIN_INGREDIENTS ? MAIN_INGREDIENT_WEIGHT : SIDE_INGREDIENT_WEIGHT);
+          }
+        });
+        restScore += words * ((re.test(descriptionText) ? 1 : 0) + ingredientWeight);
       }
     }
 
     if (entryMatch) {
-      if (beats(entryMatch, bestByTitle && bestByTitle.match)) bestByTitle = { match: entryMatch, urls: entry.urls };
+      if (beats(entryMatch, bestByTitle && bestByTitle.match)) bestByTitle = { match: entryMatch, entry };
     } else if (restScore > bestByRest.score) {
-      bestByRest = { score: restScore, urls: entry.urls };
+      bestByRest = { score: restScore, entry };
     }
   }
 
-  return pickRandom(bestByTitle ? bestByTitle.urls : bestByRest.urls);
+  return bestByTitle ? bestByTitle.entry : bestByRest.entry;
 };
+
+// De la entrada elegida se devuelve una foto al azar; sin ninguna coincidencia
+// se usa una foto genérica de plato.
+export const pickRecipeImage = (title: string, description: string, ingredients: string[]): string =>
+  pickRandom((pickImageEntry(title, description, ingredients) ?? { urls: DEFAULT_IMAGES }).urls);

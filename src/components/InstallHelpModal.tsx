@@ -1,6 +1,6 @@
 /**
- * Modal con los pasos para instalar la PWA en iPhone/iPad (Safari no permite
- * lanzar la instalación desde código).
+ * Modal con los pasos genéricos para instalar la PWA desde el menú del
+ * navegador, para cuando este no ofrece un diálogo de instalación propio.
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -9,29 +9,30 @@ import { Share, SquarePlus, Check, X } from 'lucide-react';
 import { usePwaInstall } from '../hooks/usePwaInstall';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import { Logo } from './Logo';
+import InstallStepText from './InstallStepText';
 
-// Guía para iPhone/iPad: Safari no permite lanzar la instalación desde código,
-// así que el botón "Instalar app" abre estos tres pasos. Se monta una vez en
-// App.tsx y se abre desde el almacén de pwaInstall.
+// Guía para los navegadores que no permiten lanzar la instalación desde código:
+// el botón "Instalar app" abre estos tres pasos, sin nombrar ningún navegador.
+// Se monta una vez en App.tsx y se abre desde el almacén de pwaInstall.
 const InstallHelpModal: React.FC = () => {
   const { t } = useTranslation();
-  const { iosHelpOpen, closeIosHelp } = usePwaInstall();
+  const { helpOpen, closeHelp } = usePwaInstall();
   const closeRef = useRef<HTMLButtonElement>(null);
 
   useEscapeKey(() => {
-    if (iosHelpOpen) closeIosHelp();
+    if (helpOpen) closeHelp();
   });
 
   useEffect(() => {
-    if (iosHelpOpen) closeRef.current?.focus();
-  }, [iosHelpOpen]);
+    if (helpOpen) closeRef.current?.focus();
+  }, [helpOpen]);
 
-  if (!iosHelpOpen) return null;
+  if (!helpOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
-      onClick={closeIosHelp}
+      onClick={closeHelp}
     >
       <div
         role="dialog"
@@ -42,7 +43,7 @@ const InstallHelpModal: React.FC = () => {
       >
         <button
           ref={closeRef}
-          onClick={closeIosHelp}
+          onClick={closeHelp}
           aria-label={t('common.installModal.close')}
           className="absolute top-4 right-4 p-2 rounded-full text-muted dark:text-muted-dark hover:bg-ink/5 dark:hover:bg-ink-light/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         >
@@ -63,7 +64,7 @@ const InstallHelpModal: React.FC = () => {
               <Share aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              {t('common.installModal.step1.before')} <strong>{t('common.installModal.step1.bold')}</strong> {t('common.installModal.step1.after')}
+              <InstallStepText step="step1" />
             </span>
           </li>
           <li className="flex items-center gap-4">
@@ -71,7 +72,7 @@ const InstallHelpModal: React.FC = () => {
               <SquarePlus aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              {t('common.installModal.step2.before')} <strong>{t('common.installModal.step2.bold')}</strong>{t('common.installModal.step2.after')}
+              <InstallStepText step="step2" />
             </span>
           </li>
           <li className="flex items-center gap-4">
@@ -79,10 +80,12 @@ const InstallHelpModal: React.FC = () => {
               <Check aria-hidden="true" className="w-5 h-5" />
             </span>
             <span className="text-sm text-body dark:text-body-dark">
-              {t('common.installModal.step3.before')} <strong>{t('common.installModal.step3.bold')}</strong>{t('common.installModal.step3.after')}
+              <InstallStepText step="step3" />
             </span>
           </li>
         </ol>
+
+        <p className="mt-5 text-xs text-muted dark:text-muted-dark">{t('common.installModal.unsupported')}</p>
       </div>
     </div>
   );
