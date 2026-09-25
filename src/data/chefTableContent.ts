@@ -106,7 +106,7 @@ export const FEATURED_RECIPES: RecipeDB[] = [
   },
   {
     id: 99902,
-    main_image_url: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?q=80&w=1200&auto=format&fit=crop',
+    main_image_url: 'https://images.unsplash.com/photo-1560717845-968823efbee1?q=80&w=1200&auto=format&fit=crop',
     recipe_metadata: {
       title: 'Salmón al Limón de la Tía',
       description:

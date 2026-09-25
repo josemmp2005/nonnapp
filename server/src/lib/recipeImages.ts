@@ -287,7 +287,7 @@ export const IMAGE_BANK: ImageEntry[] = [
   {
     keywords: ['salmón', 'pescado', 'atún', 'lubina', 'bacalao', 'merluza', 'dorada', 'trucha', 'sardina', 'boquerón', 'rape', 'emperador'],
     generic: true,
-    urls: [u('1519676867240-f03562e64548'), u('1580476262798-bddd9f4b7369'), u('1560717845-968823efbee1'), u('1532550907401-a500c9a57435'), u('1587913956756-4fcf4833241d'), u('1608424414817-2f029ed49832'), u('1556814901-18c866c057da'), u('1535424921017-85119f91e5a1')],
+    urls: [u('1580476262798-bddd9f4b7369'), u('1560717845-968823efbee1'), u('1532550907401-a500c9a57435'), u('1587913956756-4fcf4833241d'), u('1608424414817-2f029ed49832'), u('1556814901-18c866c057da'), u('1535424921017-85119f91e5a1')],
   },
 
   // --- Arroces ---
@@ -338,7 +338,7 @@ export const IMAGE_BANK: ImageEntry[] = [
   },
   {
     keywords: ['tortita', 'pancake', 'crepe', 'crepes', 'gofre', 'waffle', 'panqueque', 'hotcake'],
-    urls: [u('1587339144367-f1cacbecac82'), u('1568051243851-f9b136146e97'), u('1690267780363-342025f3cd71'), u('1612182062966-c8fe45ecbf73')],
+    urls: [u('1587339144367-f1cacbecac82'), u('1568051243851-f9b136146e97'), u('1690267780363-342025f3cd71'), u('1612182062966-c8fe45ecbf73'), u('1519676867240-f03562e64548')],
   },
   {
     keywords: ['torrija', 'french toast', 'pan perdido'],
