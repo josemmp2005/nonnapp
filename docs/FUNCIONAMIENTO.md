@@ -13,11 +13,11 @@ Nonnapp genera recetas de cocina con IA a partir de lo que el usuario tiene en l
 - **`/reset-password?token=...`** — Se llega aquí desde el link del email de recuperación.
 - **`/verify-email?token=...`** — Se llega aquí desde el link del email de verificación.
 - **`/terms`**, **`/privacy`** — Legal.
-- **`/app`** — Dashboard: saludo, recetas recientes, accesos rápidos ("Sorpréndeme", "Desayuno rápido", "Modo Fit").
+- **`/app`** — Dashboard: saludo, recetas recientes, accesos rápidos ("Sorpréndeme", "Desayuno rápido", "Modo Fit"). Cada pulsación le pide a la IA un enfoque distinto (un tipo de desayuno, una proteína, una cocina del mundo...) y no repite ninguno hasta haberlos usado todos; con un texto fijo la IA acababa dando casi siempre lo mismo (avena, pollo, Bunny Chow).
 - **`/app/generate`** — El generador de recetas (ver abajo).
 - **`/app/chef`** — "Mesa de la Nonna": estilos de cocina predefinidos para generar con un toque.
 - **`/app/preferences`** — Alergias, ingredientes que no gustan, nivel de habilidad, gestión del plan.
-- **`/app/profile`** — Editar username / contraseña.
+- **`/app/profile`** — Editar username / contraseña, elegir idioma e instalar la app.
 - **`/app/history`** — Todas las recetas generadas por el usuario.
 - **`/app/recipe/:id`** — Detalle de una receta (solo visible para quien la creó).
 
@@ -37,6 +37,15 @@ Todo lo que empieza por `/app` exige sesión iniciada; si no hay sesión, rediri
 - **Tema claro/oscuro**: se cambia con el botón de la cabecera y se recuerda entre visitas. Cada pantalla con foto de fondo (landing, login y app) tiene su versión de día y de noche, y una para móvil y otra para escritorio.
 - **Animaciones**: la tarjeta del login aparece con un fundido, el título se escribe letra a letra, y al entrar en la app (desde el login o desde la landing) la pantalla aparece con un fundido suave. Las animaciones de la landing (hero) y la del título del login se desactivan con la opción "reducir movimiento" del sistema; los fundidos de la tarjeta del login y de la entrada a la app todavía no la respetan.
 
+## Instalar la app
+
+Nonnapp es una PWA: se puede añadir a la pantalla de inicio (móvil y tablet) o al escritorio (ordenador) y abrirla como una app, en su propia ventana y sin barra del navegador. Funciona igual en **cualquier navegador**; la app no distingue cuál se usa.
+
+- El botón **Instalar app** está en **Editar perfil** (`/app/profile`) y aparece en todos los navegadores, salvo si la app ya está instalada o abierta como app. Ya no está en el menú lateral ni en la cabecera de la landing.
+- Si el navegador ofrece su propio diálogo de instalación (el aviso `beforeinstallprompt`), el botón lo lanza directamente. La app lo guarda desde que arranca (`main.tsx`), porque el navegador lo avisa una sola vez y pronto. Si se rechaza el diálogo, la siguiente pulsación ya abre la guía.
+- Si el navegador no lo ofrece, el botón abre una **guía genérica de tres pasos**, sin nombrar ningún navegador: abrir el menú del navegador (Compartir en iPhone/iPad, los tres puntos en Android y ordenador) → elegir **Instalar app** o **Añadir a pantalla de inicio** → confirmar. La guía avisa de que, si esa opción no aparece, el navegador no permite instalar.
+- La landing tiene una sección (**Instala nonnapp como una app**, tras el vídeo de demo) que explica esos mismos tres pasos a cualquier visitante, sin botón.
+
 ## Generar una receta
 
 Dos modos, elegibles en `/app/generate`:
@@ -50,7 +59,12 @@ Al generar:
 1. Se pide el texto de la receta (título, descripción, ingredientes con cantidad, utensilios, pasos) — motor: **Groq**.
 2. Se guarda en el historial del usuario. Los planes gratis tienen un límite de **2 recetas al día**; al superarlo, se avisa y no se genera más hasta el día siguiente (el límite se comprueba en el servidor, no se puede saltar borrando datos del navegador).
 
-No hay generación de fotos del plato — se usó Gemini para eso hasta que se quitó de la app por completo.
+No hay generación de fotos del plato — se usó Gemini para eso hasta que se quitó de la app por completo. La foto sale de un banco de fotos reales curado a mano (`server/src/lib/recipeImages.ts`):
+
+- **Cómo se elige:** por palabras clave del **título** (el plato con nombre propio gana a la categoría genérica, y "bowl"/"desayuno" solo deciden si no hay nada más concreto: "Bowl de avena" es avena, no un bowl de verduras). Si el título no dice nada, deciden los ingredientes —con más peso los primeros— y la descripción, sin contar derivados ("pasta de camarón" no es pasta) y solo si hay evidencia suficiente; si no la hay, se usa una foto genérica de plato antes que una equivocada.
+- **La foto se fija al generar:** la que se enseña al usuario es la que se guarda, y no cambia después. Si el cliente no manda foto al guardar, el servidor elige una. Al arrancar, el servidor da foto a las recetas antiguas que no tenían (las anteriores al banco) y no toca las que ya la tienen.
+- **Mientras carga:** las fotos muestran un esqueleto y aparecen solo cuando están completas (en vez de pintarse a trozos); si el enlace ya no existe, sale un recuadro con un gorro de chef.
+- Los platos exóticos que no estén en el banco (p. ej. los que salen con "Sorpréndeme") pueden acabar con la foto genérica; ampliar el banco está en [Implementaciones futuras](#implementaciones-futuras).
 
 ## El chef de IA (chat)
 

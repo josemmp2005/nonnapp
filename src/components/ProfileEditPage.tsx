@@ -1,15 +1,17 @@
 /**
- * Página `/app/profile`: editar el nombre de usuario, cambiar la contraseña y
- * elegir el idioma.
+ * Página `/app/profile`: editar el nombre de usuario, cambiar la contraseña,
+ * elegir el idioma e instalar la app (en cualquier navegador).
  */
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Lock, Mail, Save, Loader2, Check, Globe } from 'lucide-react';
+import { User, Lock, Mail, Save, Loader2, Check, Globe, Download } from 'lucide-react';
 import { ES, GB, FR, PT } from 'country-flag-icons/react/3x2';
 import { updateUsername, updateUserPassword } from '../services/auth';
 import { useToast } from '../context/ToastContext';
+import { usePwaInstall } from '../hooks/usePwaInstall';
 import type { AuthSession } from '../services/auth';
+import { Button } from './ui/Button';
 import { PasswordCheckItem } from './ui/PasswordCheckItem';
 import { SUPPORTED_LANGUAGES, type SupportedLanguage } from '../i18n/config';
 
@@ -23,6 +25,7 @@ interface Props {
 const ProfileEditPage: React.FC<Props> = ({ session }) => {
   const { t, i18n } = useTranslation();
   const { showToast } = useToast();
+  const { available: canInstall, install } = usePwaInstall();
   const currentLanguage = (SUPPORTED_LANGUAGES as readonly string[]).includes(i18n.language)
     ? (i18n.language as SupportedLanguage)
     : 'es';
@@ -178,6 +181,20 @@ const ProfileEditPage: React.FC<Props> = ({ session }) => {
                 })}
               </div>
             </div>
+
+            {/* Install Card: en cualquier navegador, si la app no está ya instalada */}
+            {canInstall && (
+              <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10 space-y-4">
+                <h3 className="text-lg font-bold text-ink dark:text-ink-light mb-2 flex items-center gap-2">
+                  <Download aria-hidden="true" className="w-5 h-5 text-muted" /> {t('app.profile.installTitle')}
+                </h3>
+                <p className="text-sm text-muted dark:text-muted-dark -mt-2">{t('app.profile.installSubtitle')}</p>
+                <Button type="button" variant="outline" onClick={install}>
+                  <Download aria-hidden="true" className="w-4 h-4" />
+                  {t('common.install.cta')}
+                </Button>
+              </div>
+            )}
 
             {/* Security Card */}
             <div className="bg-white dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-ink/10 dark:border-ink-light/10 space-y-4">

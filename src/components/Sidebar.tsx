@@ -1,6 +1,6 @@
 /**
- * Barra lateral de la app con sesión: navegación, instalación de la PWA,
- * cambio de tema y cierre de sesión. Fija en escritorio, desplegable en móvil.
+ * Barra lateral de la app con sesión: navegación, cambio de tema y cierre de
+ * sesión. Fija en escritorio, desplegable en móvil.
  */
 
 import React from 'react';
@@ -18,13 +18,11 @@ import {
   LayoutDashboard,
   UtensilsCrossed,
   CalendarDays,
-  Download,
   type LucideIcon,
 } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './ui/Button';
 import { useTheme } from '../context/ThemeContext';
-import { usePwaInstall } from '../hooks/usePwaInstall';
 import type { AuthSession } from '../services/auth';
 
 interface SidebarProps {
@@ -100,7 +98,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
-  const pwa = usePwaInstall();
   const username = session?.user?.user_metadata?.username || session?.user?.email?.split('@')[0] || 'Chef';
   const avatarUrl = session?.user?.avatar_url;
 
@@ -204,19 +201,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             {theme === 'light' ? t('app.sidebar.modoOscuro') : t('app.sidebar.modoClaro')}
           </span>
         </button>
-
-        {pwa.available && (
-          <div className="lg:hidden">
-            <MenuItem
-              icon={Download}
-              label={t('common.install.cta')}
-              onClick={() => {
-                void pwa.install();
-                onClose();
-              }}
-            />
-          </div>
-        )}
 
         <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 group-hover:delay-[180ms] transition-opacity duration-200 my-2">
           <div className="h-px bg-ink/10 dark:bg-ink-light/10 w-full"></div>

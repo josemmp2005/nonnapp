@@ -132,7 +132,7 @@ router.post('/', validateBody(saveRecipeSchema), async (req, res) => {
       ...recipe,
       id: created.id,
       created_at: created.created_at,
-      main_image_url: imageUrl ?? null,
+      main_image_url: created.main_image_url,
     });
   } catch (err) {
     if (err instanceof DailyLimitExceededError) {

@@ -17,6 +17,22 @@ interface Props {
   onClose: () => void;
 }
 
+// Alto máximo del panel. En móvil (< lg) hay una barra superior fija de 4rem
+// (Layout.tsx, z-30) que pinta por encima del modal — como el panel va
+// centrado, se reserva 4.5rem arriba y abajo para que su borde superior
+// (y el botón de cerrar) quede siempre libre de la barra. En escritorio no
+// hay barra superior: 85vh como antes.
+const PANEL_HEIGHT_LIMIT = 'max-h-[calc(100vh-9rem)] lg:max-h-[85vh]';
+
+// La imagen es 16:9 a todo el ancho (288 px a 512 de ancho), así que en
+// ventanas bajas se comía casi todo el panel: la info se quedaba en unos pocos
+// px con scroll o el botón de "Ver receta completa" quedaba recortado. El
+// tope es lo que sobra del alto máximo del panel tras reservar el pie (~5rem)
+// y un mínimo de info (~10rem); en ventanas normales no llega a aplicarse. El
+// mínimo deja sitio al título y al botón de cerrar, que van superpuestos a la
+// imagen.
+const IMAGE_HEIGHT_LIMIT = 'max-h-[calc(100vh-24rem)] lg:max-h-[calc(85vh-15rem)] min-h-28';
+
 const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -53,11 +69,11 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
     <Modal
       onClose={onClose}
       label={meta?.title || t('app.recipePreview.defaultAriaTitle')}
-      panelClassName="bg-white dark:bg-cream-dark rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200"
+      panelClassName={`bg-white dark:bg-cream-dark rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col ${PANEL_HEIGHT_LIMIT} animate-in zoom-in-95 duration-200`}
     >
         {loading ? (
           <div className="animate-pulse">
-            <div className="aspect-video bg-ink/10 dark:bg-[#221B12]" />
+            <div className={`aspect-video ${IMAGE_HEIGHT_LIMIT} bg-ink/10 dark:bg-[#221B12]`} />
             <div className="p-5 space-y-3">
               <div className="h-5 bg-ink/10 dark:bg-[#221B12] rounded w-2/3" />
               <div className="flex gap-2">
@@ -83,7 +99,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
           </div>
         ) : (
           <>
-            <div className="relative aspect-video bg-primary/10 flex-shrink-0">
+            <div className={`relative aspect-video ${IMAGE_HEIGHT_LIMIT} bg-primary/10 flex-shrink-0`}>
               {recipe.main_image_url ? (
                 <RecipeImage
                   src={recipe.main_image_url}

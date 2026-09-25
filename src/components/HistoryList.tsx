@@ -70,8 +70,7 @@ const HistoryList: React.FC<Props> = ({ recipes, isLoading = false, onSelect }) 
                    src={recipe.main_image_url}
                    alt={recipe.recipe_metadata?.title || t('app.common.untitledRecipe')}
                    loading="lazy"
-                   className="w-full h-full object-cover transition-opacity duration-500 opacity-0 animate-in fade-in"
-                   onLoad={(e) => (e.currentTarget.style.opacity = "1")}
+                   className="w-full h-full object-cover"
                  />
                ) : (
                  <div aria-hidden="true" className="w-full h-full flex items-center justify-center text-ink/20 dark:text-muted bg-cream dark:bg-[#221B12]">🍲</div>

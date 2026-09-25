@@ -27,12 +27,13 @@
       "cta": "Install app"
     },
     "installModal": {
-      "title": "Install nonnapp on your phone",
-      "subtitle": "Open it like an app, with no browser bar. Just three taps:",
+      "title": "Install nonnapp as an app",
+      "subtitle": "Open it in its own window, with no browser bar. Just three steps:",
       "close": "Close",
-      "step1": { "before": "Tap the", "bold": "Share", "after": "button in the Safari bar." },
-      "step2": { "before": "Choose", "bold": "Add to Home Screen", "after": "." },
-      "step3": { "before": "Confirm with", "bold": "Add", "after": ". Done!" }
+      "step1": { "before": "Open the browser menu:", "bold": "Share", "after": "on iPhone and iPad, or the three dots on Android and desktop." },
+      "step2": { "before": "Choose", "bold": "Install app", "after": "or Add to Home Screen, depending on your browser." },
+      "step3": { "before": "Confirm with", "bold": "Add", "after": "or Install. Done!" },
+      "unsupported": "If you do not see that option, your browser does not support installing the app."
     },
     "languageSwitcher": {
       "ariaLabel": "Change language"
@@ -174,6 +175,12 @@
       "cta": "Start cooking",
       "note": "Free to try. No credit card."
     },
+    "install": {
+      "eyebrow": "Install it",
+      "title": "Install nonnapp as an app",
+      "subtitle": "No app stores or downloads: add it from your browser menu and it opens in its own window, with its own icon, like any other app.",
+      "note": "Works on phone, tablet and computer in most browsers. Once you are in, you can also do it from Edit Profile."
+    },
     "demoVideo": {
       "eyebrow": "The app in action",
       "title": "See how Nonnapp works",
@@ -284,6 +291,8 @@
       "usernamePlaceholder": "Your display name",
       "languageTitle": "Language",
       "languageSubtitle": "Choose the language you want to see nonnapp in.",
+      "installTitle": "Install app",
+      "installSubtitle": "Open it like an app, with no browser bar and its own icon.",
       "securityTitle": "Security",
       "newPasswordLabel": "New Password",
       "confirmPasswordLabel": "Confirm Password",

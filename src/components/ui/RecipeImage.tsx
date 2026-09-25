@@ -1,6 +1,8 @@
 /**
- * `<img>` para fotos de receta con respaldo: si el enlace de Unsplash ya no
- * carga, pinta un recuadro con un gorro de chef.
+ * `<img>` para fotos de receta con loader y respaldo: muestra un esqueleto
+ * mientras la foto se descarga y la revela de golpe (con fundido) al estar
+ * completa; si el enlace de Unsplash ya no carga, pinta un recuadro con un
+ * gorro de chef.
  */
 
 import React, { useState } from 'react';
@@ -10,13 +12,20 @@ interface Props extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src?: string | null;
 }
 
-// <img> con respaldo. Las fotos de receta son enlaces a Unsplash y pueden
-// retirarse con el tiempo (ya pasó con una del banco antiguo, y las recetas
-// guardadas conservan el enlace para siempre). Si la foto no carga se pinta un
-// recuadro neutro con el gorro de chef, con las mismas clases de tamaño que la
-// imagen, en vez del icono de imagen rota (o un hueco vacío si la imagen
-// entraba con opacity-0 esperando a su onLoad).
-const RecipeImage: React.FC<Props> = ({ src, alt = '', className = '', ...rest }) => {
+// Las fotos de receta son enlaces a Unsplash de 1200 px: tardan en llegar y el
+// navegador las pinta a trozos (borrosa, luego nítida) sobre una caja vacía,
+// lo que se veía como si la foto "cambiara". Aquí la <img> se queda invisible
+// hasta que termina de cargar y, mientras tanto, un esqueleto ocupa su sitio.
+//
+// El esqueleto es un hermano `absolute inset-0`, así que el contenedor de la
+// imagen debe ser `relative`. Si la foto falla (las de Unsplash pueden
+// retirarse y las recetas guardadas conservan el enlace para siempre) se pinta
+// un recuadro neutro con el gorro de chef y las mismas clases de tamaño que la
+// imagen, en vez del icono de imagen rota.
+const RecipeImage: React.FC<Props> = ({ src, alt = '', className = '', style, onLoad, onError, ...rest }) => {
+  // Guardan la URL (no un booleano) para que, si `src` cambia, el estado de la
+  // foto anterior no se arrastre a la nueva.
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
   if (!src || failedSrc === src) {
@@ -32,7 +41,28 @@ const RecipeImage: React.FC<Props> = ({ src, alt = '', className = '', ...rest }
     );
   }
 
-  return <img {...rest} src={src} alt={alt} className={className} onError={() => setFailedSrc(src)} />;
+  const loaded = loadedSrc === src;
+
+  return (
+    <>
+      {!loaded && <span aria-hidden="true" className="absolute inset-0 bg-primary/15 dark:bg-primary/10 motion-safe:animate-pulse" />}
+      <img
+        {...rest}
+        src={src}
+        alt={alt}
+        className={`${className} transition-opacity duration-500`}
+        style={loaded ? style : { ...style, opacity: 0 }}
+        onLoad={(e) => {
+          setLoadedSrc(src);
+          onLoad?.(e);
+        }}
+        onError={(e) => {
+          setFailedSrc(src);
+          onError?.(e);
+        }}
+      />
+    </>
+  );
 };
 
 export default RecipeImage;

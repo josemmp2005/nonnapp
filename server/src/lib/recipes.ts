@@ -9,6 +9,7 @@ import type { PoolClient } from 'pg';
 import type { z } from 'zod';
 import { withTransaction } from '../db.js';
 import { getActivePlan } from './subscription.js';
+import { pickRecipeImage } from './recipeImages.js';
 import type { saveRecipeSchema } from './schemas.js';
 
 const FREE_DAILY_LIMIT = 2;
@@ -36,7 +37,7 @@ const upsertCatalogEntry = async (client: PoolClient, table: 'ingredients' | 'ut
 export const saveRecipe = async (
   userId: string,
   { recipe, prompt, imageUrl }: SaveRecipeInput
-): Promise<{ id: number; created_at: string }> => {
+): Promise<{ id: number; created_at: string; main_image_url: string }> => {
   return withTransaction(async (client) => {
     const plan = await getActivePlan(client, userId);
 
@@ -52,6 +53,12 @@ export const saveRecipe = async (
     }
 
     const meta = recipe.recipe_metadata;
+    // Normalmente llega la foto que se le enseñó al usuario al generar; si no
+    // llega (cliente antiguo, guardado desde otro sitio) se elige aquí, para que
+    // ninguna receta se quede sin foto.
+    const mainImageUrl =
+      imageUrl ||
+      pickRecipeImage(meta.title, meta.description ?? '', (recipe.ingredients ?? []).map((ing) => ing.item || ''));
     const { rows: recipeRows } = await client.query(
       `INSERT INTO recipes
          (user_id, title, description, difficulty, cooking_time, servings, calories, macros,
@@ -67,7 +74,7 @@ export const saveRecipe = async (
         meta.servings,
         meta.calories,
         meta.macros ? JSON.stringify(meta.macros) : null,
-        imageUrl ?? null,
+        mainImageUrl,
         prompt ?? null,
       ]
     );
@@ -103,6 +110,6 @@ export const saveRecipe = async (
       );
     }
 
-    return { id: recipeId, created_at: recipeRows[0].created_at };
+    return { id: recipeId, created_at: recipeRows[0].created_at, main_image_url: mainImageUrl };
   });
 };

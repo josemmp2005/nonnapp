@@ -86,7 +86,7 @@ const RecipePickerModal: React.FC<Props> = ({ onSelect, onClose }) => {
                 onClick={() => onSelect(recipe)}
                 className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-primary/5 transition-colors text-left"
               >
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                <div className="relative w-12 h-12 rounded-lg bg-primary/10 flex-shrink-0 overflow-hidden flex items-center justify-center">
                   {recipe.main_image_url ? (
                     <RecipeImage src={recipe.main_image_url} alt="" className="w-full h-full object-cover" />
                   ) : (

@@ -181,8 +181,7 @@ ${t('app.recipeDisplay.copyFooter')}
                  src={imageUrl} 
                  alt={recipe_metadata.title} 
                  loading="lazy"
-                 className="absolute inset-0 w-full h-full object-cover transition-opacity duration-700 opacity-0 animate-in fade-in"
-                 onLoad={(e) => (e.currentTarget.style.opacity = "1")}
+                 className="absolute inset-0 w-full h-full object-cover"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent md:hidden"></div>
              </div>
