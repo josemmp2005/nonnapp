@@ -17,6 +17,15 @@ interface Props {
   onClose: () => void;
 }
 
+// El panel mide como mucho 85vh y la imagen es 16:9 a todo el ancho (288 px a
+// 512 de ancho), así que en ventanas bajas (portátil pequeño, móvil en
+// horizontal) se comía casi todo el alto: la info se quedaba en unos pocos px
+// con scroll o el botón de "Ver receta completa" quedaba recortado. El tope
+// es lo que sobra tras reservar el pie (~5rem) y un mínimo de info (~10rem);
+// en ventanas normales no llega a aplicarse. El mínimo deja sitio al título
+// y al botón de cerrar, que van superpuestos a la imagen.
+const IMAGE_HEIGHT_LIMIT = 'max-h-[calc(85vh-15rem)] min-h-28';
+
 const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -57,7 +66,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
     >
         {loading ? (
           <div className="animate-pulse">
-            <div className="aspect-video bg-ink/10 dark:bg-[#221B12]" />
+            <div className={`aspect-video ${IMAGE_HEIGHT_LIMIT} bg-ink/10 dark:bg-[#221B12]`} />
             <div className="p-5 space-y-3">
               <div className="h-5 bg-ink/10 dark:bg-[#221B12] rounded w-2/3" />
               <div className="flex gap-2">
@@ -83,7 +92,7 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
           </div>
         ) : (
           <>
-            <div className="relative aspect-video bg-primary/10 flex-shrink-0">
+            <div className={`relative aspect-video ${IMAGE_HEIGHT_LIMIT} bg-primary/10 flex-shrink-0`}>
               {recipe.main_image_url ? (
                 <RecipeImage
                   src={recipe.main_image_url}
