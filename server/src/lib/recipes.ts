@@ -1,8 +1,9 @@
 /**
- * Guardar una receta generada: comprueba el límite diario del plan gratis y
- * escribe la receta con sus pasos, ingredientes y utensilios en una sola
- * transacción. Vive aparte de `routes/recipes.ts` para que la ruta HTTP solo
- * traduzca petición/respuesta, sin mezclar eso con la lógica de guardado.
+ * Guardar una receta (generada por IA o escrita a mano): comprueba el límite
+ * diario del plan gratis (solo para las de IA) y escribe la receta con sus
+ * pasos, ingredientes y utensilios en una sola transacción. Vive aparte de
+ * `routes/recipes.ts` para que la ruta HTTP solo traduzca petición/respuesta,
+ * sin mezclar eso con la lógica de guardado.
  */
 
 import type { PoolClient } from 'pg';
@@ -13,6 +14,12 @@ import { pickRecipeImage } from './recipeImages.js';
 import type { saveRecipeSchema } from './schemas.js';
 
 const FREE_DAILY_LIMIT = 2;
+// El recetario propio no cuesta nada de generar (no hay IA de por medio), así
+// que no comparte el límite diario de arriba: es un tope total por cuenta,
+// pensado como escalón de planes — Il Nipote no tiene (bloqueado antes de
+// llegar aquí, ver `requirePlan` en routes/recipes.ts), La Mamma hasta este
+// número, La Nonna sin límite.
+const MAMMA_OWN_RECIPE_LIMIT = 5;
 
 export type SaveRecipeInput = z.infer<typeof saveRecipeSchema>;
 
@@ -20,6 +27,13 @@ export class DailyLimitExceededError extends Error {
   constructor() {
     super('DAILY_LIMIT_EXCEEDED');
     this.name = 'DailyLimitExceededError';
+  }
+}
+
+export class OwnRecipeLimitExceededError extends Error {
+  constructor(public readonly limit: number) {
+    super('OWN_RECIPE_LIMIT_EXCEEDED');
+    this.name = 'OwnRecipeLimitExceededError';
   }
 }
 
@@ -34,21 +48,46 @@ const upsertCatalogEntry = async (client: PoolClient, table: 'ingredients' | 'ut
   return rows[0].id;
 };
 
+// 'ai': la genera Groq, cuenta contra el límite diario de Il Nipote (cada
+// llamada cuesta dinero). 'manual': el usuario la escribe entera él mismo (el
+// recetario propio) — no hay coste de IA de por medio, así que no tiene
+// sentido que compita por el mismo cupo.
+export type RecipeSource = 'ai' | 'manual';
+
 export const saveRecipe = async (
   userId: string,
-  { recipe, prompt, imageUrl }: SaveRecipeInput
+  { recipe, prompt, imageUrl }: SaveRecipeInput,
+  source: RecipeSource = 'ai'
 ): Promise<{ id: number; created_at: string; main_image_url: string }> => {
   return withTransaction(async (client) => {
-    const plan = await getActivePlan(client, userId);
+    if (source === 'ai') {
+      const plan = await getActivePlan(client, userId);
 
-    if (plan === 'nipote') {
-      const { rows } = await client.query(
-        `SELECT COUNT(*)::int AS count FROM recipes
-         WHERE user_id = $1 AND created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day'`,
-        [userId]
-      );
-      if (rows[0].count >= FREE_DAILY_LIMIT) {
-        throw new DailyLimitExceededError();
+      if (plan === 'nipote') {
+        // `is_ai_generated = true`: sin este filtro, las recetas propias del
+        // mismo día contaban aquí y agotaban el cupo de IA sin haber llamado
+        // a Groq ni una vez.
+        const { rows } = await client.query(
+          `SELECT COUNT(*)::int AS count FROM recipes
+           WHERE user_id = $1 AND is_ai_generated = true AND created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day'`,
+          [userId]
+        );
+        if (rows[0].count >= FREE_DAILY_LIMIT) {
+          throw new DailyLimitExceededError();
+        }
+      }
+    } else {
+      // Il Nipote ya está bloqueado antes de llegar aquí (`requirePlan` en la
+      // ruta); La Nonna no tiene tope. Solo La Mamma cuenta.
+      const plan = await getActivePlan(client, userId);
+      if (plan === 'mamma') {
+        const { rows } = await client.query(
+          `SELECT COUNT(*)::int AS count FROM recipes WHERE user_id = $1 AND is_ai_generated = false`,
+          [userId]
+        );
+        if (rows[0].count >= MAMMA_OWN_RECIPE_LIMIT) {
+          throw new OwnRecipeLimitExceededError(MAMMA_OWN_RECIPE_LIMIT);
+        }
       }
     }
 
@@ -63,7 +102,7 @@ export const saveRecipe = async (
       `INSERT INTO recipes
          (user_id, title, description, difficulty, cooking_time, servings, calories, macros,
           main_image_url, generation_prompt, is_ai_generated, source_origin)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,true,'IA')
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
        RETURNING id, created_at`,
       [
         userId,
@@ -76,6 +115,8 @@ export const saveRecipe = async (
         meta.macros ? JSON.stringify(meta.macros) : null,
         mainImageUrl,
         prompt ?? null,
+        source === 'ai',
+        source === 'ai' ? 'IA' : 'manual',
       ]
     );
     const recipeId = recipeRows[0].id;

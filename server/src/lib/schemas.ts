@@ -83,6 +83,32 @@ export const saveRecipeSchema = z.object({
   imageUrl: z.string().nullable().optional(),
 });
 
+// Receta escrita a mano (recetario propio): mismo `recipe_metadata` que una
+// generada, pero sin `prompt` (no hay IA de por medio) y con ingredientes y
+// pasos obligatorios — una receta propia sin ninguno de los dos no aporta nada,
+// mientras que en las generadas nunca falta ninguno así que no hacía falta
+// forzarlo ahí.
+export const saveManualRecipeSchema = z.object({
+  recipe: z.object({
+    recipe_metadata: z.object({
+      title: z.string().min(1, 'recipe.recipe_metadata.title es obligatorio').max(200),
+      description: z.string().max(4000).nullable().optional(),
+      difficulty: z.string().max(50).nullable().optional(),
+      cooking_time: z.string().max(100).nullable().optional(),
+      servings: z.number().int().positive().max(100).nullable().optional(),
+      calories: z.number().int().nonnegative().max(20000).nullable().optional(),
+      macros: z
+        .object({ protein: z.string().max(50), carbs: z.string().max(50), fat: z.string().max(50) })
+        .nullable()
+        .optional(),
+    }),
+    ingredients: z.array(recipeIngredientSchema).min(1, 'Añade al menos un ingrediente').max(100),
+    utensils: z.array(z.string().max(200)).max(100).optional(),
+    steps: z.array(recipeStepSchema).min(1, 'Añade al menos un paso').max(100),
+  }),
+  imageUrl: z.string().nullable().optional(),
+});
+
 // --- ai ---
 
 export const generateRecipeSchema = z.object({

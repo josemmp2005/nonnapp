@@ -10,7 +10,7 @@ import {
   User,
   PlusCircle,
   Settings,
-  History,
+  BookOpen,
   LogOut,
   X,
   Moon,
@@ -80,8 +80,7 @@ const MenuItem: React.FC<MenuItemProps> = ({
 
     <span className={`
       ml-4 font-medium transition-[opacity,transform] duration-200 ease-out
-      lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-3 lg:group-hover:translate-x-0 lg:group-hover:delay-[180ms]
-      ${danger ? 'text-red-500' : (active ? 'text-primary' : 'text-body dark:text-body-dark')}
+      lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-3 lg:group-hover:translate-x-0      ${danger ? 'text-red-500' : (active ? 'text-primary' : 'text-body dark:text-body-dark')}
     `}>
       {isUser ? displayName : label}
     </span>
@@ -120,8 +119,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       <aside
         className={`
           fixed top-0 left-0 h-full bg-surface dark:bg-surface-dark z-50 shadow-xl lg:shadow-none border-r border-ink/10 dark:border-ink-light/10
-          transition-[transform,width,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group
-          w-64 lg:w-20 lg:hover:w-64 lg:hover:shadow-soft-lg lg:hover:delay-[140ms] flex flex-col py-4 overflow-hidden
+          transition-[transform,width,box-shadow] duration-300 group
+          w-64 lg:w-20 lg:hover:w-64 lg:hover:shadow-soft-lg flex flex-col py-4 overflow-hidden
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
@@ -141,7 +140,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           onClick={() => handleNavigation('/app/profile')}
         />
 
-        <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 group-hover:delay-[180ms] transition-opacity duration-200 mb-2">
+        <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 mb-2">
           <div className="h-px bg-ink/10 dark:bg-ink-light/10 w-full"></div>
         </div>
 
@@ -175,7 +174,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           />
 
           <MenuItem
-            icon={History}
+            icon={BookOpen}
             label={t('app.sidebar.historial')}
             active={isActive('/app/history')}
             onClick={() => handleNavigation('/app/history')}
@@ -197,12 +196,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex-shrink-0 flex items-center justify-center w-6 h-6 transition-transform duration-300 group-hover/item:rotate-45">
             {theme === 'light' ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
           </div>
-          <span className="ml-4 font-medium transition-[opacity,transform] duration-200 ease-out lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-3 lg:group-hover:translate-x-0 lg:group-hover:delay-[180ms] text-body dark:text-body-dark">
+          <span className="ml-4 font-medium transition-[opacity,transform] duration-200 ease-out lg:opacity-0 lg:group-hover:opacity-100 lg:-translate-x-3 lg:group-hover:translate-x-0 text-body dark:text-body-dark">
             {theme === 'light' ? t('app.sidebar.modoOscuro') : t('app.sidebar.modoClaro')}
           </span>
         </button>
 
-        <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 group-hover:delay-[180ms] transition-opacity duration-200 my-2">
+        <div className="w-full px-4 hidden lg:block opacity-0 group-hover:opacity-100 transition-opacity duration-200 my-2">
           <div className="h-px bg-ink/10 dark:bg-ink-light/10 w-full"></div>
         </div>
 

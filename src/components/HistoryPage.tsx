@@ -1,24 +1,28 @@
 /**
- * Página `/app/history`: todas las recetas generadas por el usuario, con vista
- * previa.
+ * Página `/app/history` (Recetario): las recetas del usuario en dos pestañas
+ * — Generadas por IA y Propias (recetario propio, escritas a mano) — con
+ * vista previa.
  */
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Search, Clock, Flame, ChevronRight, Calendar, Filter, ArrowDownUp, Lock, Crown } from 'lucide-react';
+import { Search, Clock, Flame, ChevronRight, Calendar, Filter, ArrowDownUp, Lock, Crown, Plus } from 'lucide-react';
 import type { RecipeDB } from '../types';
 import { fetchUserHistory } from '../services/data';
 import { useSubscription } from '../context/SubscriptionContext';
 import { useToast } from '../context/ToastContext';
 import RecipePreviewModal from './RecipePreviewModal';
 import { Reveal } from './ui/Reveal';
+import { Button } from './ui/Button';
 import type { AuthSession } from '../services/auth';
 import RecipeImage from './ui/RecipeImage';
 
 interface Props {
   session: AuthSession | null;
 }
+
+type RecipeTab = 'generated' | 'own';
 
 const HistoryPage: React.FC<Props> = ({ session }) => {
   const { t } = useTranslation();
@@ -28,6 +32,7 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
   const { limits } = useSubscription();
   const { showToast } = useToast();
 
+  const [tab, setTab] = useState<RecipeTab>('generated');
   const [search, setSearch] = useState('');
   const [difficulty, setDifficulty] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
@@ -52,14 +57,18 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
-  const filteredRecipes = (recipes || [])
+  // `is_ai_generated` puede venir undefined en datos muy antiguos; se trata
+  // como generada (es lo que valía por defecto en BBDD antes del recetario propio).
+  const tabRecipes = (recipes || []).filter((r) => (tab === 'own' ? r.is_ai_generated === false : r.is_ai_generated !== false));
+
+  const filteredRecipes = tabRecipes
     .filter(r => {
-      const matchesSearch = 
+      const matchesSearch =
         r.recipe_metadata?.title?.toLowerCase().includes(search.toLowerCase()) ||
         r.recipe_metadata?.description?.toLowerCase().includes(search.toLowerCase());
-      
-      const matchesDifficulty = 
-        difficulty === 'all' || 
+
+      const matchesDifficulty =
+        difficulty === 'all' ||
         r.recipe_metadata?.difficulty?.toLowerCase() === difficulty.toLowerCase();
 
       return matchesSearch && matchesDifficulty;
@@ -70,19 +79,56 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
-  // Limit history for free users (Nipote)
+  // El límite de historial de Il Nipote es sobre las recetas de IA.
   const FREE_HISTORY_LIMIT = 3;
-  const displayRecipes = limits.hasFullHistory 
-    ? filteredRecipes 
-    : filteredRecipes.slice(0, FREE_HISTORY_LIMIT);
-  const hasMoreRecipes = !limits.hasFullHistory && filteredRecipes.length > FREE_HISTORY_LIMIT;
+  const limitApplies = tab === 'generated' && !limits.hasFullHistory;
+  const displayRecipes = limitApplies ? filteredRecipes.slice(0, FREE_HISTORY_LIMIT) : filteredRecipes;
+  const hasMoreRecipes = limitApplies && filteredRecipes.length > FREE_HISTORY_LIMIT;
+
+  // Recetario propio: escalón de planes (Il Nipote bloqueado del todo, La
+  // Mamma hasta `ownLimit`, La Nonna sin límite) — el mismo tope que aplica el
+  // servidor (`server/src/lib/recipes.ts`), aquí solo para pintar la interfaz.
+  const ownCount = (recipes || []).filter((r) => r.is_ai_generated === false).length;
+  const ownLimit = limits.maxOwnRecipes;
+  const ownLocked = ownLimit === 0;
+  const ownCapped = ownLimit !== Infinity && ownCount >= ownLimit;
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in duration-500 pb-20">
       
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.historyPage.title')}</h1>
-        <p className="text-muted dark:text-muted-dark mt-1">{t('app.historyPage.subtitle')}</p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.historyPage.title')}</h1>
+          <p className="text-muted dark:text-muted-dark mt-1">{t('app.historyPage.subtitle')}</p>
+        </div>
+        {tab === 'own' && !ownLocked && !ownCapped && (
+          <div className="flex flex-col items-end gap-1 flex-shrink-0">
+            <Button type="button" onClick={() => navigate('/app/recipes/new')}>
+              <Plus className="w-4 h-4" /> {t('app.historyPage.addRecipe')}
+            </Button>
+            {ownLimit !== Infinity && (
+              <span className="text-xs text-muted dark:text-muted-dark">{t('app.historyPage.ownCount', { count: ownCount, limit: ownLimit })}</span>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div role="tablist" className="flex gap-2 mb-6 border-b border-ink/10 dark:border-ink-light/10">
+        {(['generated', 'own'] as const).map((value) => (
+          <button
+            key={value}
+            role="tab"
+            aria-selected={tab === value}
+            onClick={() => setTab(value)}
+            className={`px-4 py-3 text-sm font-bold border-b-2 -mb-px transition-colors ${
+              tab === value
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted dark:text-muted-dark hover:text-ink dark:hover:text-ink-light'
+            }`}
+          >
+            {t(value === 'generated' ? 'app.historyPage.tabGenerated' : 'app.historyPage.tabOwn')}
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -146,16 +192,37 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
             </div>
           ))}
         </div>
+      ) : tab === 'own' && ownLocked ? (
+        <div className="text-center py-20 bg-white dark:bg-surface-dark rounded-3xl border-2 border-amber-200 dark:border-amber-700">
+           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mx-auto mb-4 shadow-xl">
+             <Lock aria-hidden="true" className="w-8 h-8 text-white" />
+           </div>
+           <h3 className="text-xl font-bold text-ink dark:text-[#F8F2E6] flex items-center justify-center gap-2">
+             <Crown aria-hidden="true" className="w-5 h-5 text-amber-500" />
+             {t('app.historyPage.ownLockedTitle')}
+           </h3>
+           <p className="text-muted dark:text-muted-dark mt-2 mb-6 max-w-md mx-auto">{t('app.historyPage.ownLockedSubtitle')}</p>
+           <button
+             onClick={() => navigate('/app/profile')}
+             className="px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition active:scale-95"
+           >
+             {t('app.historyPage.viewPlans')}
+           </button>
+        </div>
       ) : filteredRecipes.length === 0 ? (
         <div className="text-center py-20 bg-white dark:bg-surface-dark rounded-3xl border border-dashed border-ink/15 dark:border-ink-light/15">
            <div aria-hidden="true" className="text-6xl mb-4">🍲</div>
-           <h3 className="text-xl font-bold text-ink dark:text-[#F8F2E6]">{t('app.historyPage.emptyTitle')}</h3>
-           <p className="text-muted dark:text-muted-dark mt-2 mb-6">{t('app.historyPage.emptySubtitle')}</p>
+           <h3 className="text-xl font-bold text-ink dark:text-[#F8F2E6]">
+             {t(tab === 'own' ? 'app.historyPage.emptyOwnTitle' : 'app.historyPage.emptyTitle')}
+           </h3>
+           <p className="text-muted dark:text-muted-dark mt-2 mb-6">
+             {t(tab === 'own' ? 'app.historyPage.emptyOwnSubtitle' : 'app.historyPage.emptySubtitle')}
+           </p>
            <button
-             onClick={() => navigate('/app')}
+             onClick={() => navigate(tab === 'own' ? '/app/recipes/new' : '/app')}
              className="px-6 py-2 bg-primary text-white font-bold rounded-xl hover:bg-orange-600 active:scale-95 transition-colors"
            >
-             {t('app.historyPage.createNew')}
+             {t(tab === 'own' ? 'app.historyPage.addRecipe' : 'app.historyPage.createNew')}
            </button>
         </div>
       ) : (
@@ -238,6 +305,30 @@ const HistoryPage: React.FC<Props> = ({ session }) => {
             </h3>
             <p className="text-[#5C4E3A] dark:text-[#A89C86] mb-4 max-w-2xl mx-auto">
               {t('app.historyPage.upgradeDesc', { count: filteredRecipes.length - FREE_HISTORY_LIMIT })}
+            </p>
+            <button
+              onClick={() => navigate('/app/profile')}
+              className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold rounded-xl transition hover:scale-105 active:scale-95 shadow-lg"
+            >
+              {t('app.historyPage.viewPlans')}
+            </button>
+          </div>
+        )}
+
+        {/* Tope de recetas propias de La Mamma alcanzado */}
+        {tab === 'own' && ownCapped && (
+          <div className="mt-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-2xl border-2 border-amber-200 dark:border-amber-700 p-8 text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-xl">
+                <Lock aria-hidden="true" className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold text-ink dark:text-[#F8F2E6] mb-2 flex items-center justify-center gap-2">
+              <Crown aria-hidden="true" className="w-6 h-6 text-amber-500" />
+              {t('app.historyPage.ownCapTitle')}
+            </h3>
+            <p className="text-[#5C4E3A] dark:text-[#A89C86] mb-4 max-w-2xl mx-auto">
+              {t('app.historyPage.ownCapDesc', { limit: ownLimit })}
             </p>
             <button
               onClick={() => navigate('/app/profile')}

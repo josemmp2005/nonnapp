@@ -41,11 +41,15 @@ const MAX_RESET_EMAILS_PER_HOUR = 3; // por cuenta, sea cual sea la IP
 const cookieOptions = {
   httpOnly: true,
   secure: isProd,
-  // 'none' en producción: frontend (Vercel) y backend (Render) viven en
-  // dominios distintos, así que la cookie de sesión viaja en fetch()
-  // cross-site — con 'lax' el navegador la descarta y el login parece
-  // funcionar (200 OK) pero /api/auth/me nunca ve la cookie después.
-  // Requiere Secure (ya activo con isProd), si no el navegador la rechaza.
+  // 'none' en producción: backend (Render) vive en su propio dominio, así que
+  // sin proxy la cookie de sesión viaja en fetch() cross-site — con 'lax' el
+  // navegador la descarta y el login parece funcionar (200 OK) pero
+  // /api/auth/me nunca ve la cookie después. Requiere Secure (ya activo con
+  // isProd), si no el navegador la rechaza. Con el proxy de Netlify
+  // (`public/_redirects`, VITE_API_URL="") el navegador ve la API en el mismo
+  // dominio que el frontend — 'none' sigue funcionando igual ahí (es un
+  // superconjunto de 'lax'), y además dejan de aplicar los líos de Safari/iOS
+  // con cookies "de terceros" (ver README → "Implementaciones futuras").
   sameSite: isProd ? ('none' as const) : ('lax' as const),
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',

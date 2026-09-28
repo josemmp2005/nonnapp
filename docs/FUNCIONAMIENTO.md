@@ -18,7 +18,7 @@ Nonnapp genera recetas de cocina con IA a partir de lo que el usuario tiene en l
 - **`/app/chef`** — "Mesa de la Nonna": estilos de cocina predefinidos para generar con un toque.
 - **`/app/preferences`** — Alergias, ingredientes que no gustan, nivel de habilidad, gestión del plan.
 - **`/app/profile`** — Editar username / contraseña, elegir idioma e instalar la app.
-- **`/app/history`** — Todas las recetas generadas por el usuario.
+- **`/app/history`** — El recetario: las recetas del usuario en dos pestañas, **Generadas** (por la IA) y **Propias** (escritas a mano).
 - **`/app/recipe/:id`** — Detalle de una receta (solo visible para quien la creó).
 
 Todo lo que empieza por `/app` exige sesión iniciada; si no hay sesión, redirige a `/auth`.
@@ -66,6 +66,16 @@ No hay generación de fotos del plato — se usó Gemini para eso hasta que se q
 - **Mientras carga:** las fotos muestran un esqueleto y aparecen solo cuando están completas (en vez de pintarse a trozos); si el enlace ya no existe, sale un recuadro con un gorro de chef.
 - Los platos exóticos que no estén en el banco (p. ej. los que salen con "Sorpréndeme") pueden acabar con la foto genérica; ampliar el banco está en [Implementaciones futuras](#implementaciones-futuras).
 
+## El recetario propio
+
+Además de las recetas de la IA, se puede añadir una receta escrita a mano desde **Añadir receta** (pestaña **Propias** del recetario, `/app/recipes/new`):
+
+- Obligatorio: título, al menos un ingrediente y al menos un paso. El resto (descripción, dificultad, tiempo, raciones, foto) es opcional.
+- Sin foto, se le asigna una del mismo banco de fotos que usan las recetas de la IA, por las palabras del título y los ingredientes.
+- No pasa por la IA, así que no cuenta contra el límite diario de recetas de IA de Il Nipote ni al revés — son dos cupos independientes.
+- **Según el plan** (es un escalón de planes, no un tema de coste): Il Nipote no puede usarlo en absoluto (ni la pestaña ni la pantalla de añadir, aunque se entre por la URL directamente); La Mamma tiene hasta **5 recetas propias en total** (no por día — al llegar a 5 hay que borrar alguna o pasarse a La Nonna); La Nonna no tiene límite. Se aplica en el servidor, no solo escondiendo el botón.
+- Aparece en la pestaña **Propias** del recetario, nunca en **Generadas**, y por lo demás se comporta igual que cualquier receta (vista previa, detalle, planificador si el plan lo permite).
+
 ## El chef de IA (chat)
 
 Botón flotante disponible mientras se ve una receta (plan La Nonna). Es una conversación con contexto de la receta actual — se le puede preguntar por sustituciones de ingredientes, aclarar un paso, etc. El historial de la conversación no se guarda: si se cierra el chat o se recarga la página, se pierde.
@@ -80,6 +90,7 @@ Botón flotante disponible mientras se ve una receta (plan La Nonna). Es una con
 | La Mesa de la Nonna | ✗ | ✗ | ✔ |
 | Alergias / ingredientes / utensilios | ✗ | ✔ | ✔ |
 | Historial completo | Últimas 3 | ✔ | ✔ |
+| Recetario propio (recetas escritas a mano) | ✗ | Hasta 5 | Ilimitado |
 | Planificador semanal | ✗ | ✗ | ✔ |
 | Soporte prioritario | ✗ | ✗ | ✔ |
 
@@ -115,3 +126,4 @@ Lo que está previsto y todavía no está hecho (o no está activo). Son decisio
 - Persistencia del chat del chef y de la lista de la compra entre sesiones.
 - "Recetas secretas de temporada" de La Nonna (solo existen en la landing).
 - Mostrar en el login cuánto falta para que termine un bloqueo por intentos fallidos, y traducir los mensajes de error del servidor.
+- En iPhone/iPad, la cuenta a veces se veía con el plan gratis aunque fuera de pago (Windows/Android iban bien) — arreglado en el código (detalle técnico en el README, apartado "Notas de arquitectura"), pero solo se nota en producción cuando se ponga `VITE_API_URL` vacía en Netlify y se vuelva a desplegar el frontend.

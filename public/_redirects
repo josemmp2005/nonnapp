@@ -1,1 +1,5 @@
+# Reglas de Netlify: proxy de /api/* al backend (mismo origen para el navegador,
+# evita que Safari/iOS trate la cookie de sesión como "de terceros") y, para
+# todo lo demás, el fallback de SPA (React Router resuelve la ruta en el cliente).
+/api/*  https://sabora.onrender.com/api/:splat  200
 /*    /index.html   200

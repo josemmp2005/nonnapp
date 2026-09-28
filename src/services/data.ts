@@ -49,6 +49,41 @@ export const saveRecipeToDB = async (
   }
 };
 
+// Recetario propio: Il Nipote no puede usarlo en absoluto; La Mamma tiene un
+// tope total (no diario); La Nonna no tiene límite (ver `server/src/lib/recipes.ts`).
+export class OwnRecipesPlanRequiredError extends Error {
+  constructor() {
+    super('PLAN_REQUIRED');
+    this.name = 'OwnRecipesPlanRequiredError';
+  }
+}
+
+export class OwnRecipeLimitError extends Error {
+  readonly limit: number;
+  constructor(limit: number) {
+    super('OWN_RECIPE_LIMIT_EXCEEDED');
+    this.name = 'OwnRecipeLimitError';
+    this.limit = limit;
+  }
+}
+
+export const saveManualRecipeToDB = async (recipe: AIRecipeResponse, imageUrl: string | null): Promise<RecipeDB> => {
+  try {
+    return await apiFetch<RecipeDB>('/api/recipes/manual', {
+      method: 'POST',
+      body: { recipe, imageUrl },
+    });
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 403 && err.message === 'PLAN_REQUIRED') {
+      throw new OwnRecipesPlanRequiredError();
+    }
+    if (err instanceof ApiError && err.status === 403 && err.message === 'OWN_RECIPE_LIMIT_EXCEEDED') {
+      throw new OwnRecipeLimitError((err.data as { limit: number })?.limit ?? 5);
+    }
+    throw err;
+  }
+};
+
 /* --- PREFERENCIAS --- */
 
 export const getUserPreferences = async (): Promise<UserProfile> => {
