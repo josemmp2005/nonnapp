@@ -5,20 +5,25 @@
  */
 
 // En local, sin VITE_API_URL definida, se asume el backend de `npm run dev:all`
-// (localhost:3001). En un build de producción (Netlify/Vercel) esta variable
-// es OBLIGATORIA — Vite la incrusta en tiempo de compilación, así que si falta
-// aquí, faltaba en el momento del build, no algo que se pueda arreglar en
-// runtime. El aviso es para que el fallo se vea en consola en vez de fallar
-// en silencio contra un localhost que no existe en el navegador del usuario.
-if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+// (localhost:3001). En producción (Netlify) esta variable puede ser:
+//   - la URL absoluta del backend (llamada directa, cross-site) — sigue funcionando, pero
+//     Safari/iOS trata esa cookie de sesión como "de terceros" y a veces la descarta; o
+//   - "" (vacía, A PROPÓSITO): las rutas quedan relativas (`/api/...`) y las resuelve el
+//     proxy del propio hosting (`public/_redirects`) hacia el backend, así que para el
+//     navegador la API vive en el mismo dominio que la app — la cookie deja de ser "de
+//     terceros" y Safari/iOS deja de perderla. Es el valor recomendado en producción.
+// Solo se avisa si la variable falta del todo (undefined) — un "" puesto a propósito es
+// una configuración válida, no un olvido, así que no debe disparar el aviso.
+if (import.meta.env.PROD && import.meta.env.VITE_API_URL === undefined) {
   console.error(
     '[Nonnapp] VITE_API_URL no estaba definida al compilar este build de producción — ' +
     'todas las llamadas a la API irán a localhost y fallarán. Configúrala en las variables ' +
-    'de entorno de tu hosting (Netlify/Vercel) y vuelve a desplegar.'
+    'de entorno de tu hosting (Netlify) y vuelve a desplegar — "" (vacía) para usar el proxy ' +
+    'de public/_redirects, o la URL del backend para llamarlo directo.'
   );
 }
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
 export class ApiError extends Error {
   status: number;

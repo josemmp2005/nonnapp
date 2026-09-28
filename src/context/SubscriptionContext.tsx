@@ -7,6 +7,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { fetchSubscription } from '../services/data';
+import { fetchSubscriptionWithRetry, resolveSubscriptionUpdate } from '../utils/subscriptionRetry';
 import type { AuthSession } from '../services/auth';
 import type { SubscriptionPlan, SubscriptionData, SubscriptionLimits } from '../types';
 
@@ -33,6 +34,10 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
     hasFullHistory: false,
     hasPrioritySupport: false,
     hasChefPreferences: false,
+    // Escalón de planes, no de coste (no hay IA de por medio): bloqueado del
+    // todo para el plan gratis. El servidor aplica el mismo límite (ver
+    // `server/src/lib/recipes.ts`) — esto solo es para la interfaz.
+    maxOwnRecipes: 0,
   },
   Mamma: {
     maxRecipesPerDay: Infinity,
@@ -45,6 +50,7 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
     hasFullHistory: true,
     hasPrioritySupport: false,
     hasChefPreferences: true,
+    maxOwnRecipes: 5,
   },
   Nonna: {
     maxRecipesPerDay: Infinity,
@@ -54,6 +60,7 @@ const PLAN_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
     hasFullHistory: true,
     hasPrioritySupport: true,
     hasChefPreferences: true,
+    maxOwnRecipes: Infinity,
   },
 };
 
@@ -82,26 +89,13 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode; session: Auth
       return;
     }
 
-    try {
-      const data = await fetchSubscription();
-
-      if (data.end_date && new Date(data.end_date) < new Date()) {
-        setSubscription(DEFAULT_SUBSCRIPTION);
-        return;
-      }
-
-      setSubscription({
-        plan_type: data.plan_type as SubscriptionPlan,
-        is_active: data.is_active,
-        start_date: data.start_date,
-        end_date: data.end_date,
-      });
-    } catch (err) {
-      console.error('Failed to load subscription:', err);
-      setSubscription(DEFAULT_SUBSCRIPTION);
-    } finally {
-      setIsLoading(false);
-    }
+    // Reintenta una vez antes de rendirse y, si sigue sin llegar, mantiene el
+    // plan ya conocido en vez de sustituirlo por el gratis (ver
+    // `utils/subscriptionRetry.ts` — pensado para el fallo puntual de cookie
+    // de Safari/iOS, no para ocultar una caída real y sostenida del backend).
+    const data = await fetchSubscriptionWithRetry(fetchSubscription);
+    setSubscription((current) => resolveSubscriptionUpdate(current, data, DEFAULT_SUBSCRIPTION));
+    setIsLoading(false);
   };
 
   // Cargar cada vez que cambia la sesión (login/logout)

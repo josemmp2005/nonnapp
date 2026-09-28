@@ -57,6 +57,8 @@ export interface SubscriptionLimits {
   // Alergias, ingredientes que no gustan y utensilios disponibles — Il Nipote
   // se queda con lo mínimo (solo nivel de habilidad, que no cuesta nada).
   hasChefPreferences: boolean;
+  // Recetario propio: 0 = bloqueado (Il Nipote), Infinity = sin límite (La Nonna).
+  maxOwnRecipes: number;
 }
 
 // Estructura para la UI y Base de Datos (simplificado para frontend)

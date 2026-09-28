@@ -1,14 +1,17 @@
 /**
- * Rutas `/api/recipes`: recientes, historial, detalle y guardado de recetas,
- * con el límite diario del plan gratuito.
+ * Rutas `/api/recipes`: recientes, historial, detalle y guardado de recetas
+ * (generadas por IA, con el límite diario del plan gratuito, o escritas a mano
+ * para el recetario propio — bloqueado para Il Nipote, hasta 5 para La Mamma,
+ * sin límite para La Nonna).
  */
 
 import { Router } from 'express';
 import { pool } from '../db.js';
 import { requireAuth, requireVerifiedEmail } from '../middleware/auth.js';
+import { requirePlan } from '../middleware/plan.js';
 import { validateBody } from '../lib/validate.js';
-import { saveRecipeSchema } from '../lib/schemas.js';
-import { saveRecipe, DailyLimitExceededError } from '../lib/recipes.js';
+import { saveRecipeSchema, saveManualRecipeSchema } from '../lib/schemas.js';
+import { saveRecipe, DailyLimitExceededError, OwnRecipeLimitExceededError } from '../lib/recipes.js';
 
 const router = Router();
 router.use(requireAuth, requireVerifiedEmail);
@@ -126,7 +129,7 @@ router.post('/', validateBody(saveRecipeSchema), async (req, res) => {
   const { recipe, prompt, imageUrl } = req.body;
 
   try {
-    const created = await saveRecipe(req.userId!, { recipe, prompt, imageUrl });
+    const created = await saveRecipe(req.userId!, { recipe, prompt, imageUrl }, 'ai');
 
     return res.status(201).json({
       ...recipe,
@@ -139,6 +142,31 @@ router.post('/', validateBody(saveRecipeSchema), async (req, res) => {
       return res.status(429).json({ error: 'DAILY_LIMIT_EXCEEDED' });
     }
     console.error('Error guardando receta:', err);
+    return res.status(500).json({ error: 'No se pudo guardar la receta' });
+  }
+});
+
+// Recetario propio: el usuario escribe la receta entera, sin pasar por la IA
+// ni por el límite diario de arriba. `requirePlan` deja fuera a Il Nipote antes
+// de tocar nada más; el tope de La Mamma se comprueba dentro de `saveRecipe`.
+router.post('/manual', requirePlan('mamma', 'nonna'), validateBody(saveManualRecipeSchema), async (req, res) => {
+  const { recipe, imageUrl } = req.body;
+
+  try {
+    const created = await saveRecipe(req.userId!, { recipe, prompt: null, imageUrl }, 'manual');
+
+    return res.status(201).json({
+      ...recipe,
+      id: created.id,
+      created_at: created.created_at,
+      main_image_url: created.main_image_url,
+      is_ai_generated: false,
+    });
+  } catch (err) {
+    if (err instanceof OwnRecipeLimitExceededError) {
+      return res.status(403).json({ error: 'OWN_RECIPE_LIMIT_EXCEEDED', limit: err.limit });
+    }
+    console.error('Error guardando receta propia:', err);
     return res.status(500).json({ error: 'No se pudo guardar la receta' });
   }
 });
