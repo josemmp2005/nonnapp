@@ -5,25 +5,23 @@
  */
 
 // En local, sin VITE_API_URL definida, se asume el backend de `npm run dev:all`
-// (localhost:3001). En producción (Netlify) esta variable puede ser:
-//   - la URL absoluta del backend (llamada directa, cross-site) — sigue funcionando, pero
-//     Safari/iOS trata esa cookie de sesión como "de terceros" y a veces la descarta; o
-//   - "" (vacía, A PROPÓSITO): las rutas quedan relativas (`/api/...`) y las resuelve el
-//     proxy del propio hosting (`public/_redirects`) hacia el backend, así que para el
-//     navegador la API vive en el mismo dominio que la app — la cookie deja de ser "de
-//     terceros" y Safari/iOS deja de perderla. Es el valor recomendado en producción.
-// Solo se avisa si la variable falta del todo (undefined) — un "" puesto a propósito es
-// una configuración válida, no un olvido, así que no debe disparar el aviso.
-if (import.meta.env.PROD && import.meta.env.VITE_API_URL === undefined) {
-  console.error(
-    '[Nonnapp] VITE_API_URL no estaba definida al compilar este build de producción — ' +
-    'todas las llamadas a la API irán a localhost y fallarán. Configúrala en las variables ' +
-    'de entorno de tu hosting (Netlify) y vuelve a desplegar — "" (vacía) para usar el proxy ' +
-    'de public/_redirects, o la URL del backend para llamarlo directo.'
-  );
-}
-
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+// (localhost:3001). En producción, sin definirla (recomendado, es el caso por
+// defecto: no hace falta tocar nada en Netlify), las rutas quedan relativas
+// (`/api/...`) y las resuelve el proxy del propio hosting (`public/_redirects`)
+// hacia el backend — para el navegador la API vive en el mismo dominio que la
+// app, así que la cookie de sesión deja de ser "de terceros" y Safari/iOS deja
+// de perderla. Solo hace falta definirla (a la URL absoluta del backend) para
+// el caso contrario: llamarlo directo, sin proxy, cross-site — vuelve a
+// exponerse a que Safari/iOS pierda la cookie, así que es la opción NO
+// recomendada, solo para cuando no se pueda montar el proxy.
+//
+// A diferencia de una versión anterior de este archivo, aquí NO se depende de
+// poner la variable a "" a propósito en el panel de Netlify (frágil: no está
+// claro que su interfaz guarde un valor vacío tal cual, y de fallar esa
+// suposición el build de producción caía a localhost, mucho peor que el
+// problema original). Con este diseño, no definir la variable ya es el modo
+// recomendado — no hay nada que configurar mal.
+export const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 export class ApiError extends Error {
   status: number;
