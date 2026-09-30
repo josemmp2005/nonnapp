@@ -343,6 +343,7 @@
       "toastPlanRequired": "Pantry mode is available on the La Mamma and La Nonna plans.",
       "toastOffTopic": "Nonna only makes cooking recipes. Tell her what you want to cook or what ingredients you have.",
       "toastAiRateLimited": "The AI is very busy right now. Wait a few seconds and try again.",
+      "toastCancelled": "Generation cancelled",
       "toastGenericError": "Sorry, there was an error generating your recipe. Please try again.",
       "title": "The Chef's Lab",
       "subtitle": "Describe your craving or tell us what ingredients you have. The AI will create the perfect recipe.",
@@ -355,6 +356,9 @@
     "recipeDisplay": {
       "chatLockedToast": "Chatting with Nonna is available on the La Nonna plan. Upgrade to enjoy it!",
       "chatLockedAria": "Chat with Nonna (La Nonna plan)",
+      "favoriteAria": "Add to favorites",
+      "unfavoriteAria": "Remove from favorites",
+      "tagsHeading": "Tags",
       "copySuccess": "Recipe copied to clipboard",
       "copyError": "Couldn't copy the recipe",
       "copyTimeLabel": "Time",
@@ -464,6 +468,11 @@
       "subtitle": "Your AI-generated recipes and the ones you've added yourself",
       "tabGenerated": "Generated",
       "tabOwn": "My own",
+      "onlyFavorites": "Favorites",
+      "filtersButton": "Filters",
+      "clearFilters": "Clear",
+      "showResults_one": "Show {{count}} recipe",
+      "showResults_other": "Show {{count}} recipes",
       "addRecipe": "Add recipe",
       "ownCount": "{{count}} / {{limit}} own recipes",
       "ownLockedTitle": "The cookbook's own recipes are for La Mamma and La Nonna",
@@ -503,6 +512,7 @@
       "timePlaceholder": "e.g. 30 min",
       "servingsLabel": "Servings",
       "imageLabel": "Photo (URL, optional)",
+      "tagsLabel": "Tags (optional)",
       "imagePlaceholder": "https://...",
       "ingredientsHeading": "Ingredients",
       "ingredientNameAria": "Ingredient name",
@@ -535,7 +545,15 @@
       "notFoundError": "Recipe not found.",
       "genericError": "The recipe couldn't be loaded.",
       "backToHistory": "Back to history",
-      "back": "Back"
+      "back": "Back",
+      "favoriteError": "Couldn't update favorite",
+      "tagsError": "Couldn't save the tags"
+    },
+    "tagEditor": {
+      "placeholder": "Add tag...",
+      "inputAria": "New tag",
+      "addAria": "Add tag",
+      "removeAria": "Remove tag {{tag}}"
     },
     "notFound": {
       "title": "Dish not found",
@@ -646,7 +664,8 @@
         "Adjusting seasoning...",
         "Generating a photorealistic image...",
         "Almost ready to serve!"
-      ]
+      ],
+      "cancel": "Cancel"
     }
   }
 }

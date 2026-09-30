@@ -4,16 +4,17 @@
  * sin pasar por la IA.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, Plus, Trash2, Loader2, Save, Lock, Crown } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, Save, Lock, Crown, Tag as TagIcon } from 'lucide-react';
 import { Card } from './ui/Card';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
+import { TagEditor } from './ui/TagEditor';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
-import { saveManualRecipeToDB, OwnRecipesPlanRequiredError, OwnRecipeLimitError } from '../services/data';
+import { saveManualRecipeToDB, setRecipeTags, fetchUserTags, OwnRecipesPlanRequiredError, OwnRecipeLimitError } from '../services/data';
 
 interface IngredientRow {
   key: number;
@@ -48,7 +49,13 @@ const AddRecipePage: React.FC = () => {
   const [ingredients, setIngredients] = useState<IngredientRow[]>([newIngredientRow()]);
   const [utensils, setUtensils] = useState<string[]>(['']);
   const [steps, setSteps] = useState<StepRow[]>([newStepRow()]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetchUserTags().then(setTagSuggestions).catch(() => {});
+  }, []);
 
   const updateIngredient = (key: number, field: 'item' | 'quantity', value: string) =>
     setIngredients((rows) => rows.map((r) => (r.key === key ? { ...r, [field]: value } : r)));
@@ -90,6 +97,12 @@ const AddRecipePage: React.FC = () => {
         },
         imageUrl.trim() || null
       );
+
+      if (tags.length > 0 && saved.id != null) {
+        // La receta ya se ha guardado bien; si fallan las etiquetas no se
+        // deshace nada, solo se avisa — se pueden añadir después desde el detalle.
+        await setRecipeTags(saved.id, tags).catch(() => showToast(t('app.recipeDetail.tagsError'), 'error'));
+      }
 
       showToast(t('app.addRecipePage.toastSaved'), 'success');
       navigate(`/app/recipe/${saved.id}`);
@@ -213,6 +226,13 @@ const AddRecipePage: React.FC = () => {
               </label>
               <Input id="recipe-image" type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder={t('app.addRecipePage.imagePlaceholder')} />
             </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-1.5 text-sm font-medium text-ink dark:text-ink-light mb-1.5">
+              <TagIcon aria-hidden="true" className="w-4 h-4" /> {t('app.addRecipePage.tagsLabel')}
+            </label>
+            <TagEditor tags={tags} onChange={setTags} suggestions={tagSuggestions} />
           </div>
         </Card>
 

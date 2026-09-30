@@ -39,6 +39,10 @@ export class ApiError extends Error {
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   body?: unknown;
+  // Para poder cancelar una petición en curso (p. ej. "Cancelar" mientras se
+  // genera una receta) — si ya está abortada al llegar aquí, `fetch` rechaza
+  // de inmediato con un `AbortError`, sin llegar a tocar la red.
+  signal?: AbortSignal;
 }
 
 /**
@@ -51,6 +55,7 @@ export const apiFetch = async <T = unknown>(path: string, options: RequestOption
     credentials: 'include',
     headers: options.body ? { 'Content-Type': 'application/json' } : undefined,
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    signal: options.signal,
   });
 
   if (response.status === 204) {

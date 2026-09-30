@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock } from 'lucide-react';
+import { Clock, Users, Flame, UtensilsCrossed, RefreshCw, Share2, PlayCircle, ShoppingCart, Printer, Lock, Tag as TagIcon } from 'lucide-react';
 import type { AIRecipeResponse } from '../types';
 import { useToast } from '../context/ToastContext';
 import { useSubscription } from '../context/SubscriptionContext';
@@ -15,14 +15,33 @@ import ChefChat from './ChefChat';
 import { NonnaAvatar } from './ui/NonnaAvatar';
 import { Reveal } from './ui/Reveal';
 import RecipeImage from './ui/RecipeImage';
+import { FavoriteButton } from './ui/FavoriteButton';
+import { TagEditor } from './ui/TagEditor';
 
 interface Props {
   recipe: AIRecipeResponse;
   imageUrl: string | null;
   onGenerateAgain: () => void;
+  // Favoritos y etiquetas solo tienen sentido sobre una receta ya guardada (con
+  // id) — al generar una nueva, `RecipeDisplay` se enseña antes de que exista
+  // ese id, así que estos props son opcionales y, sin ellos, no se pinta nada.
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  tags?: string[];
+  tagSuggestions?: string[];
+  onSaveTags?: (tags: string[]) => void;
 }
 
-const RecipeDisplay: React.FC<Props> = ({ recipe, imageUrl, onGenerateAgain }) => {
+const RecipeDisplay: React.FC<Props> = ({
+  recipe,
+  imageUrl,
+  onGenerateAgain,
+  isFavorite,
+  onToggleFavorite,
+  tags,
+  tagSuggestions,
+  onSaveTags,
+}) => {
   const { t } = useTranslation();
   const { recipe_metadata, ingredients, utensils, steps } = recipe;
   const { showToast } = useToast();
@@ -111,15 +130,33 @@ ${t('app.recipeDisplay.copyFooter')}
            
            <div className={`p-6 md:p-8 flex flex-col justify-center ${imageUrl ? 'md:w-7/12 lg:w-1/2' : 'w-full text-center items-center'}`}>
               <div className="mb-6">
-                <span className={`inline-block px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-bold rounded-full mb-4 uppercase tracking-wide ${!imageUrl && 'mx-auto'} print:border print:border-gray-300 print:bg-white`}>
-                  {recipe_metadata.difficulty}
-                </span>
+                <div className={`flex items-center gap-2 mb-4 ${!imageUrl && 'justify-center'}`}>
+                  <span className="inline-block px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-bold rounded-full uppercase tracking-wide print:border print:border-gray-300 print:bg-white">
+                    {recipe_metadata.difficulty}
+                  </span>
+                  {onToggleFavorite && (
+                    <FavoriteButton
+                      isFavorite={!!isFavorite}
+                      onToggle={onToggleFavorite}
+                      label={t(isFavorite ? 'app.recipeDisplay.unfavoriteAria' : 'app.recipeDisplay.favoriteAria')}
+                      className="no-print w-8 h-8 p-1.5 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    />
+                  )}
+                </div>
                 <h2 className="text-3xl md:text-4xl font-extrabold text-ink dark:text-[#F8F2E6] mb-4 leading-tight">
                   {recipe_metadata.title}
                 </h2>
                 <p className="text-[#5C4E3A] dark:text-[#A89C86] text-lg leading-relaxed">
                   {recipe_metadata.description}
                 </p>
+                {tags !== undefined && onSaveTags && (
+                  <div className="no-print mt-4 text-left">
+                    <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted dark:text-muted-dark mb-2">
+                      <TagIcon aria-hidden="true" className="w-3.5 h-3.5" /> {t('app.recipeDisplay.tagsHeading')}
+                    </h3>
+                    <TagEditor tags={tags} onChange={onSaveTags} suggestions={tagSuggestions} />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-4 border-t border-b border-ink/10 dark:border-ink-light/10 py-6 mb-6 w-full">

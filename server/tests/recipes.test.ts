@@ -176,6 +176,144 @@ describe('POST /api/recipes/manual', () => {
   });
 });
 
+describe('PATCH /api/recipes/:id/favorite', () => {
+  it('marca y desmarca una receta como favorita', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Tortilla'));
+
+    const marked = await request(app).patch(`/api/recipes/${created.body.id}/favorite`).set('Cookie', cookie).send({ is_favorite: true });
+    expect(marked.status).toBe(200);
+    expect(marked.body.is_favorite).toBe(true);
+
+    const fetched = await request(app).get(`/api/recipes/${created.body.id}`).set('Cookie', cookie);
+    expect(fetched.body.is_favorite).toBe(true);
+
+    const unmarked = await request(app).patch(`/api/recipes/${created.body.id}/favorite`).set('Cookie', cookie).send({ is_favorite: false });
+    expect(unmarked.status).toBe(200);
+    expect(unmarked.body.is_favorite).toBe(false);
+  });
+
+  it('aparece marcada en /recent y /history sin tener que abrirla', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Favorita en lista'));
+    await request(app).patch(`/api/recipes/${created.body.id}/favorite`).set('Cookie', cookie).send({ is_favorite: true });
+
+    const recent = await request(app).get('/api/recipes/recent').set('Cookie', cookie);
+    const history = await request(app).get('/api/recipes/history').set('Cookie', cookie);
+
+    expect(recent.body.find((r: any) => r.id === created.body.id).is_favorite).toBe(true);
+    expect(history.body.find((r: any) => r.id === created.body.id).is_favorite).toBe(true);
+  });
+
+  // Regresión IDOR: no se puede marcar como favorita la receta de otro.
+  it('devuelve 404 al marcar la receta de otro usuario', async () => {
+    const owner = await createUser({ email: 'fav-owner@example.com' });
+    const ownerCookie = await loginCookie(owner.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', ownerCookie).send(minimalRecipe('Ajena'));
+
+    const intruder = await createUser({ email: 'fav-intruder@example.com' });
+    const intruderCookie = await loginCookie(intruder.email);
+    const res = await request(app).patch(`/api/recipes/${created.body.id}/favorite`).set('Cookie', intruderCookie).send({ is_favorite: true });
+
+    expect(res.status).toBe(404);
+  });
+});
+
+describe('PUT /api/recipes/:id/tags y GET /api/recipes/tags', () => {
+  it('guarda etiquetas y las devuelve en el detalle', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Con etiquetas'));
+
+    const res = await request(app).put(`/api/recipes/${created.body.id}/tags`).set('Cookie', cookie).send({ tags: ['cena', 'rápida'] });
+    expect(res.status).toBe(200);
+    expect(res.body.tags.sort()).toEqual(['cena', 'rápida'].sort());
+
+    const fetched = await request(app).get(`/api/recipes/${created.body.id}`).set('Cookie', cookie);
+    expect(fetched.body.tags.sort()).toEqual(['cena', 'rápida'].sort());
+  });
+
+  it('sustituye el conjunto completo (quitar una etiqueta la deja fuera)', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Editar etiquetas'));
+
+    await request(app).put(`/api/recipes/${created.body.id}/tags`).set('Cookie', cookie).send({ tags: ['cena', 'rápida'] });
+    const res = await request(app).put(`/api/recipes/${created.body.id}/tags`).set('Cookie', cookie).send({ tags: ['postre'] });
+
+    expect(res.body.tags).toEqual(['postre']);
+    const fetched = await request(app).get(`/api/recipes/${created.body.id}`).set('Cookie', cookie);
+    expect(fetched.body.tags).toEqual(['postre']);
+  });
+
+  it('no duplica una etiqueta ya existente del usuario (misma fila reutilizada) y aparece en /api/recipes/tags', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const r1 = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Receta 1'));
+    const r2 = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Receta 2'));
+
+    await request(app).put(`/api/recipes/${r1.body.id}/tags`).set('Cookie', cookie).send({ tags: ['cena'] });
+    await request(app).put(`/api/recipes/${r2.body.id}/tags`).set('Cookie', cookie).send({ tags: ['cena', 'rápida'] });
+
+    const tags = await request(app).get('/api/recipes/tags').set('Cookie', cookie);
+    expect(tags.body.sort()).toEqual(['cena', 'rápida'].sort());
+  });
+
+  it('las etiquetas de un usuario no se filtran ni se mezclan con las de otro', async () => {
+    const userA = await createUser({ email: 'tags-a@example.com' });
+    const cookieA = await loginCookie(userA.email);
+    const userB = await createUser({ email: 'tags-b@example.com' });
+    const cookieB = await loginCookie(userB.email);
+
+    const recipeA = await request(app).post('/api/recipes').set('Cookie', cookieA).send(minimalRecipe('De A'));
+    await request(app).put(`/api/recipes/${recipeA.body.id}/tags`).set('Cookie', cookieA).send({ tags: ['secreta-de-a'] });
+
+    const tagsB = await request(app).get('/api/recipes/tags').set('Cookie', cookieB);
+    expect(tagsB.body).toEqual([]);
+  });
+
+  it('quita duplicados y espacios sobrantes dentro de la misma petición', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Duplicados'));
+
+    const res = await request(app).put(`/api/recipes/${created.body.id}/tags`).set('Cookie', cookie).send({ tags: ['cena', ' cena ', 'Cena'] });
+
+    // "cena" y " cena " colapsan al recortar espacios; "Cena" con mayúscula
+    // inicial se trata como una etiqueta DISTINTA (sin normalizar mayúsculas
+    // a propósito: el usuario puede querer "Postre" con mayúscula).
+    expect(res.body.tags.sort()).toEqual(['Cena', 'cena']);
+  });
+
+  // Regresión IDOR: no se pueden poner etiquetas en la receta de otro.
+  it('devuelve 404 al etiquetar la receta de otro usuario', async () => {
+    const owner = await createUser({ email: 'tags-owner@example.com' });
+    const ownerCookie = await loginCookie(owner.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', ownerCookie).send(minimalRecipe('Ajena para etiquetar'));
+
+    const intruder = await createUser({ email: 'tags-intruder@example.com' });
+    const intruderCookie = await loginCookie(intruder.email);
+    const res = await request(app).put(`/api/recipes/${created.body.id}/tags`).set('Cookie', intruderCookie).send({ tags: ['intento'] });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('rechaza más de 10 etiquetas', async () => {
+    const user = await createUser();
+    const cookie = await loginCookie(user.email);
+    const created = await request(app).post('/api/recipes').set('Cookie', cookie).send(minimalRecipe('Muchas etiquetas'));
+
+    const res = await request(app)
+      .put(`/api/recipes/${created.body.id}/tags`)
+      .set('Cookie', cookie)
+      .send({ tags: Array.from({ length: 11 }, (_, i) => `etiqueta${i}`) });
+
+    expect(res.status).toBe(400);
+  });
+});
+
 describe('GET /api/recipes/:id', () => {
   // Regresión IDOR: antes de la migración a auth propia, esta ruta no
   // comprobaba propiedad — cualquiera podía ver la receta de otro cambiando

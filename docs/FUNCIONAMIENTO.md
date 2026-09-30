@@ -59,6 +59,8 @@ Al generar:
 1. Se pide el texto de la receta (título, descripción, ingredientes con cantidad, utensilios, pasos) — motor: **Groq**.
 2. Se guarda en el historial del usuario. Los planes gratis tienen un límite de **2 recetas al día**; al superarlo, se avisa y no se genera más hasta el día siguiente (el límite se comprueba en el servidor, no se puede saltar borrando datos del navegador).
 
+Mientras se genera, un botón **Cancelar** corta la petición: no se guarda nada y, como el límite diario se comprueba al guardar (no al generar), tampoco cuenta como un intento gastado — útil si se lanza sin querer.
+
 No hay generación de fotos del plato — se usó Gemini para eso hasta que se quitó de la app por completo. La foto sale de un banco de fotos reales curado a mano (`server/src/lib/recipeImages.ts`):
 
 - **Cómo se elige:** por palabras clave del **título** (el plato con nombre propio gana a la categoría genérica, y "bowl"/"desayuno" solo deciden si no hay nada más concreto: "Bowl de avena" es avena, no un bowl de verduras). Si el título no dice nada, deciden los ingredientes —con más peso los primeros— y la descripción, sin contar derivados ("pasta de camarón" no es pasta) y solo si hay evidencia suficiente; si no la hay, se usa una foto genérica de plato antes que una equivocada.
@@ -75,6 +77,13 @@ Además de las recetas de la IA, se puede añadir una receta escrita a mano desd
 - No pasa por la IA, así que no cuenta contra el límite diario de recetas de IA de Il Nipote ni al revés — son dos cupos independientes.
 - **Según el plan** (es un escalón de planes, no un tema de coste): Il Nipote no puede usarlo en absoluto (ni la pestaña ni la pantalla de añadir, aunque se entre por la URL directamente); La Mamma tiene hasta **5 recetas propias en total** (no por día — al llegar a 5 hay que borrar alguna o pasarse a La Nonna); La Nonna no tiene límite. Se aplica en el servidor, no solo escondiendo el botón.
 - Aparece en la pestaña **Propias** del recetario, nunca en **Generadas**, y por lo demás se comporta igual que cualquier receta (vista previa, detalle, planificador si el plan lo permite).
+
+## Favoritos y etiquetas
+
+Sin restricción de plan — disponibles para Il Nipote, La Mamma y La Nonna por igual, en cualquier receta (generada o propia):
+
+- **Favoritos**: el corazón de una tarjeta (en el recetario, en la vista previa o en el detalle) la marca o desmarca al instante. El recetario tiene un filtro **Favoritas** que, combinado con las pestañas Generadas/Propias, muestra solo las marcadas de esa pestaña.
+- **Etiquetas propias**: desde el detalle de una receta (o al crear una receta propia) se le pueden poner etiquetas de texto libre (hasta 10 por receta). Son del propio usuario — no se comparten entre cuentas ni se sugieren las de otros. El recetario muestra un filtro con todas las etiquetas usadas; marcar una o varias enseña las recetas que tengan **alguna** de ellas.
 
 ## El chef de IA (chat)
 
@@ -117,7 +126,6 @@ Lo que está previsto y todavía no está hecho (o no está activo). Son decisio
 - **Planificador semanal** — ya existe la pantalla y el servidor (exclusivo de La Nonna), pero está apagado hasta terminar el pulido visual. Falta activarlo y anunciarlo.
 - **Panel para el administrador** — no existe ningún rol ni pantalla de administración: todas las cuentas son usuarios normales.
 - **Avatar de usuario** — subir una foto de perfil. Hoy las cuentas de email/contraseña muestran solo la inicial del nombre; las de Google sí traen su foto.
-- **Botón de cancelar receta** — poder cancelar la generación de una receta en curso; hoy, una vez lanzada, hay que esperar a que termine.
 - **Más imágenes** — ampliar el banco de fotos de las recetas, para que más platos tengan una foto que encaje.
 - **Doble factor de autenticación (2FA)** — decidido dejarlo para más adelante; hoy la protección de la cuenta es contraseña + verificación de email + límites y bloqueo de intentos.
 

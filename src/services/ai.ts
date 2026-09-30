@@ -63,6 +63,20 @@ export class AiRateLimitedError extends Error {
 const isAiRateLimitedError = (error: unknown): boolean =>
   error instanceof ApiError && error.status === 429 && error.message === 'AI_RATE_LIMITED';
 
+// El usuario ha pulsado "Cancelar" mientras se generaba — no es un error, así
+// que no lleva su propio toast de "algo salió mal": ver LoadingOverlay/GeneratorPage.
+export class RecipeGenerationCancelledError extends Error {
+  constructor() {
+    super('CANCELLED');
+    this.name = 'RecipeGenerationCancelledError';
+  }
+}
+
+// `fetch` rechaza con este `DOMException` cuando se aborta su `AbortSignal`,
+// tanto si ya estaba abortada la señal al llamarlo (petición aún en la cola
+// del limitador) como si se aborta a media petición.
+const isAbortError = (error: unknown): boolean => error instanceof DOMException && error.name === 'AbortError';
+
 // 20s de margen: el límite de Groq es por minuto (TPM), así que un solo
 // intervalo de 5s (el normal entre llamadas) no basta para que se libere.
 const AI_RATE_LIMIT_COOLDOWN_MS = 20000;
@@ -90,11 +104,18 @@ export const generateRecipeAI = async (
   ingredients?: string,
   servings?: number,
   utensils?: string,
-  hasKitchenRobot?: boolean
+  hasKitchenRobot?: boolean,
+  signal?: AbortSignal
 ): Promise<GeneratedRecipe> => {
   if (USE_MOCK_RECIPE) {
     console.warn('⚠️ USANDO DATOS MOCK - la IA está en rate limit');
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(resolve, 1000);
+      signal?.addEventListener('abort', () => {
+        clearTimeout(timer);
+        reject(new DOMException('Aborted', 'AbortError'));
+      });
+    });
     return { recipe: getMockRecipe(prompt), imageUrl: MOCK_IMAGE_URL };
   }
 
@@ -109,11 +130,16 @@ export const generateRecipeAI = async (
         {
           method: 'POST',
           body: { prompt, mode, ingredients, servings, timeLimit, utensils, hasKitchenRobot },
+          signal,
         }
       );
 
       return { recipe: result.data, imageUrl: result.imageUrl };
     } catch (error) {
+      if (isAbortError(error)) {
+        // Cancelado a propósito: no es un error, no se registra como tal.
+        throw new RecipeGenerationCancelledError();
+      }
       console.error('Error generando receta:', error);
       if (error instanceof ApiError && error.status === 403 && error.message === 'EMAIL_NOT_VERIFIED') {
         throw new EmailNotVerifiedError();

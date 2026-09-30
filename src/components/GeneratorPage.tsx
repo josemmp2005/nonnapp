@@ -10,7 +10,14 @@ import { useTranslation } from 'react-i18next';
 import RecipeForm from './RecipeForm';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { generateRecipeAI, EmailNotVerifiedError, PlanRequiredError, RecipeOffTopicError, AiRateLimitedError } from '../services/ai';
+import {
+  generateRecipeAI,
+  EmailNotVerifiedError,
+  PlanRequiredError,
+  RecipeOffTopicError,
+  AiRateLimitedError,
+  RecipeGenerationCancelledError,
+} from '../services/ai';
 import { saveRecipeToDB, DailyLimitError } from '../services/data';
 import type{ AIRecipeResponse, UserProfile, GenerationParams } from '../types';
 import { useToast } from '../context/ToastContext';
@@ -31,6 +38,9 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   const navigate = useNavigate();
   // `key` de la navegación cuyo auto-disparo ya se ha lanzado (ver el efecto de abajo).
   const autoTriggeredKey = useRef<string | null>(null);
+  // La generación en curso (si hay una) — "Cancelar" la aborta. `null` cuando
+  // no se está generando, así que sirve también para decidir si mostrar el botón.
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [currentRecipe, setCurrentRecipe] = useState<AIRecipeResponse | null>(null);
@@ -52,6 +62,8 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
 
     setIsLoading(true);
     setCurrentRecipe(null);
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
       // 1. Generate Recipe Text
@@ -62,7 +74,8 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
         params.ingredients,
         params.servings,
         params.utensils,
-        params.hasKitchenRobot
+        params.hasKitchenRobot,
+        controller.signal
       );
       generatedRecipe.recipe_metadata.servings = params.servings;
 
@@ -105,7 +118,12 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       }
 
     } catch (err) {
-      if (err instanceof EmailNotVerifiedError) {
+      if (err instanceof RecipeGenerationCancelledError) {
+        // El propio usuario lo ha cancelado: sin toast de error ni log, y sin
+        // guardar nada — el cupo diario no se toca porque el guardado (más
+        // abajo en el try) nunca llega a ejecutarse.
+        showToast(t('app.generator.toastCancelled'), 'info');
+      } else if (err instanceof EmailNotVerifiedError) {
         showToast(t('app.generator.toastEmailNotVerified'), 'error');
       } else if (err instanceof PlanRequiredError) {
         showToast(t('app.generator.toastPlanRequired'), 'error');
@@ -116,10 +134,17 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
       } else {
         showToast(t('app.generator.toastGenericError'), 'error');
       }
-      console.error(err);
+      if (!(err instanceof RecipeGenerationCancelledError)) {
+        console.error(err);
+      }
     } finally {
+      abortControllerRef.current = null;
       setIsLoading(false);
     }
+  };
+
+  const handleCancelGeneration = () => {
+    abortControllerRef.current?.abort();
   };
 
   // Auto-trigger si se navega con state (Dashboard/ChefTableWidget pasan
@@ -172,7 +197,7 @@ const GeneratorPage: React.FC<Props> = ({ userProfile, session }) => {
   return (
     <div className="max-w-5xl mx-auto pb-20 animate-in fade-in duration-500">
       
-      <LoadingOverlay isVisible={isLoading} />
+      <LoadingOverlay isVisible={isLoading} onCancel={handleCancelGeneration} />
 
       {!currentRecipe ? (
         <div key="form" className="space-y-8 animate-in fade-in duration-300">

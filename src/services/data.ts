@@ -84,6 +84,18 @@ export const saveManualRecipeToDB = async (recipe: AIRecipeResponse, imageUrl: s
   }
 };
 
+export const setRecipeFavorite = (recipeId: number, isFavorite: boolean): Promise<{ is_favorite: boolean }> =>
+  apiFetch(`/api/recipes/${recipeId}/favorite`, { method: 'PATCH', body: { is_favorite: isFavorite } });
+
+// Sustituye TODAS las etiquetas de la receta por `tags` (no añade a las que
+// ya tenía) — coincide con lo que hace el servidor (`PUT`, no `PATCH`).
+export const setRecipeTags = (recipeId: number, tags: string[]): Promise<{ tags: string[] }> =>
+  apiFetch(`/api/recipes/${recipeId}/tags`, { method: 'PUT', body: { tags } });
+
+// Las etiquetas ya existentes del usuario, para sugerirlas al añadir una nueva
+// en vez de que tenga que escribirlas siempre desde cero.
+export const fetchUserTags = (): Promise<string[]> => apiFetch<string[]>('/api/recipes/tags');
+
 /* --- PREFERENCIAS --- */
 
 export const getUserPreferences = async (): Promise<UserProfile> => {
