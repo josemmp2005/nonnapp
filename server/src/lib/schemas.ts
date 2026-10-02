@@ -109,6 +109,16 @@ export const saveManualRecipeSchema = z.object({
   imageUrl: z.string().nullable().optional(),
 });
 
+export const setFavoriteSchema = z.object({
+  is_favorite: z.boolean(),
+});
+
+// Máximo 10 etiquetas de 40 caracteres — de sobra para organizar un recetario
+// personal, sin dejar que se convierta en un campo de texto libre disfrazado.
+export const setRecipeTagsSchema = z.object({
+  tags: z.array(z.string().trim().min(1).max(40)).max(10),
+});
+
 // --- ai ---
 
 export const generateRecipeSchema = z.object({

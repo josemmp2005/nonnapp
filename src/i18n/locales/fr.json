@@ -343,6 +343,7 @@
       "toastPlanRequired": "Le mode placard est disponible avec les offres La Mamma et La Nonna.",
       "toastOffTopic": "Nonna ne prépare que des recettes de cuisine. Dites-lui ce que vous voulez cuisiner ou quels ingrédients vous avez.",
       "toastAiRateLimited": "L'IA est très sollicitée en ce moment. Attends quelques secondes et réessaie.",
+      "toastCancelled": "Génération annulée",
       "toastGenericError": "Désolé, une erreur est survenue lors de la génération de votre recette. Veuillez réessayer.",
       "title": "Le laboratoire du chef",
       "subtitle": "Décrivez votre envie ou dites-nous quels ingrédients vous avez. L'IA créera la recette parfaite.",
@@ -355,6 +356,9 @@
     "recipeDisplay": {
       "chatLockedToast": "Le chat avec Nonna est disponible avec l'offre La Nonna. Passez à l'offre supérieure pour en profiter !",
       "chatLockedAria": "Chat avec Nonna (offre La Nonna)",
+      "favoriteAria": "Ajouter aux favoris",
+      "unfavoriteAria": "Retirer des favoris",
+      "tagsHeading": "Étiquettes",
       "copySuccess": "Recette copiée dans le presse-papiers",
       "copyError": "Impossible de copier la recette",
       "copyTimeLabel": "Temps",
@@ -464,6 +468,11 @@
       "subtitle": "Vos recettes générées par l'IA et celles que vous avez ajoutées",
       "tabGenerated": "Générées",
       "tabOwn": "Les miennes",
+      "onlyFavorites": "Favoris",
+      "filtersButton": "Filtres",
+      "clearFilters": "Réinitialiser",
+      "showResults_one": "Voir {{count}} recette",
+      "showResults_other": "Voir {{count}} recettes",
       "addRecipe": "Ajouter une recette",
       "ownCount": "{{count}} / {{limit}} recettes personnelles",
       "ownLockedTitle": "Les recettes personnelles sont réservées à La Mamma et La Nonna",
@@ -503,6 +512,7 @@
       "timePlaceholder": "ex. 30 min",
       "servingsLabel": "Portions",
       "imageLabel": "Photo (URL, facultatif)",
+      "tagsLabel": "Étiquettes (facultatif)",
       "imagePlaceholder": "https://...",
       "ingredientsHeading": "Ingrédients",
       "ingredientNameAria": "Nom de l'ingrédient",
@@ -535,7 +545,15 @@
       "notFoundError": "Recette introuvable.",
       "genericError": "Impossible de charger la recette.",
       "backToHistory": "Retour à l'historique",
-      "back": "Retour"
+      "back": "Retour",
+      "favoriteError": "Impossible de mettre à jour le favori",
+      "tagsError": "Impossible d'enregistrer les étiquettes"
+    },
+    "tagEditor": {
+      "placeholder": "Ajouter une étiquette...",
+      "inputAria": "Nouvelle étiquette",
+      "addAria": "Ajouter l'étiquette",
+      "removeAria": "Retirer l'étiquette {{tag}}"
     },
     "notFound": {
       "title": "Plat introuvable",
@@ -646,7 +664,8 @@
         "Ajustement des assaisonnements...",
         "Génération d'une image photoréaliste...",
         "Presque prêt à servir !"
-      ]
+      ],
+      "cancel": "Annuler"
     }
   }
 }

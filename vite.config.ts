@@ -17,6 +17,16 @@ export default defineConfig({
       // nunca las llamadas a /api/*, que siempre necesitan red real (auth,
       // generación de recetas, chat). Sin `runtimeCaching` para /api aquí a
       // propósito: así el service worker las deja pasar sin tocarlas.
+      workbox: {
+        // `navigateFallback` (el index.html que Workbox sirve para cualquier
+        // navegación de página completa que no sea un asset cacheado) debe
+        // excluir /api/* explícitamente: si no, cuando Google redirige de
+        // vuelta a /api/auth/google/callback con una navegación de página
+        // completa (no un fetch), el service worker la intercepta y sirve el
+        // SPA en vez de dejarla llegar al backend — React Router no reconoce
+        // esa ruta y pinta el 404 de la propia app.
+        navigateFallbackDenylist: [/^\/api\//],
+      },
       includeAssets: ['icons/apple-touch-icon.png'],
       manifest: {
         name: 'Nonnapp - Tu Chef IA Personal',

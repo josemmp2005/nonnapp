@@ -8,9 +8,11 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { X, Clock, Flame, Users, ChefHat, ArrowRight } from 'lucide-react';
 import type { RecipeDB } from '../types';
-import { getFullRecipeById } from '../services/data';
+import { getFullRecipeById, setRecipeFavorite } from '../services/data';
+import { useToast } from '../context/ToastContext';
 import { Modal } from './ui/Modal';
 import RecipeImage from './ui/RecipeImage';
+import { FavoriteButton } from './ui/FavoriteButton';
 
 interface Props {
   recipeId: number | string;
@@ -36,6 +38,7 @@ const IMAGE_HEIGHT_LIMIT = 'max-h-[calc(100vh-24rem)] lg:max-h-[calc(85vh-15rem)
 const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [recipe, setRecipe] = useState<RecipeDB | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -64,6 +67,18 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
   }, [recipeId, retryCount]);
 
   const meta = recipe?.recipe_metadata;
+
+  const handleToggleFavorite = async () => {
+    if (!recipe?.id) return;
+    const next = !recipe.is_favorite;
+    setRecipe((prev) => (prev ? { ...prev, is_favorite: next } : prev));
+    try {
+      await setRecipeFavorite(recipe.id, next);
+    } catch {
+      setRecipe((prev) => (prev ? { ...prev, is_favorite: !next } : prev));
+      showToast(t('app.recipeDetail.favoriteError'), 'error');
+    }
+  };
 
   return (
     <Modal
@@ -112,6 +127,12 @@ const RecipePreviewModal: React.FC<Props> = ({ recipeId, onClose }) => {
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              <FavoriteButton
+                isFavorite={!!recipe.is_favorite}
+                onToggle={handleToggleFavorite}
+                label={t(recipe.is_favorite ? 'app.recipeDisplay.unfavoriteAria' : 'app.recipeDisplay.favoriteAria')}
+                className="absolute top-3 left-3 p-2 w-9 h-9 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors"
+              />
               <button
                 onClick={onClose}
                 className="absolute top-3 right-3 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors"

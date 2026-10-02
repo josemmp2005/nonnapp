@@ -180,7 +180,7 @@ Frontend, backend y base de datos en tres servicios gratuitos. Backend y base de
    | `BREVO_API_KEY` / `BREVO_FROM` | Opcional — tu clave de Brevo y el remitente verificado, para que lleguen los emails de verdad (ver tabla de variables más abajo) |
    | `CORS_ORIGIN` / `APP_URL` | La URL de Netlify del paso 3 (se rellena después de crearla, y se vuelve a desplegar) |
    | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Opcional — login con Google (ver [Login con Google en producción](#login-con-google-en-producción)) |
-   | `GOOGLE_REDIRECT_URI` | Opcional en Render: si falta se deriva de `RENDER_EXTERNAL_URL` (que Render inyecta sola). Explícita sería `https://<tu-servicio>.onrender.com/api/auth/google/callback` |
+   | `GOOGLE_REDIRECT_URI` | Necesaria si usas login con Google: `https://<tu-dominio>.netlify.app/api/auth/google/callback` (el dominio de **Netlify**, no el de Render — ver [Login con Google en producción](#login-con-google-en-producción)). Si la dejas sin poner, se deriva de `RENDER_EXTERNAL_URL` y el login con Google falla siempre por el proxy |
 
    Render asigna su propio `PORT` (el servidor ya lo respeta vía `env.ts`) y expone la API en algo como `https://nonnapp-api.onrender.com`. El esquema de la BBDD se aplica solo al arrancar — no hace falta ningún paso manual. En el plan gratuito el servicio "duerme" tras 15 min sin tráfico y el primer request tras eso tarda ~30-50s en responder (arranque en frío) — normal, no es un fallo.
 
@@ -196,16 +196,18 @@ Login con Google y envío de emails son opcionales (ver tabla de variables más 
 
 ### Login con Google en producción
 
-El error más típico es **`Error 400: redirect_uri_mismatch`**: la URL de retorno que envía nuestro backend a Google no coincide, carácter por carácter, con ninguna de las registradas en el cliente OAuth. Checklist:
+**Importante con el proxy de Netlify activo (`public/_redirects`): `GOOGLE_REDIRECT_URI` tiene que apuntar al dominio de Netlify, NO al de Render.** El botón de Google abre `/api/auth/google` como una navegación normal (no un `fetch`), que pasa por el proxy de Netlify; ahí se guarda una cookie `state` (anti-CSRF) atada al dominio por el que llegó el navegador — es decir, al de Netlify. Si `GOOGLE_REDIRECT_URI` apunta a Render (el valor que se deriva solo de `RENDER_EXTERNAL_URL` si no lo defines explícito), Google devuelve al usuario directamente a `sabora.onrender.com`, un dominio distinto al que tiene la cookie `state` — esa cookie nunca llega, el backend la ve ausente y el login falla siempre (pantalla de error / 404 según el navegador), en cualquier plataforma, no solo iOS. Por el mismo motivo, la cookie de sesión final también quedaría atada a Render en vez de a Netlify, y las llamadas normales de la app (que sí van por el proxy) no la verían.
+
+Checklist:
 
 1. **Google Cloud Console → APIs y servicios → Credenciales →** tu *ID de cliente de OAuth* (tipo *Aplicación web*).
-2. En **"URI de redireccionamiento autorizados"** añade *exactamente* estas (mismo esquema `https`, mismo dominio de Render, sin barra final):
-   - `https://<tu-servicio>.onrender.com/api/auth/google/callback` — producción
+2. En **"URI de redireccionamiento autorizados"** añade *exactamente* estas (sin barra final):
+   - `https://<tu-dominio>.netlify.app/api/auth/google/callback` — producción (el dominio real de Netlify, no el de Render)
    - `http://localhost:3001/api/auth/google/callback` — desarrollo local
    
    Los "Orígenes autorizados de JavaScript" no hacen falta: el flujo es de servidor. Los cambios en Google pueden tardar unos minutos en aplicarse.
-3. En Render define `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` y vuelve a desplegar. `GOOGLE_REDIRECT_URI` es opcional (se deriva de `RENDER_EXTERNAL_URL`); si la pones, que sea idéntica a la registrada en el paso 2.
-4. Al arrancar, el backend escribe en el log `🔑 Login con Google activo — redirect_uri: …` con la URL **exacta** que envía (y avisa con un ⚠️ si en producción apunta a `localhost`). Esa es la que tiene que estar en Google.
+3. En Render define `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` **y `GOOGLE_REDIRECT_URI`** (esta última de forma explícita — no la dejes derivarse sola de `RENDER_EXTERNAL_URL`) con el mismo valor del dominio de Netlify del paso 2, y vuelve a desplegar.
+4. Al arrancar, el backend escribe en el log `🔑 Login con Google activo — redirect_uri: …` con la URL **exacta** que envía (y avisa con un ⚠️ si en producción apunta a `localhost`). Tiene que ser la de Netlify, y coincidir con la registrada en Google.
 5. Si sigue fallando: en la pantalla de error de Google → *"detalles del error"* → copia el `redirect_uri` que recibió y regístralo tal cual, o corrige `GOOGLE_REDIRECT_URI` para que coincida.
 6. Con la pantalla de consentimiento en modo *Prueba*, solo pueden entrar las cuentas añadidas como *usuarios de prueba* (error distinto: `access_denied`).
 
@@ -224,10 +226,11 @@ Fuente de verdad: [`server/src/schema.sql`](server/src/schema.sql).
 | `login_throttle` | Contador de fallos de login y `locked_until` por email normalizado. Sin FK a `users` a propósito: un email inexistente se bloquea igual que uno real (no delata qué cuentas existen). Se vacía con un login correcto o al restablecer la contraseña; las filas de más de 24 h se purgan solas |
 | `subscriptions` | Plan activo del usuario (`nipote` / `mamma` / `nonna`) |
 | `user_profiles` | Preferencias del chef IA: alergias, ingredientes que no gustan, nivel de habilidad |
-| `recipes` | Cabecera de cada receta generada (título, descripción, macros, imagen...) |
+| `recipes` | Cabecera de cada receta (título, descripción, macros, imagen, `is_favorite`...), generada o del recetario propio |
 | `recipe_steps` | Pasos de una receta |
 | `ingredients` / `recipe_ingredients` | Catálogo de ingredientes y su relación (con cantidad) con cada receta |
 | `utensils` / `recipe_utensils` | Igual que ingredientes, para utensilios |
+| `tags` / `recipe_tags` | Etiquetas **propias de cada usuario** (`UNIQUE(user_id, name)`, a diferencia de `ingredients`/`utensils` que son catálogos compartidos) y su relación con cada receta |
 
 No hay ORM ni migraciones versionadas todavía: `schema.sql` usa `CREATE TABLE IF NOT EXISTS`, así que es seguro volver a ejecutar `npm run db:init`.
 
@@ -252,7 +255,11 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 | GET | `/api/recipes/recent` | ✔ + verificado | Últimas 3 recetas del usuario (Dashboard) |
 | GET | `/api/recipes/history` | ✔ + verificado | Historial completo del usuario |
 | GET | `/api/recipes/:id` | ✔ + verificado | Receta completa (pasos, ingredientes, utensilios) — 404 si no es tuya |
+| GET | `/api/recipes/tags` | ✔ + verificado | Etiquetas propias del usuario (para sugerirlas al filtrar/etiquetar) |
 | POST | `/api/recipes` | ✔ + verificado | Guarda una receta generada (aplica el límite diario del plan gratis) |
+| POST | `/api/recipes/manual` | ✔ + verificado + `mamma`/`nonna` | Guarda una receta del recetario propio (tope de 5 para `mamma`, sin límite para `nonna`) |
+| PATCH | `/api/recipes/:id/favorite` | ✔ + verificado | Marca/desmarca como favorita — 404 si no es tuya |
+| PUT | `/api/recipes/:id/tags` | ✔ + verificado | Sustituye el conjunto de etiquetas de la receta (máximo 10) — 404 si no es tuya |
 | GET | `/api/profile/preferences` | ✔ + verificado | Preferencias del chef + si el plan es "pro" |
 | PUT | `/api/profile/preferences` | ✔ + verificado (+ Mamma/Nonna si `allergies`/`disliked_ingredients` no van vacíos) | Guarda preferencias |
 | GET | `/api/subscription` | ✔ + verificado | Plan activo |
@@ -283,6 +290,8 @@ Todas las rutas (salvo `/api/auth/signup`, `/login`, `/forgot-password`, `/reset
 - **Alergias/ingredientes no deseados nunca se leen del cliente**: `POST /api/ai/generate-recipe` los saca de `user_profiles` en BBDD usando `req.userId`, no de un `userProfile` mandado en el body (ese campo se quitó del schema). Es a propósito — el estado de React de la página de Preferencias cambia con cada tecla, se guarde o no, así que confiar en lo que mande el cliente habría dejado sin efecto el bloqueo de `PUT /preferences` para Il Nipote. Si el plan activo es `nipote`, tanto `GET /preferences` como la generación fuerzan esos campos a vacío aunque hubiera datos guardados de un plan de pago anterior.
 - **Recetario propio**: `POST /api/recipes/manual` guarda una receta escrita a mano, sin pasar por Groq. `saveRecipe` (`server/src/lib/recipes.ts`) toma un parámetro `source: 'ai' | 'manual'` — con `'manual'` se salta el chequeo del límite diario de IA y se inserta con `is_ai_generated=false, source_origin='manual'` (con `'ai'`, exactamente el mismo comportamiento que antes). El chequeo del límite diario de Il Nipote filtra explícitamente por `is_ai_generated = true`: antes de esto, una receta propia contaba contra el cupo de 2 recetas de IA al día sin haber llamado a Groq ni una vez (lo detectó el propio test al escribirlo, no una revisión manual). El formulario (`saveManualRecipeSchema`) exige al menos un ingrediente y un paso — a diferencia del de la IA, donde nunca faltan porque los pone Groq.
   - **Gated por plan** (escalón de planes, no de coste): la ruta monta `requirePlan('mamma', 'nonna')` antes de nada, así que Il Nipote recibe 403 `PLAN_REQUIRED` sin llegar a `saveRecipe`. Dentro de `saveRecipe`, si el plan es `'mamma'` se cuentan sus recetas propias totales (`is_ai_generated = false`, sin ventana de fecha — es un tope acumulado, no diario) y a partir de 5 se lanza `OwnRecipeLimitExceededError` → 403 `OWN_RECIPE_LIMIT_EXCEEDED` con el `limit` en el body; `'nonna'` no tiene tope. El frontend (`SubscriptionContext.tsx`, campo `maxOwnRecipes`) repite el mismo límite solo para pintar la interfaz (botón oculto, aviso de tope, pantalla de candado en `/app/recipes/new` si se entra por URL directa) — la autoridad real es el servidor.
+- **Cancelar la generación**: `AbortController` creado en `GeneratorPage.tsx` antes de llamar a `generateRecipeAI(..., signal)`; la señal viaja por `services/ai.ts` → `apiFetch` (`services/api.ts`, campo `signal` en `RequestOptions`) hasta el `fetch` real. Si se aborta mientras la petición espera en `utils/rateLimiter.ts` (el espaciador de 5s entre llamadas a Groq), no hace falta tocar la cola: al llegarle el turno, `fetch` ve la señal ya abortada y rechaza al instante sin llegar a la red. `services/ai.ts` distingue el `AbortError` del resto de errores (`RecipeGenerationCancelledError`) para no mostrarlo como un fallo ni registrarlo en consola. Como el guardado (`saveRecipeToDB`) va DESPUÉS de la generación en `handleGenerate`, cancelar antes de que termine implica que nunca se llega a guardar nada — así que tampoco gasta el límite diario, sin necesidad de ningún código extra para garantizarlo.
+- **Favoritos y etiquetas**: sin gating de plan, iguales para los tres. `recipes.is_favorite` (booleano) se cambia con `PATCH /api/recipes/:id/favorite`, comprobando propiedad (404 si no es tuya). Las etiquetas son **propias de cada usuario** (tabla `tags`, `UNIQUE(user_id, name)` — el "cena" de una cuenta no es la misma fila que el de otra) enlazadas a las recetas por `recipe_tags`; `PUT /api/recipes/:id/tags` (`server/src/lib/tags.ts`, `setRecipeTags`) sustituye el conjunto completo en una transacción (da de alta las que falten, reengancha las que ya existían, borra las que sobran), nunca añade a las que ya tenía. `GET /api/recipes/tags` lista el vocabulario del usuario, para sugerir en vez de escribir cada etiqueta desde cero. Las listas (`/recent`, `/history`) traen las etiquetas ya agregadas en la misma consulta (`array_agg` + `GROUP BY r.id` — Postgres permite seleccionar el resto de columnas de `r` sin agregarlas, al depender funcionalmente de la clave primaria). El frontend hace actualización optimista en ambos (el corazón se rellena y el chip aparece al instante) y revierte si la petición falla.
 - **Fuera de alcance por ahora** (decisiones tomadas conscientemente, no descuidos): ver [Implementaciones futuras](#implementaciones-futuras).
 
 ## Escalabilidad
@@ -308,7 +317,6 @@ Lista de trabajo actual, con el punto de partida técnico de cada una. La versi�
 | **Planificador semanal** | Construido pero apagado: backend `server/src/routes/planner.ts` (`GET /api/planner`, `PUT /api/planner/slot`, `GET /api/planner/shopping-list`; tabla `weekly_plan_items`, solo plan Nonna) y pantalla `src/components/PlannerPage.tsx`. Se activa poniendo `PLANNER_ENABLED = true` **en los dos archivos** (mientras esté a `false` el servidor responde 503 `PLANNER_NOT_AVAILABLE`). Falta el pulido visual y anunciarlo |
 | **Panel para el administrador** | No existe: `users` no tiene campo de rol ni hay rutas/pantallas de administración. Haría falta una columna de rol, un middleware `requireAdmin` junto a `requireAuth` y las pantallas en el frontend |
 | **Avatar de usuario** | `users.avatar_url` ya existe (las cuentas de Google lo rellenan) y se muestra en `Sidebar` y `ProfileEditPage`; falta la subida. Hay que decidir dónde guardar los ficheros: el disco del plan gratuito de Render no es persistente, así que haría falta almacenamiento externo |
-| **Botón de cancelar receta** | Hoy `POST /api/ai/generate-recipe` no se puede abortar desde la interfaz: ni `services/api.ts` usa `AbortController` ni `LoadingOverlay` tiene botón de cancelar. Habría que pasar una `signal` al `fetch` y añadir el botón al overlay |
 | **Más imágenes** | Las fotos de receta salen de un banco curado de Unsplash en `server/src/lib/recipeImages.ts` (elegida por palabras clave; la cabecera del fichero explica cómo ampliarlo y `tests/recipeImages.test.ts` valida el formato, no que las URLs sigan vivas) |
 | **2FA** | Sin implementar por decisión propia. Natural: TOTP sobre el flujo de `/login` (secreto cifrado por usuario, códigos de recuperación y un paso extra tras la contraseña) |
 | Otras | Persistencia del chat del chef y de la lista de la compra, mostrar en el login los segundos que faltan del bloqueo por intentos (el servidor ya manda `retryAfterSeconds`), traducir los errores del servidor |

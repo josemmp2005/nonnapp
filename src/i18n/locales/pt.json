@@ -343,6 +343,7 @@
       "toastPlanRequired": "O modo despensa está disponível nos planos La Mamma e La Nonna.",
       "toastOffTopic": "A Nonna só prepara receitas de cozinha. Conta-lhe o que queres cozinhar ou que ingredientes tens.",
       "toastAiRateLimited": "A IA está com muita procura agora. Espera uns segundos e tenta novamente.",
+      "toastCancelled": "Geração cancelada",
       "toastGenericError": "Desculpa, ocorreu um erro ao gerar a tua receita. Tenta novamente.",
       "title": "O Laboratório do Chef",
       "subtitle": "Descreve o que te apetece ou diz-nos que ingredientes tens. A IA vai criar a receita perfeita.",
@@ -355,6 +356,9 @@
     "recipeDisplay": {
       "chatLockedToast": "O chat com a Nonna está disponível no plano La Nonna. Faz upgrade para aproveitares!",
       "chatLockedAria": "Chat com a Nonna (plano La Nonna)",
+      "favoriteAria": "Adicionar aos favoritos",
+      "unfavoriteAria": "Remover dos favoritos",
+      "tagsHeading": "Etiquetas",
       "copySuccess": "Receita copiada para a área de transferência",
       "copyError": "Não foi possível copiar a receita",
       "copyTimeLabel": "Tempo",
@@ -464,6 +468,11 @@
       "subtitle": "As tuas receitas geradas pela IA e as que tu próprio adicionaste",
       "tabGenerated": "Geradas",
       "tabOwn": "Próprias",
+      "onlyFavorites": "Favoritas",
+      "filtersButton": "Filtros",
+      "clearFilters": "Limpar",
+      "showResults_one": "Ver {{count}} receita",
+      "showResults_other": "Ver {{count}} receitas",
       "addRecipe": "Adicionar receita",
       "ownCount": "{{count}} / {{limit}} receitas próprias",
       "ownLockedTitle": "As receitas próprias são de La Mamma e La Nonna",
@@ -503,6 +512,7 @@
       "timePlaceholder": "ex. 30 min",
       "servingsLabel": "Doses",
       "imageLabel": "Foto (URL, opcional)",
+      "tagsLabel": "Etiquetas (opcional)",
       "imagePlaceholder": "https://...",
       "ingredientsHeading": "Ingredientes",
       "ingredientNameAria": "Nome do ingrediente",
@@ -535,7 +545,15 @@
       "notFoundError": "Receita não encontrada.",
       "genericError": "Não foi possível carregar a receita.",
       "backToHistory": "Voltar ao histórico",
-      "back": "Voltar"
+      "back": "Voltar",
+      "favoriteError": "Não foi possível atualizar o favorito",
+      "tagsError": "Não foi possível guardar as etiquetas"
+    },
+    "tagEditor": {
+      "placeholder": "Adicionar etiqueta...",
+      "inputAria": "Nova etiqueta",
+      "addAria": "Adicionar etiqueta",
+      "removeAria": "Remover etiqueta {{tag}}"
     },
     "notFound": {
       "title": "Prato não encontrado",
@@ -646,7 +664,8 @@
         "A ajustar os temperos...",
         "A gerar uma imagem fotorrealista...",
         "Quase pronto a servir!"
-      ]
+      ],
+      "cancel": "Cancelar"
     }
   }
 }

@@ -9,7 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import RecipeDisplay from './RecipeDisplay';
 import LoadingOverlay from './LoadingOverlay';
-import { getFullRecipeById } from '../services/data';
+import { getFullRecipeById, setRecipeFavorite, setRecipeTags, fetchUserTags } from '../services/data';
+import { useToast } from '../context/ToastContext';
 import type{ RecipeDB } from '../types';
 
 const RecipeDetailPage: React.FC = () => {
@@ -17,7 +18,9 @@ const RecipeDetailPage: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { showToast } = useToast();
   const [recipe, setRecipe] = useState<RecipeDB | null>(null);
+  const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +48,42 @@ const RecipeDetailPage: React.FC = () => {
     fetchRecipe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, location.state]);
+
+  // Las recetas de "La Mesa de la Nonna" llegan por location.state (contenido
+  // estático de src/data/chefTableContent.ts, con ids inventados) — no existen
+  // de verdad en la base de datos, así que no se pueden marcar como favoritas
+  // ni etiquetar (la API respondería 404).
+  const isRealSavedRecipe = !!recipe?.id && !location.state?.recipeData;
+
+  useEffect(() => {
+    if (!isRealSavedRecipe) return;
+    fetchUserTags().then(setTagSuggestions).catch(() => {});
+  }, [isRealSavedRecipe]);
+
+  const handleToggleFavorite = async () => {
+    if (!recipe?.id) return;
+    const next = !recipe.is_favorite;
+    setRecipe((prev) => (prev ? { ...prev, is_favorite: next } : prev));
+    try {
+      await setRecipeFavorite(recipe.id, next);
+    } catch {
+      setRecipe((prev) => (prev ? { ...prev, is_favorite: !next } : prev));
+      showToast(t('app.recipeDetail.favoriteError'), 'error');
+    }
+  };
+
+  const handleSaveTags = async (newTags: string[]) => {
+    if (!recipe?.id) return;
+    const previousTags = recipe.tags ?? [];
+    setRecipe((prev) => (prev ? { ...prev, tags: newTags } : prev));
+    try {
+      await setRecipeTags(recipe.id, newTags);
+      setTagSuggestions((prev) => [...new Set([...prev, ...newTags])].sort());
+    } catch {
+      setRecipe((prev) => (prev ? { ...prev, tags: previousTags } : prev));
+      showToast(t('app.recipeDetail.tagsError'), 'error');
+    }
+  };
 
   if (loading) {
     return <LoadingOverlay isVisible={true} />;
@@ -75,10 +114,15 @@ const RecipeDetailPage: React.FC = () => {
         {t('app.recipeDetail.back')}
       </button>
 
-      <RecipeDisplay 
-        recipe={recipe} 
+      <RecipeDisplay
+        recipe={recipe}
         imageUrl={recipe.main_image_url || null}
-        onGenerateAgain={() => navigate('/app')} 
+        onGenerateAgain={() => navigate('/app')}
+        isFavorite={isRealSavedRecipe ? recipe.is_favorite : undefined}
+        onToggleFavorite={isRealSavedRecipe ? handleToggleFavorite : undefined}
+        tags={isRealSavedRecipe ? (recipe.tags ?? []) : undefined}
+        tagSuggestions={tagSuggestions}
+        onSaveTags={isRealSavedRecipe ? handleSaveTags : undefined}
       />
     </div>
   );

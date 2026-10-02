@@ -1,17 +1,22 @@
 /**
  * Pantalla completa de carga mientras la IA genera una receta (animación de
- * cocina y mensajes rotativos).
+ * cocina y mensajes rotativos), con botón opcional para cancelar.
  */
 
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { X } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface Props {
   isVisible: boolean;
+  // Sin `onCancel`, no se pinta ningún botón — las pantallas que reutilizan
+  // este overlay para una carga que no se puede interrumpir (p. ej. abrir una
+  // receta ya guardada) no cambian de comportamiento.
+  onCancel?: () => void;
 }
 
-const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
+const LoadingOverlay: React.FC<Props> = ({ isVisible, onCancel }) => {
   const { t } = useTranslation();
   const messages = t('app.loadingOverlay.messages', { returnObjects: true }) as string[];
   const [messageIndex, setMessageIndex] = useState(0);
@@ -74,6 +79,17 @@ const LoadingOverlay: React.FC<Props> = ({ isVisible }) => {
         <div className="mt-8 w-64 bg-primary/10 rounded-full h-1.5 overflow-hidden transition-colors">
           <div className="bg-primary h-full rounded-full animate-progress-indeterminate w-1/3"></div>
         </div>
+
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="mt-8 flex items-center gap-1.5 text-sm font-medium text-muted dark:text-muted-dark hover:text-ink dark:hover:text-ink-light transition-colors"
+          >
+            <X aria-hidden="true" className="w-4 h-4" />
+            {t('app.loadingOverlay.cancel')}
+          </button>
+        )}
       </div>
     </div>
   );

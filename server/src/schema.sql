@@ -115,6 +115,12 @@ CREATE TABLE IF NOT EXISTS recipes (
 -- user_id + created_at cubre: "mis recetas recientes" y el conteo del límite diario.
 CREATE INDEX IF NOT EXISTS idx_recipes_user_created ON recipes(user_id, created_at DESC);
 
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN NOT NULL DEFAULT false;
+
+-- Índice parcial: solo indexa las filas favoritas (pocas, normalmente), de
+-- sobra para "filtrar mis favoritas" sin pagar el coste de un índice completo.
+CREATE INDEX IF NOT EXISTS idx_recipes_user_favorite ON recipes(user_id) WHERE is_favorite = true;
+
 CREATE TABLE IF NOT EXISTS recipe_steps (
   id SERIAL PRIMARY KEY,
   recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
@@ -148,6 +154,25 @@ CREATE TABLE IF NOT EXISTS recipe_utensils (
   utensil_id INTEGER NOT NULL REFERENCES utensils(id) ON DELETE CASCADE,
   PRIMARY KEY (recipe_id, utensil_id)
 );
+
+-- Etiquetas propias del usuario (a diferencia de ingredients/utensils, que son
+-- catálogos compartidos entre todos): cada usuario tiene su propio vocabulario
+-- de etiquetas, así que "cena" de un usuario no es la misma fila que "cena" de
+-- otro — de ahí el UNIQUE por (user_id, name) en vez de solo por name.
+CREATE TABLE IF NOT EXISTS tags (
+  id SERIAL PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  UNIQUE (user_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS recipe_tags (
+  recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (recipe_id, tag_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_recipe_tags_tag_id ON recipe_tags(tag_id);
 
 -- Suscripción "nipote" (free) automática al registrarse. Se hace en el
 -- backend (routes/auth.ts) dentro de la misma transacción del signup,

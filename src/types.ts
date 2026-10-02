@@ -77,6 +77,8 @@ export interface RecipeDB extends AIRecipeResponse {
   main_image_url?: string;
   created_at?: string;
   is_ai_generated?: boolean;
+  is_favorite?: boolean;
+  tags?: string[];
 }
 
 export interface GenerationParams {
