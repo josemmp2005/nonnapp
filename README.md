@@ -180,7 +180,7 @@ Frontend, backend y base de datos en tres servicios gratuitos. Backend y base de
    | `BREVO_API_KEY` / `BREVO_FROM` | Opcional — tu clave de Brevo y el remitente verificado, para que lleguen los emails de verdad (ver tabla de variables más abajo) |
    | `CORS_ORIGIN` / `APP_URL` | La URL de Netlify del paso 3 (se rellena después de crearla, y se vuelve a desplegar) |
    | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Opcional — login con Google (ver [Login con Google en producción](#login-con-google-en-producción)) |
-   | `GOOGLE_REDIRECT_URI` | Opcional en Render: si falta se deriva de `RENDER_EXTERNAL_URL` (que Render inyecta sola). Explícita sería `https://<tu-servicio>.onrender.com/api/auth/google/callback` |
+   | `GOOGLE_REDIRECT_URI` | Necesaria si usas login con Google: `https://<tu-dominio>.netlify.app/api/auth/google/callback` (el dominio de **Netlify**, no el de Render — ver [Login con Google en producción](#login-con-google-en-producción)). Si la dejas sin poner, se deriva de `RENDER_EXTERNAL_URL` y el login con Google falla siempre por el proxy |
 
    Render asigna su propio `PORT` (el servidor ya lo respeta vía `env.ts`) y expone la API en algo como `https://nonnapp-api.onrender.com`. El esquema de la BBDD se aplica solo al arrancar — no hace falta ningún paso manual. En el plan gratuito el servicio "duerme" tras 15 min sin tráfico y el primer request tras eso tarda ~30-50s en responder (arranque en frío) — normal, no es un fallo.
 
@@ -196,16 +196,18 @@ Login con Google y envío de emails son opcionales (ver tabla de variables más 
 
 ### Login con Google en producción
 
-El error más típico es **`Error 400: redirect_uri_mismatch`**: la URL de retorno que envía nuestro backend a Google no coincide, carácter por carácter, con ninguna de las registradas en el cliente OAuth. Checklist:
+**Importante con el proxy de Netlify activo (`public/_redirects`): `GOOGLE_REDIRECT_URI` tiene que apuntar al dominio de Netlify, NO al de Render.** El botón de Google abre `/api/auth/google` como una navegación normal (no un `fetch`), que pasa por el proxy de Netlify; ahí se guarda una cookie `state` (anti-CSRF) atada al dominio por el que llegó el navegador — es decir, al de Netlify. Si `GOOGLE_REDIRECT_URI` apunta a Render (el valor que se deriva solo de `RENDER_EXTERNAL_URL` si no lo defines explícito), Google devuelve al usuario directamente a `sabora.onrender.com`, un dominio distinto al que tiene la cookie `state` — esa cookie nunca llega, el backend la ve ausente y el login falla siempre (pantalla de error / 404 según el navegador), en cualquier plataforma, no solo iOS. Por el mismo motivo, la cookie de sesión final también quedaría atada a Render en vez de a Netlify, y las llamadas normales de la app (que sí van por el proxy) no la verían.
+
+Checklist:
 
 1. **Google Cloud Console → APIs y servicios → Credenciales →** tu *ID de cliente de OAuth* (tipo *Aplicación web*).
-2. En **"URI de redireccionamiento autorizados"** añade *exactamente* estas (mismo esquema `https`, mismo dominio de Render, sin barra final):
-   - `https://<tu-servicio>.onrender.com/api/auth/google/callback` — producción
+2. En **"URI de redireccionamiento autorizados"** añade *exactamente* estas (sin barra final):
+   - `https://<tu-dominio>.netlify.app/api/auth/google/callback` — producción (el dominio real de Netlify, no el de Render)
    - `http://localhost:3001/api/auth/google/callback` — desarrollo local
    
    Los "Orígenes autorizados de JavaScript" no hacen falta: el flujo es de servidor. Los cambios en Google pueden tardar unos minutos en aplicarse.
-3. En Render define `GOOGLE_CLIENT_ID` y `GOOGLE_CLIENT_SECRET` y vuelve a desplegar. `GOOGLE_REDIRECT_URI` es opcional (se deriva de `RENDER_EXTERNAL_URL`); si la pones, que sea idéntica a la registrada en el paso 2.
-4. Al arrancar, el backend escribe en el log `🔑 Login con Google activo — redirect_uri: …` con la URL **exacta** que envía (y avisa con un ⚠️ si en producción apunta a `localhost`). Esa es la que tiene que estar en Google.
+3. En Render define `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` **y `GOOGLE_REDIRECT_URI`** (esta última de forma explícita — no la dejes derivarse sola de `RENDER_EXTERNAL_URL`) con el mismo valor del dominio de Netlify del paso 2, y vuelve a desplegar.
+4. Al arrancar, el backend escribe en el log `🔑 Login con Google activo — redirect_uri: …` con la URL **exacta** que envía (y avisa con un ⚠️ si en producción apunta a `localhost`). Tiene que ser la de Netlify, y coincidir con la registrada en Google.
 5. Si sigue fallando: en la pantalla de error de Google → *"detalles del error"* → copia el `redirect_uri` que recibió y regístralo tal cual, o corrige `GOOGLE_REDIRECT_URI` para que coincida.
 6. Con la pantalla de consentimiento en modo *Prueba*, solo pueden entrar las cuentas añadidas como *usuarios de prueba* (error distinto: `access_denied`).
 
